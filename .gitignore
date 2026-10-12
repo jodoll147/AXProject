@@ -15,3 +15,10 @@ Thumbs.db
 
 # Local HTML edit backups
 work/screen_template.*-before-*.html
+
+# Local project records and design documents (README stays tracked)
+docs/
+outputs/*.md
+outputs/*.docx
+/조선_AX_요구사항_분석.md
+/조선_AX_목업데이터_ERD.svg
