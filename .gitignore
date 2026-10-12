@@ -1,0 +1,17 @@
+# Dependencies and build output
+app/frontend/node_modules/
+app/frontend/dist/
+app/backend/bin/
+app/backend/obj/
+
+# Runtime and local files
+*.log
+*.err.log
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+
+# Local HTML edit backups
+work/screen_template.*-before-*.html
