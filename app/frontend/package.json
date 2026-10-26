@@ -4,7 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "predev": "node ../../work/sync_frontend.mjs",
     "dev": "vite",
+    "prebuild": "node ../../work/sync_frontend.mjs",
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview"

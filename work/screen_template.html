@@ -408,6 +408,22 @@ select option{background:var(--panel-2)}
 .res b.big{font-size:16px;color:var(--c)}
 .res .kl{flex-direction:column;gap:0;justify-content:flex-start}
 .res .kl b{text-align:left;font:600 12.5px var(--mono)}
+.upload-preview{grid-column:1/-1;min-width:0}
+.upload-preview .card-h{flex-wrap:wrap}
+.upload-preview .tbl-wrap{max-height:530px}
+.upload-preview .tbl th,.upload-preview .tbl td{padding:5px;min-width:145px}
+.upload-preview .tbl th:first-child,.upload-preview .tbl td:first-child{position:sticky;left:0;z-index:2;min-width:74px;width:74px;text-align:center;background:var(--panel-2)}
+.upload-preview .tbl th:first-child{z-index:3}
+.upload-preview .row-del{margin-left:5px;border:0;background:transparent;color:var(--muted);cursor:pointer}
+.upload-preview .row-del:hover{color:var(--fault)}
+.upload-preview input{box-sizing:border-box;width:100%;min-width:125px;padding:8px 9px;border-radius:7px;border:1px solid transparent;background:transparent;color:var(--text);font:12px var(--mono);outline:none}
+.upload-preview .cell-ok input{border-color:color-mix(in srgb,var(--ok) 48%,var(--line));background:color-mix(in srgb,var(--ok) 11%,var(--panel))}
+.upload-preview .cell-fault input{border-color:var(--fault);background:color-mix(in srgb,var(--fault) 17%,var(--panel))}
+.upload-preview input:focus{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 20%,transparent)}
+.upload-preview .up-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:13px 0 0}
+.upload-preview .up-actions small{color:var(--muted)}
+.upload-preview .up-errors{max-height:180px;overflow:auto;margin-top:10px;color:var(--fault);font-size:12px}
+.upload-preview .up-errors div{padding:3px 0}
 .sec-t{display:flex;align-items:center;gap:8px;margin:0 0 10px;font-size:14px;font-weight:700}
 .sec-t .ic{width:16px;height:16px;color:var(--muted)}
 .sum-row{display:grid;grid-template-columns:92px minmax(0,1fr);gap:12px;padding:11px 13px;border-radius:11px;background:var(--panel-2);border:1px solid var(--line)}
@@ -460,8 +476,6 @@ select option{background:var(--panel-2)}
 .flow-focus .card-h h2 .ic{width:20px;height:20px;color:var(--accent)}
 .flow-focus .lay-wrap{padding:22px 6px 10px}
 .flow-focus .lay>svg g{stroke-width:3}
-.flow-focus .zbox{box-shadow:0 8px 22px rgba(0,0,0,.23)}
-.flow-focus .zbox.prob{box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 35%,transparent),0 0 28px -5px color-mix(in srgb,var(--c) 78%,transparent)}
 .watch-panel{margin-top:16px;padding:18px 20px}
 .watch-panel .card-h h2{font-size:17px}
 .watch-panel .card-h h2 .ic{color:var(--hold)}
@@ -496,6 +510,7 @@ select option{background:var(--panel-2)}
 .qf select,.qf input{height:40px;padding:0 12px;border-radius:10px;border:1px solid var(--line-2);background:var(--bg);color:var(--text);font:500 13.5px var(--sans)}
 .qf select{appearance:none;-webkit-appearance:none;padding-right:30px;background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236e7583' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;min-width:200px}
 .qf select:disabled{opacity:.45}
+.qf input[aria-invalid=true]{border-color:var(--fault)}
 .qf input[type=date]::-webkit-calendar-picker-indicator{opacity:.6;cursor:pointer}
 .qf input[type=search]{min-width:200px}
 .qf .dr{display:flex;align-items:center;gap:6px;color:var(--muted)}
@@ -548,29 +563,36 @@ select option{background:var(--panel-2)}
 @media (max-width:1180px){.mgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.today,.dcols,.two{grid-template-columns:minmax(0,1fr)}.dtiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:680px){.topnav .brand{flex:1}.topnav .right{width:100%;justify-content:stretch}.topnav .calc{display:none}.topnav .time{flex:1 1 100%}.topnav .right>a.btn{flex:1}.mgrid,.watch-grid{grid-template-columns:1fr}.mt{padding:12px}.mt .mv b{font-size:34px}.mt.primary .mv b{font-size:40px}.qf select,.qf input[type=search]{min-width:0;width:100%}.qf{flex:1 1 100%;min-width:0}.qf .seg{flex-wrap:wrap}.qf .dr{flex-wrap:wrap}.view{padding:12px 14px 22px}.topnav{padding:10px 14px}.tabs{margin-left:0}.flow{grid-template-columns:repeat(3,minmax(0,1fr))}.dtiles{grid-template-columns:1fr}.tw{grid-template-columns:30px 50px minmax(0,1fr) 90px}.tw .pn+.pn{display:none}.eqs{grid-template-columns:repeat(2,minmax(0,1fr))}}
 a.btn{text-decoration:none}
-.lay-wrap{overflow-x:auto;margin:0 -4px;padding:12px 4px 4px}
-.lay{position:relative;width:100%;min-width:640px;aspect-ratio:940/330;color:var(--muted)}
-.lay>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-.zbox{position:absolute;display:flex;flex-direction:column;justify-content:center;gap:5px;min-width:0;padding:8px 14px;border-radius:12px;border:2px solid color-mix(in srgb,var(--c) 60%,transparent);background:color-mix(in srgb,var(--c) 14%,var(--panel));color:var(--text);text-decoration:none;transition:border-color .15s,transform .12s}
-.zbox:hover{border-color:var(--c);transform:translateY(-1px)}
-.zbox.idle,.zbox.plan{border-color:var(--line-2);background:var(--panel-2)}
-.zbox.plan{border-style:dashed}
-.zbox.prob{box-shadow:0 0 22px -6px color-mix(in srgb,var(--c) 75%,transparent)}
-.zt{display:flex;align-items:baseline;gap:8px;min-width:0;padding-right:30px}
+.lay-wrap{overflow-x:auto;margin:0 -4px;padding:18px 4px 16px}
+.lay{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:38px 30px;width:100%;min-width:760px;color:var(--muted)}
+.zbox{position:relative;display:block;min-width:0;height:174px;color:var(--text);text-decoration:none;filter:drop-shadow(0 11px 10px rgba(0,0,0,.47));transition:transform .18s,filter .18s}
+.zbox:hover,.zbox:focus-visible{transform:translateY(-5px);filter:drop-shadow(0 18px 13px rgba(0,0,0,.57)) drop-shadow(0 0 8px color-mix(in srgb,var(--c) 48%,transparent))}
+.zcube{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.zface{stroke:color-mix(in srgb,var(--c) 55%,#526577);stroke-opacity:.72;stroke-width:1.5;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.zface-front{fill:color-mix(in srgb,var(--c) 48%,#24313f);fill-opacity:.34}
+.zface-left{fill:color-mix(in srgb,var(--c) 62%,#334858);fill-opacity:.42}
+.zface-floor{fill:color-mix(in srgb,var(--c) 48%,#1c2c3b);fill-opacity:.28}
+.zbox.plan .zface{stroke-dasharray:5 3}
+.zbox.prob .zface-front{fill-opacity:.42}
+.zcontent{position:absolute;left:21%;right:2%;top:1%;bottom:31%;display:flex;flex-direction:column;justify-content:center;gap:5px;min-width:0;padding:5px 7px}
+.zt{display:flex;align-items:center;gap:5px;min-width:0;padding-right:22px}
+.zt>.ic{width:15px;height:15px;flex:none;color:var(--c);stroke-width:2}
 .zt b{font-size:14px;font-weight:700;white-space:nowrap}
 .zt small{font:500 11px var(--mono);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.zs{display:flex;align-items:center;gap:6px;min-width:0;font-size:12.5px;font-weight:700;color:var(--c);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.zs{display:flex;align-items:center;gap:3px;min-width:0;font-size:11.5px;font-weight:700;color:var(--c);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .zs .ic{width:14px;height:14px}
 .zbox.idle .zs,.zbox.plan .zs{color:var(--muted)}
-.zs .mini{flex:0 0 60px}
+.zs .mini{flex:0 0 34px}
 .zeq{display:flex;flex-wrap:wrap;gap:3px 10px}
 .zq{display:inline-flex;align-items:center;gap:4px;font:500 10.5px var(--mono);color:var(--text-2)}
 .zq i{width:7px;height:7px;border-radius:50%;background:var(--c)}
-.zalert{position:absolute;top:7px;right:7px;display:inline-flex;align-items:center;gap:2px;height:24px;min-width:24px;padding:0 6px;border-radius:12px;background:var(--fault);color:#1a0505;font:800 11px var(--sans)}
+.zalert{position:absolute;top:6px;right:6px;display:inline-flex;align-items:center;gap:2px;height:22px;min-width:22px;padding:0 5px;border-radius:12px;background:var(--fault);color:#1a0505;font:800 11px var(--sans)}
 .zalert .ic{width:13px;height:13px;stroke-width:2.6}
 .zalert.hold{background:var(--hold)}
 .zalert.quality{background:var(--quality)}
 .zdone{font-size:11px;font-weight:600;color:var(--ok)}
+@media (max-width:900px){.lay{min-width:760px;gap:34px 24px}.zt b{font-size:12px}.zt small{display:none}.zs{font-size:11px}.zs .mini{display:none}.zeq{gap:2px 5px}.zq{font-size:9px}}
+@media (prefers-reduced-motion:reduce){.zbox{transition:none}}
 .lg{display:flex;flex-wrap:wrap;gap:4px 12px;margin-left:auto}
 .lg span{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--text-2)}
 .lg i{width:12px;height:12px;border-radius:4px;background:color-mix(in srgb,var(--c) 30%,transparent);border:1.5px solid var(--c)}
@@ -662,10 +684,11 @@ a.btn{text-decoration:none}
 <script>
 const D=/*__DATA__*/null;
 const SPEC=D._spec;delete D._spec;
+const VALIDATION_DATA=D;
 const $=s=>document.querySelector(s);
 const ic=(n,c='')=>`<svg class="ic ${c}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const kst=s=>new Date(s+':00+09:00').getTime();
+const kst=s=>Date.parse(/(?:Z|[+-]\d{2}:\d{2})$/i.test(s)?s:s+'+09:00');
 
 const TIME_KEYS=['planned_start_at','planned_end_at','actual_start_at','actual_end_at','forecast_end_at','period_start_at','period_end_at','start_at','end_at','opened_at','resolved_at','event_at','inspected_at','as_of','target_transfer_at'];
 for(const rows of Object.values(D))for(const r of rows)for(const k of TIME_KEYS)if(typeof r[k]==='string')r[k]=kst(r[k]);
@@ -675,8 +698,9 @@ const group=(rows,k,sk)=>{const m={};for(const r of rows)if(r[k]!=null)(m[r[k]]?
 const ZONE=by(D.zones,'zone_id'),PROC=by(D.processes,'process_id'),EQ=by(D.equipment,'equipment_id'),BLK=by(D.blocks,'block_id'),WO=by(D.work_orders,'work_order_id'),INC=by(D.incidents,'incident_id'),PLAN=by(D.production_plan,'work_order_id'),SNAP=by(D.equipment_snapshot,'equipment_id'),RWID=by(D.rework,'rework_id'),VES=by(D.vessels,'vessel_id');
 const ACT=group(D.production_actual,'work_order_id','period_end_at'),HIS=group(D.work_history,'work_order_id','event_at'),QC=group(D.inspections,'work_order_id','inspected_at'),RW=group(D.rework,'parent_work_order_id','start_at'),INTV=group(D.equipment_intervals,'equipment_id','start_at'),INC_BY_WO=group(D.incidents,'work_order_id','opened_at'),HIS_BY_INC=group(D.work_history,'incident_id','event_at');
 const LABEL=Object.fromEntries(D.status_codes.map(c=>[c.code_id,c.label_ko]));
-const PROCS=[...D.processes].sort((a,b)=>a.sequence_no-b.sequence_no);
-const TRANSFER=PROCS.at(-1).process_id;
+const EMPTY_PROCS=['강재 절단','소조립·취부','블록 용접','치수·용접 검사','표면처리·도장','블록 이송'].map((process_name,index)=>({process_id:`P0${index+1}`,zone_id:`Z0${index+1}`,process_name,sequence_no:index+1}));
+const PROCS=(D.processes.length?[...D.processes]:EMPTY_PROCS).sort((a,b)=>a.sequence_no-b.sequence_no);
+const TRANSFER=PROCS.at(-1)?.process_id;
 const WO_AT=Object.fromEntries(D.work_orders.map(w=>[w.block_id+'|'+w.process_id,w.work_order_id]));
 const vname=b=>VES[BLK[b].vessel_id].vessel_name;
 
@@ -689,11 +713,11 @@ const EVENT_STATUS={START:'IN_PROGRESS',RESUME:'IN_PROGRESS',REWORK_DONE:'IN_PRO
 const H_LOOK={START:['run','play'],COMPLETE:['ok','check'],PAUSE:['hold','pause'],RESUME:['ok','rotate'],QUALITY_HOLD:['quality','shield'],REWORK_DONE:['quality','shield-check']};
 const QTYPES={wo:['작업(블록)','block'],equip:['설비','cog'],incident:['사건','alert'],delay:['생산 지연','clock']};
 
-const START=Math.min(...D.work_history.map(h=>h.event_at));
-const AS_OF=Math.max(...D.equipment_snapshot.map(s=>s.as_of));
-const PLAN_END=Math.max(...D.work_orders.map(w=>w.planned_end_at));
-let t=AS_OF,homeVessel='all';
-const Q={type:'wo',vessel:'all',from:'',to:'',text:'',view:'list'};
+const AS_OF=D.equipment_snapshot.length?Math.max(...D.equipment_snapshot.map(s=>s.as_of)):Date.now();
+const START=D.work_history.length?Math.min(...D.work_history.map(h=>h.event_at)):AS_OF;
+const PLAN_END=D.work_orders.length?Math.max(...D.work_orders.map(w=>w.planned_end_at)):AS_OF;
+let t=AS_OF;
+const Q={type:'wo',vessel:'',from:'',to:'',text:'',view:'list'};
 let route={page:'home'};
 
 const fmt=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'});
@@ -741,7 +765,6 @@ function eqAt(e){
 }
 const eqLook=s=>EQ_LOOK[s]||['off','moon'];
 const eqLabel=s=>s?LABEL['equipment:'+s]||s:'자료 없음';
-const inV=(v,blockId)=>v==='all'||BLK[blockId].vessel_id===v;
 const rank=s=>s.open[0]?Object.keys(CAT).indexOf(s.open[0].category):s.status==='BLOCKED'?3:s.overdue?4:5;
 
 function occupancy(eqs,from,to){
@@ -750,16 +773,16 @@ function occupancy(eqs,from,to){
   return {rate:op?run/op:null,tot,op};
 }
 
-function metrics(v){
-  const ws=D.work_orders.filter(w=>inV(v,w.block_id)).map(w=>st(w.work_order_id));
+function metrics(){
+  const ws=D.work_orders.map(w=>st(w.work_order_id));
   const day=ymd(t);
   const today=ws.filter(s=>ymd(s.w.planned_start_at)===day).sort((a,b)=>a.w.planned_start_at-b.w.planned_start_at||a.id.localeCompare(b.id));
   const due=ws.filter(s=>s.w.planned_end_at<=t);
-  const open=D.incidents.filter(i=>inV(v,WO[i.work_order_id].block_id)&&i.opened_at<=t&&!(i.resolved_at<=t)).sort((a,b)=>Object.keys(CAT).indexOf(a.category)-Object.keys(CAT).indexOf(b.category));
+  const open=D.incidents.filter(i=>i.opened_at<=t&&!(i.resolved_at<=t)).sort((a,b)=>Object.keys(CAT).indexOf(a.category)-Object.keys(CAT).indexOf(b.category));
   const eqs=D.equipment.map(e=>({e,...eqAt(e)}));
   return {ws,today,todayDone:today.filter(s=>s.status==='COMPLETED'),done:ws.filter(s=>s.status==='COMPLETED'),due,overdue:due.filter(s=>s.status!=='COMPLETED').sort((a,b)=>rank(a)-rank(b)),open,eqs,
     transferBlocks:new Set(ws.filter(s=>s.w.process_id===TRANSFER&&s.status==='COMPLETED').map(s=>s.w.block_id)),
-    blocks:D.blocks.filter(b=>v==='all'||b.vessel_id===v),fault:eqs.filter(x=>x.status==='FAULT')};
+    blocks:D.blocks,fault:eqs.filter(x=>x.status==='FAULT')};
 }
 
 function ring(v,size,tone){
@@ -771,8 +794,6 @@ const link=(ref,icon,text)=>`<a class="link" href="${href(ref)}" style="text-dec
 const tag=(icon,text,tip)=>`<span class="link"${tip?` data-tip="${esc(tip)}"`:''}>${ic(icon)}${esc(text)}</span>`;
 const empty=(icon,text)=>`<div class="empty">${ic(icon)}${text}</div>`;
 const chip=(tone,icon,label)=>`<span class="chip ${tone}">${icon?ic(icon):''}${label}</span>`;
-const vesselOptions=sel=>`<option value="all">전체 호선</option>`+D.vessels.map(v=>`<option value="${v.vessel_id}"${sel===v.vessel_id?' selected':''}>${esc(v.vessel_name)}</option>`).join('');
-
 function issueCard(s){
   const o=s.open[0],p=PROC[s.w.process_id];
   let tone=s.look.tone,icon=s.look.icon,label=s.look.label,why,time='';
@@ -798,45 +819,35 @@ function mt({label,icon,tone,value,unit,hint,bar,warn,q,fix,primary}){
 function qlink(o){const p=new URLSearchParams(o);return `#/query?${p}`}
 
 function renderHome(){
-  const m=metrics(homeVessel),day=ymd(t),tn=m.today.length,td=m.todayDone.length;
+  const m=metrics(),day=ymd(t),tn=m.today.length,td=m.todayDone.length;
   const cnt=k=>m.open.filter(i=>i.category===k).length;
   const eqCount=k=>m.eqs.filter(x=>x.status===k).length;
-  const vq=homeVessel==='all'?{}:{vessel:homeVessel};
   const watch=[...new Map([...m.open.map(i=>st(i.work_order_id)),...m.overdue].map(s=>[s.id,s])).values()]
     .sort((a,b)=>rank(a)-rank(b)||a.id.localeCompare(b.id));
   const tiles=[
-    {label:'금일 계획 중 완료',icon:'cal-check',tone:'ok',value:`${td}/${tn}`,unit:'건',hint:`${md(t)} 착수 계획 중 완료`,bar:tn?td/tn:0,primary:true,q:qlink({type:'wo',from:day,to:day,status:'done',...vq})},
-    {label:'기한 도래 미완료',icon:'clock',tone:'hold',value:m.overdue.length,unit:'건',hint:'마감 시각이 지난 미완료 작업',warn:m.overdue.length>0,q:qlink({type:'delay',...vq})},
-    {label:'미해소 사건',icon:'alert',tone:'fault',value:m.open.length,unit:'건',hint:`설비 ${cnt('EQUIPMENT')} · 자재 ${cnt('MATERIAL')} · 품질 ${cnt('QUALITY')}`,warn:m.open.length>0,q:qlink({type:'incident',status:'open',...vq})},
+    {label:'금일 계획 중 완료',icon:'cal-check',tone:'ok',value:`${td}/${tn}`,unit:'건',hint:`${md(t)} 착수 계획 중 완료`,bar:tn?td/tn:0,primary:true,q:qlink({type:'wo',from:day,to:day,status:'done'})},
+    {label:'기한 도래 미완료',icon:'clock',tone:'hold',value:m.overdue.length,unit:'건',hint:'마감 시각이 지난 미완료 작업',warn:m.overdue.length>0,q:qlink({type:'delay'})},
+    {label:'미해소 사건',icon:'alert',tone:'fault',value:m.open.length,unit:'건',hint:`설비 ${cnt('EQUIPMENT')} · 자재 ${cnt('MATERIAL')} · 품질 ${cnt('QUALITY')}`,warn:m.open.length>0,q:qlink({type:'incident',status:'open'})},
     {label:'설비 상태',icon:'cog',tone:m.fault.length?'fault':'ok',value:`${m.fault.length}/${m.eqs.length}`,unit:'대 고장',hint:`가동 ${eqCount('RUNNING')} · 대기 ${eqCount('IDLE')} · 점검 ${eqCount('MAINTENANCE')}`,warn:m.fault.length>0,q:qlink({type:'equip'})}
   ];
   $('#pg-home').innerHTML=`
-    <div class="vhead"><div><h2>${md(t)} (${wd(t)}) 운영현황</h2><p>최신 데이터 ${full(t)} KST 기준 · 숫자를 누르면 근거 목록으로 이동</p></div><span class="sp"></span><label class="qf">호선명<select id="home-vessel">${vesselOptions(homeVessel)}</select></label></div>
+    <div class="vhead"><div><h2>${md(t)} (${wd(t)}) 운영현황</h2><p>${DATA_STATUS.ready?`전체 호선 · 최신 데이터 ${full(t)} KST 기준 · 숫자를 누르면 근거 목록으로 이동`:'데이터 없음 · 전체 호선 · 데이터 업로드 후 현황이 표시됩니다'}</p></div></div>
     <div class="mgrid">${tiles.map(mt).join('')}</div>
-    <section class="card flow-focus"><header class="card-h"><h2>${ic('board')}공정 배치도</h2><span class="hint">6개 공정의 현재 상태 · 구역을 누르면 작업 조회</span>${layLegend()}</header><div class="lay-wrap">${layoutHTML(null,vq)}</div></section>
-    <section class="card watch-panel"><header class="card-h"><h2>${ic('alert')}주목할 작업</h2><span class="count${watch.length?' fault':''}">${watch.length}</span><span class="hint">고장 · 대기 · 품질 보류 · 지연</span><a class="btn sm ghost" style="margin-left:auto" href="${qlink({type:'delay',...vq})}">${ic('list')}전체 작업 조회</a></header>
+    <section class="card flow-focus"><header class="card-h"><h2>${ic('board')}공정 배치도</h2><span class="hint">6개 공정의 현재 상태 · 구역을 누르면 작업 조회</span>${layLegend()}</header><div class="lay-wrap">${layoutHTML(null)}</div></section>
+    <section class="card watch-panel"><header class="card-h"><h2>${ic('alert')}주목할 작업</h2><span class="count${watch.length?' fault':''}">${watch.length}</span><span class="hint">고장 · 대기 · 품질 보류 · 지연</span><a class="btn sm ghost" style="margin-left:auto" href="${qlink({type:'delay'})}">${ic('list')}전체 작업 조회</a></header>
       <div class="watch-grid">${watch.map(issueCard).join('')||empty('circle-check','현재 주목할 작업 없음')}</div>
     </section>`;
-  $('#home-vessel').onchange=e=>{homeVessel=e.target.value;render()};
 }
 
-const LAY={W:940,H:330,BW:260,BH:110,DY:40};
-const zonePos=z=>({x:z.x,y:z.y-LAY.DY});
-const ZONE_ORDER=[...D.zones].sort((a,b)=>PROCS.findIndex(p=>p.zone_id===a.zone_id)-PROCS.findIndex(p=>p.zone_id===b.zone_id));
+const ZONE_ORDER=(D.zones.length?[...D.zones]:PROCS.map(p=>({zone_id:p.zone_id,zone_name:p.process_name}))).sort((a,b)=>PROCS.findIndex(p=>p.zone_id===a.zone_id)-PROCS.findIndex(p=>p.zone_id===b.zone_id));
 const layLegend=()=>`<div class="lg">${[['ok','완료·정상'],['run','작업 중'],['fault','설비 고장'],['hold','자재 대기'],['quality','품질 보류'],['plan','대기·예정']].map(([k,l])=>`<span><i class="${k}"></i>${l}</span>`).join('')}<span><b>!</b>이상</span></div>`;
-function layoutHTML(blockId,vq){
-  let paths='';
-  for(let i=0;i<ZONE_ORDER.length-1;i++){
-    const a=zonePos(ZONE_ORDER[i]),b=zonePos(ZONE_ORDER[i+1]);
-    if(a.y===b.y){const y=a.y+LAY.BH/2;paths+=a.x<b.x?`<path d="M${a.x+LAY.BW+2} ${y}H${b.x-6}"/>`:`<path d="M${a.x-2} ${y}H${b.x+LAY.BW+6}"/>`}
-    else{const x1=a.x+LAY.BW/2,x2=b.x+LAY.BW/2,ym=(a.y+LAY.BH+b.y)/2;paths+=`<path d="M${x1} ${a.y+LAY.BH+2}V${ym}H${x2}V${b.y-6}"/>`}
-  }
-  return `<div class="lay"><svg viewBox="0 0 ${LAY.W} ${LAY.H}" preserveAspectRatio="none" aria-hidden="true"><defs><marker id="ah-${blockId||'all'}" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs><g fill="none" stroke="currentColor" stroke-width="2" marker-end="url(#ah-${blockId||'all'})" vector-effect="non-scaling-stroke">${paths}</g></svg>${ZONE_ORDER.map(z=>zoneBox(z,blockId,vq||{})).join('')}</div>`;
+function layoutHTML(blockId){
+  return `<div class="lay">${ZONE_ORDER.map(z=>zoneBox(z,blockId)).join('')}</div>`;
 }
-function zoneBox(z,blockId,vq){
-  const p=PROCS.find(pp=>pp.zone_id===z.zone_id),pos=zonePos(z);
+function zoneBox(z,blockId){
+  const p=PROCS.find(pp=>pp.zone_id===z.zone_id);
   const eqs=D.equipment.filter(e=>e.zone_id===z.zone_id).map(e=>({e,...eqAt(e)}));
-  const style=`left:${pos.x/LAY.W*100}%;top:${pos.y/LAY.H*100}%;width:${LAY.BW/LAY.W*100}%;height:${LAY.BH/LAY.H*100}%`;
+  const cube='<svg class="zcube" viewBox="0 0 280 180" preserveAspectRatio="none" aria-hidden="true"><polygon class="zface zface-left" points="0,45 48,0 48,129 0,174"/><polygon class="zface zface-floor" points="0,174 48,129 280,129 232,174"/><polygon class="zface zface-front" points="48,0 280,0 280,129 48,129"/></svg>';
   const eqLine=`<span class="zeq">${eqs.map(x=>`<span class="zq ${eqLook(x.status)[0]}" title="${esc(x.e.equipment_name)}"><i></i>${x.e.equipment_id} ${eqLabel(x.status)}</span>`).join('')}</span>`;
   const alert=(list,tone)=>list.length?`<span class="zalert ${tone}" title="${esc(list.join(', '))}">${ic('alert')}${list.length>1?list.length:''}</span>`:'';
   if(blockId){
@@ -844,9 +855,9 @@ function zoneBox(z,blockId,vq){
     const probs=[...s.open.map(i=>`${i.incident_id} ${CAT[i.category].label}`),...(s.overdue?['마감 지남']:[])];
     const tone=s.status==='PLANNED'?'plan':s.look.tone;
     const line=s.status==='COMPLETED'?`${ic('check')}완료 ${when(s.end)}`:s.status==='PLANNED'?`${ic('circle-dashed')}예정 ${when(s.w.planned_start_at)}`:`${ic(s.look.icon)}${s.look.label}<span class="mini"><i style="width:${s.progress*100}%"></i></span>${pct(s.progress)}`;
-    return `<a class="zbox ${tone}${probs.length&&s.open.length?' prob':''}" href="#/wo/${s.id}" style="${style}">${alert(probs,s.open[0]?CAT[s.open[0].category].tone:'hold')}<span class="zt"><b>${z.zone_id} ${esc(p.process_name)}</b><small>${s.id}</small></span><span class="zs">${line}</span>${eqLine}</a>`;
+    return `<a class="zbox ${tone}${probs.length&&s.open.length?' prob':''}" href="#/wo/${s.id}">${cube}<span class="zcontent">${alert(probs,s.open[0]?CAT[s.open[0].category].tone:'hold')}<span class="zt">${ic(PICON[p.process_id])}<b>${z.zone_id} ${esc(p.process_name)}</b><small>${s.id}</small></span><span class="zs">${line}</span>${eqLine}</span></a>`;
   }
-  const ws=D.work_orders.filter(w=>w.process_id===p.process_id&&inV(homeVessel,w.block_id)).map(w=>st(w.work_order_id));
+  const ws=D.work_orders.filter(w=>w.process_id===p.process_id).map(w=>st(w.work_order_id));
   const active=ws.filter(s=>s.status==='IN_PROGRESS'||s.status==='BLOCKED').sort((a,b)=>rank(a)-rank(b));
   const incs=ws.flatMap(s=>s.open);
   const probs=[...incs.map(i=>`${i.incident_id} ${CAT[i.category].label}`),...eqs.filter(x=>x.status==='FAULT'&&!incs.some(i=>i.equipment_id===x.e.equipment_id)).map(x=>`${x.e.equipment_id} 고장`)];
@@ -854,36 +865,50 @@ function zoneBox(z,blockId,vq){
   const tone=worst||(active.length?'run':'idle');
   const doneToday=ws.filter(s=>s.end&&ymd(s.end)===ymd(t)).length;
   const a0=active[0];
-  const line=a0?`${ic(a0.look.icon)}${a0.w.block_id} ${a0.look.label}<span class="mini"><i style="width:${a0.progress*100}%"></i></span>${pct(a0.progress)}${active.length>1?` +${active.length-1}`:''}`:`${ic('pause')}진행 작업 없음${doneToday?` <span class="zdone">· 금일 완료 ${doneToday}</span>`:''}`;
-  return `<a class="zbox ${tone}${worst?' prob':''}" href="${qlink({type:'wo',proc:p.process_id,...vq})}" style="${style}">${alert(probs,worst||'fault')}<span class="zt"><b>${z.zone_id} ${esc(p.process_name)}</b><small>${p.process_id}</small></span><span class="zs">${line}</span>${eqLine}</a>`;
+  const line=a0?`${ic(a0.look.icon)}${a0.w.block_id} ${a0.look.label}<span class="mini"><i style="width:${a0.progress*100}%"></i></span>${pct(a0.progress)}${active.length>1?` +${active.length-1}`:''}`:ws.length?`${ic('pause')}진행 작업 없음${doneToday?` <span class="zdone">· 금일 완료 ${doneToday}</span>`:''}`:`${ic('pause')}미작업`;
+  return `<a class="zbox ${tone}${worst?' prob':''}" href="${qlink({type:'wo',proc:p.process_id})}">${cube}<span class="zcontent">${alert(probs,worst||'fault')}<span class="zt">${ic(PICON[p.process_id])}<b>${z.zone_id} ${esc(p.process_name)}</b><small>${p.process_id}</small></span><span class="zs">${line}</span>${eqLine}</span></a>`;
 }
 
 function inRange(ms){const d=ymd(ms);return (!Q.from||d>=Q.from)&&(!Q.to||d<=Q.to)}
 const textHit=(...xs)=>!Q.text||xs.some(x=>String(x??'').toLowerCase().includes(Q.text.toLowerCase()));
-function queryRows(){
+function vesselFilter(pattern){
+  const value=pattern.trim();
+  if(!value)return {ids:null,error:''};
+  if(value.length>120)return {ids:new Set(),error:'호선명 정규식은 120자 이내로 입력해 주세요.'};
+  try{
+    const re=new RegExp(value,'i');
+    return {ids:new Set(D.vessels.filter(v=>re.test(v.vessel_name)||re.test(v.vessel_id)).map(v=>v.vessel_id)),error:''};
+  }catch{
+    return {ids:new Set(),error:'정규식 형식이 올바르지 않습니다. 괄호와 대괄호를 확인해 주세요.'};
+  }
+}
+const vesselHit=(ids,blockId)=>ids===null||ids.has(BLK[blockId].vessel_id);
+function queryRows(vesselIds){
   if(Q.type==='wo'){
     const filtered=!!(Q.from||Q.to||Q.proc||Q.due||Q.status);
     const match=s=>inRange(s.w.planned_start_at)&&(!Q.proc||s.w.process_id===Q.proc)&&(!Q.due||s.w.planned_end_at<=t)&&(Q.status!=='done'||s.status==='COMPLETED');
-    return D.blocks.filter(b=>inV(Q.vessel,b.block_id)).map(b=>{const ss=PROCS.map(p=>st(WO_AT[b.block_id+'|'+p.process_id]));return {b,ss,hit:ss.filter(match),filtered}})
+    return D.blocks.filter(b=>vesselHit(vesselIds,b.block_id)).map(b=>{const ss=PROCS.map(p=>st(WO_AT[b.block_id+'|'+p.process_id]));return {b,ss,hit:ss.filter(match),filtered}})
       .filter(r=>(!r.filtered||r.hit.length)&&textHit(r.b.block_id,r.b.block_name,VES[r.b.vessel_id].vessel_name,...r.ss.map(s=>s.id),...r.ss.map(s=>s.w.equipment_id)));
   }
   if(Q.type==='delay'){
-    return D.work_orders.filter(w=>inV(Q.vessel,w.block_id)&&w.planned_end_at<=t&&inRange(w.planned_end_at)&&textHit(w.work_order_id,w.block_id,w.equipment_id,vname(w.block_id))).map(w=>st(w.work_order_id))
+    return D.work_orders.filter(w=>vesselHit(vesselIds,w.block_id)&&w.planned_end_at<=t&&inRange(w.planned_end_at)&&textHit(w.work_order_id,w.block_id,w.equipment_id,vname(w.block_id))).map(w=>st(w.work_order_id))
       .filter(s=>s.status!=='COMPLETED'||s.end>s.w.planned_end_at).sort((a,b)=>(a.status==='COMPLETED')-(b.status==='COMPLETED')||rank(a)-rank(b));
   }
   if(Q.type==='incident'){
-    return D.incidents.filter(i=>inV(Q.vessel,WO[i.work_order_id].block_id)&&i.opened_at<=t&&inRange(i.opened_at)&&(!Q.status||(Q.status==='open')===!(i.resolved_at<=t))&&textHit(i.incident_id,i.work_order_id,WO[i.work_order_id].block_id,i.equipment_id,i.summary,i.owner_team))
+    return D.incidents.filter(i=>vesselHit(vesselIds,WO[i.work_order_id].block_id)&&i.opened_at<=t&&inRange(i.opened_at)&&(!Q.status||(Q.status==='open')===!(i.resolved_at<=t))&&textHit(i.incident_id,i.work_order_id,WO[i.work_order_id].block_id,i.equipment_id,i.summary,i.owner_team))
       .sort((a,b)=>!(a.resolved_at<=t)===!(b.resolved_at<=t)?b.opened_at-a.opened_at:!(a.resolved_at<=t)?-1:1);
   }
   return D.equipment.filter(e=>textHit(e.equipment_id,e.equipment_name,PROC[e.process_id].process_name)).map(e=>({e,...eqAt(e)}));
 }
 
 function renderQuery(){
-  const rows=queryRows(),type=Q.type;
+  const type=Q.type,vessel=type==='equip'?{ids:null,error:''}:vesselFilter(Q.vessel),rows=queryRows(vessel.ids);
   const lo=ymd(START),hi=ymd(PLAN_END);
   let table='';
   if(type==='wo'){
-    const byV=D.vessels.map(v=>[v,rows.filter(r=>r.b.vessel_id===v.vessel_id)]).filter(([,rs])=>rs.length);
+    const grouped=new Map();
+    for(const row of rows){if(!grouped.has(row.b.vessel_id))grouped.set(row.b.vessel_id,[]);grouped.get(row.b.vessel_id).push(row)}
+    const byV=D.vessels.filter(v=>grouped.has(v.vessel_id)).map(v=>[v,grouped.get(v.vessel_id)]);
     table=`<table class="tbl"><thead><tr><th>블록</th><th>공정 진행 (절단 → 이송)</th><th>현재 공정</th><th>진척</th><th>문제</th><th>목표 이송</th>${rows[0]?.filtered?'<th class="r">해당 작업</th>':''}</tr></thead><tbody>${byV.map(([v,rs])=>`<tr class="gtr"><td colspan="7">${ic('ship')} ${esc(v.vessel_name)} <span class="count">${rs.length}블록</span></td></tr>`+rs.map(({b,ss,hit,filtered})=>{
       const now=ss.find(s=>s.status==='IN_PROGRESS'||s.status==='BLOCKED'),done=ss.filter(s=>s.status==='COMPLETED').length,next=ss.find(s=>s.status==='PLANNED');
       const look=now?now.look:done===ss.length?{tone:'ok',icon:'circle-check',label:'이송 완료'}:{tone:'plan',icon:'circle-dashed',label:'착수 전'};
@@ -898,22 +923,22 @@ function renderQuery(){
   }
   const extra=[Q.status==='done'?'완료만':Q.status==='open'?'미해소만':'',Q.due?'기한 도래만':'',Q.proc?PROC[Q.proc].process_name:''].filter(Boolean);
   $('#pg-query').innerHTML=`
-    <div class="vhead"><div><h2>조회</h2><p>호선명·날짜·대상을 골라 목록으로 확인 · 작업은 블록 단위로 묶어 표시 · 행을 누르면 상세</p></div></div>
+    <div class="vhead"><div><h2>조회</h2><p>호선명 정규식·날짜·대상으로 목록 조회 · 작업은 블록 단위로 묶어 표시 · 행을 누르면 상세</p></div></div>
     <form class="qform" id="qform" onsubmit="return false">
       <div class="qf">조회 대상<div class="seg">${Object.entries(QTYPES).map(([k,[l,i]])=>`<button type="button" data-qtype="${k}" class="${Q.type===k?'on':''}">${ic(i)}${l}</button>`).join('')}</div></div>
-      <label class="qf">호선명<select id="q-vessel"${type==='equip'?' disabled title="설비는 호선 공통"':''}>${vesselOptions(Q.vessel)}</select></label>
+      <label class="qf">호선명 정규식<input type="search" id="q-vessel" value="${esc(Q.vessel)}" maxlength="120" placeholder="호선명 또는 ID 입력" aria-invalid="${vessel.error?'true':'false'}"${type==='equip'?' disabled title="설비는 호선 공통"':''}></label>
       <div class="qf">${type==='incident'?'발생일':type==='delay'?'계획 종료일':type==='equip'?'집계 기간':'계획일'}<span class="dr"><input type="date" id="q-from" value="${Q.from}" min="${lo}" max="${hi}">~<input type="date" id="q-to" value="${Q.to}" min="${lo}" max="${hi}"></span></div>
       <div class="qf">&nbsp;<span class="dr"><button type="button" class="btn sm" data-qday="today">오늘</button><button type="button" class="btn sm" data-qday="all">전체 기간</button></span></div>
       <label class="qf">검색<input type="search" id="q-text" value="${esc(Q.text)}" placeholder="작업지시·블록·설비·사건 번호"></label>
     </form>
     <div class="qres"><h3>${QTYPES[type][0]} 목록</h3><span class="count">${type==='wo'?`${rows.length}블록`:rows.length}</span>${extra.map(x=>`<span class="chip run">${x}<button type="button" data-qclear style="border:0;background:none;color:inherit;padding:0;margin-left:4px">${ic('x')}</button></span>`).join('')}<span style="flex:1"></span></div>
-    <div class="tbl-wrap">${rows.length?table:empty('circle-check','조건에 맞는 결과 없음')}</div>`;
-  $('#q-vessel').onchange=e=>{Q.vessel=e.target.value;syncQ()};
+    <div class="tbl-wrap">${vessel.error?empty('alert',vessel.error):rows.length?table:empty('circle-check','조건에 맞는 결과 없음')}</div>`;
+  $('#q-vessel').oninput=e=>{Q.vessel=e.target.value;clearTimeout(window._qv);window._qv=setTimeout(()=>{const pos=e.target.selectionStart;syncQ();const el=$('#q-vessel');el.focus();el.setSelectionRange(pos,pos)},250)};
   $('#q-from').onchange=e=>{Q.from=e.target.value;syncQ()};
   $('#q-to').onchange=e=>{Q.to=e.target.value;syncQ()};
   $('#q-text').oninput=e=>{Q.text=e.target.value;clearTimeout(window._qt);window._qt=setTimeout(()=>{const pos=e.target.selectionStart;syncQ();const el=$('#q-text');el.focus();el.setSelectionRange(pos,pos)},250)};
 }
-function syncQ(){const o={};for(const[k,v]of Object.entries(Q))if(v&&!(k==='vessel'&&v==='all')&&!(k==='view'&&v==='list')&&!(k==='type'&&v==='wo'))o[k]=v;history.replaceState(null,'',`#/query${Object.keys(o).length?'?'+new URLSearchParams(o):''}`);render()}
+function syncQ(){const o={};for(const[k,v]of Object.entries(Q))if(v&&!(k==='view'&&v==='list')&&!(k==='type'&&v==='wo'))o[k]=v;history.replaceState(null,'',`#/query${Object.keys(o).length?'?'+new URLSearchParams(o):''}`);render()}
 
 function axis(from,to){
   const d0=dayStart(from),n=Math.round((dayStart(to)-d0)/864e5)+1;
@@ -1041,7 +1066,12 @@ function blkPage(id){
 
 const ISO=/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?\+09:00$/;
 const STATUS_DOMAIN={work_orders:['status','work_order'],equipment_intervals:['status','equipment'],equipment_snapshot:['status','equipment'],incidents:['status','incident'],inspections:['result','inspection'],rework:['status','rework']};
-let uploads=[],lastResult=null,upTable='auto',role='admin';
+let uploads=[];
+try{uploads=JSON.parse(sessionStorage.getItem('ax-upload-history')||'[]').map(u=>/\.xlsx$/i.test(u.name)?{
+  ...u,at:new Date(u.at),hash:null,table:null,n:0,applied:false,
+  errs:[{row:0,field:'파일 형식',rule:'CSV 전용',msg:'엑셀(.xlsx)은 업로드할 수 없습니다. 각 시트를 UTF-8 CSV로 저장해 테이블별로 올려 주세요.'}]
+}:{...u,at:new Date(u.at)})}catch{uploads=[]}
+let lastResult=uploads[0]||null,upTable='auto',role='admin',pendingUpload=null;
 function parseCSV(text){
   text=text.replace(/^﻿/,'');const rows=[];let row=[],f='',q=false;
   for(let i=0;i<text.length;i++){const ch=text[i];
@@ -1063,41 +1093,84 @@ function validate(rows,forced){
   const table=forced!=='auto'?forced:detect(head);
   if(!table){E(1,'—','헤더','첫 행 필드명이 명세의 어떤 테이블과도 맞지 않음');return {table:null,errs,n:Math.max(0,rows.length-1)}}
   const spec=SPEC[table],fields=spec.map(s=>s.field);
+  if(rows.length<2)E(1,'—','행','적재할 데이터 행이 없습니다.');
+  head.forEach((h,i)=>{if(!h)E(1,`#${i+1}`,'헤더','필드명이 비어 있음');else if(head.indexOf(h)!==i)E(1,h,'헤더','필드명 중복')});
   fields.filter(f=>!head.includes(f)).forEach(f=>E(1,f,'헤더','필드 없음'));
   head.filter(h=>!fields.includes(h)).forEach(h=>E(1,h,'헤더','명세에 없는 필드'));
-  const pk=spec.find(s=>/PK/.test(s.key))?.field,existing=new Set((D[table]||[]).map(r=>r[pk])),seen=new Set();
+  const pk=spec.find(s=>/PK/.test(s.key))?.field,existing=new Set((VALIDATION_DATA[table]||[]).map(r=>String(r[pk]??''))),seen=new Set();
+  const validationLabels=Object.fromEntries(VALIDATION_DATA.status_codes.map(c=>[c.code_id,c.label_ko]));
+  const validationOrders=by(VALIDATION_DATA.work_orders,'work_order_id');
+  const validationProcesses=by(VALIDATION_DATA.processes,'process_id');
   const recs=rows.slice(1).map((r,i)=>({n:i+2,o:Object.fromEntries(head.map((h,j)=>[h,(r[j]??'').trim()]))}));
   for(const {n,o} of recs){
+    if(rows[n-1].length>head.length)E(n,'—','열 수',`헤더보다 값이 ${rows[n-1].length-head.length}개 많음`);
     for(const s of spec){
       const v=o[s.field];if(v===undefined)continue;
       if(v===''){if(s.required)E(n,s.field,'필수값','값 없음');continue}
       if(/INTEGER/.test(s.type)&&!/^-?\d+$/.test(v))E(n,s.field,'자료형','정수가 아님');
-      else if(/REAL/.test(s.type)&&isNaN(+v))E(n,s.field,'자료형','숫자가 아님');
-      if(/_at$/.test(s.field)&&!ISO.test(v))E(n,s.field,'시간 형식','ISO 8601 +09:00 형식이 아님');
+      else if(/REAL/.test(s.type)&&!Number.isFinite(+v))E(n,s.field,'자료형','숫자가 아님');
+      if(/_at$/.test(s.field)&&(!ISO.test(v)||Number.isNaN(Date.parse(v))))E(n,s.field,'시간 형식','ISO 8601 +09:00 형식이 아님');
       const fk=/FK ([a-z_]+)\.([a-z_]+)/.exec(s.key);
-      if(fk&&!/PK/.test(s.key)){const[,ft,ff]=fk;if(!(D[ft]||[]).some(x=>x[ff]===v)&&!(ft===table&&recs.some(x=>x.o[ff]===v)))E(n,s.field,'참조',`${ft}에 ${v} 없음`)}
+      if(fk&&!/PK/.test(s.key)){const[,ft,ff]=fk;if(!(VALIDATION_DATA[ft]||[]).some(x=>x[ff]===v)&&!(ft===table&&recs.some(x=>x.o[ff]===v)))E(n,s.field,'참조',`${ft}에 ${v} 없음`)}
     }
     if(pk&&o[pk]){if(seen.has(o[pk]))E(n,pk,'식별자','파일 안에서 키 중복');else if(existing.has(o[pk]))E(n,pk,'식별자','이미 반영된 키 (동일 자료 재업로드)');seen.add(o[pk])}
     for(const [a,b] of [['planned_start_at','planned_end_at'],['actual_start_at','actual_end_at'],['period_start_at','period_end_at'],['start_at','end_at'],['opened_at','resolved_at']])
       if(ISO.test(o[a]||'')&&ISO.test(o[b]||'')&&Date.parse(o[a])>Date.parse(o[b]))E(n,b,'시간 순서',`${a}보다 빠름`);
-    const sd=STATUS_DOMAIN[table];if(sd&&o[sd[0]]&&!LABEL[sd[1]+':'+o[sd[0]]])E(n,sd[0],'상태코드',`${o[sd[0]]}는 정의되지 않은 코드`);
+    const sd=STATUS_DOMAIN[table];if(sd&&o[sd[0]]&&!validationLabels[sd[1]+':'+o[sd[0]]])E(n,sd[0],'상태코드',`${o[sd[0]]}는 정의되지 않은 코드`);
     if(table==='incidents'&&o.category&&!CAT[o.category])E(n,'category','상태코드',`${o.category}는 EQUIPMENT·MATERIAL·QUALITY가 아님`);
     if(table==='incidents'&&o.status==='OPEN'&&o.resolved_at)E(n,'resolved_at','값','OPEN 사건에 해소시각 있음');
     if(table==='work_history'&&o.event_type&&!EVENT_STATUS[o.event_type])E(n,'event_type','상태코드',`${o.event_type}는 정의되지 않은 이벤트`);
-    if(table==='production_actual'){if(+o.accepted_qty_delta<0)E(n,'accepted_qty_delta','수량','음수 증분');const w=WO[o.work_order_id];if(w&&o.unit&&o.unit!==w.unit)E(n,'unit','단위',`작업지시 단위(${w.unit})와 다름`)}
-    if(table==='work_orders'){const p=PROC[o.process_id];if(p&&o.unit&&o.unit!==p.unit)E(n,'unit','단위',`공정 단위(${p.unit})와 다름`)}
+    if(table==='production_actual'){if(+o.accepted_qty_delta<0)E(n,'accepted_qty_delta','수량','음수 증분');const w=validationOrders[o.work_order_id];if(w&&o.unit&&o.unit!==w.unit)E(n,'unit','단위',`작업지시 단위(${w.unit})와 다름`)}
+    if(table==='work_orders'){const p=validationProcesses[o.process_id];if(p&&o.unit&&o.unit!==p.unit)E(n,'unit','단위',`공정 단위(${p.unit})와 다름`)}
     if(table==='inspections'&&o.checked_points&&+o.passed_points+ +o.failed_points!==+o.checked_points)E(n,'checked_points','수량','합격+불합격 ≠ 검사 위치수');
-    if(table==='production_plan'&&o.work_order_id&&(D.production_plan.some(p=>p.work_order_id===o.work_order_id)||recs.filter(x=>x.o.work_order_id===o.work_order_id).length>1))E(n,'work_order_id','식별자','작업지시당 계획 1건 초과');
+    if(table==='production_plan'&&o.work_order_id&&(VALIDATION_DATA.production_plan.some(p=>p.work_order_id===o.work_order_id)||recs.filter(x=>x.o.work_order_id===o.work_order_id).length>1))E(n,'work_order_id','식별자','작업지시당 계획 1건 초과');
   }
   return {table,errs,n:recs.length};
 }
 async function sha(text){try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch{return null}}
 async function handleFile(file){
   if(role!=='admin')return;
-  const text=await file.text(),rows=parseCSV(text),r=validate(rows,upTable);
-  lastResult={name:file.name,at:new Date(),hash:await sha(text),...r};
-  uploads.unshift(lastResult);
+  if(!/\.csv$/i.test(file.name)){
+    pendingUpload={name:file.name,rows:[],result:{table:null,n:0,errs:[{row:0,field:'파일 형식',rule:'CSV 전용',msg:'CSV 파일만 선택할 수 있습니다.'}]},serverErrors:[],saving:false,invalidFile:true};
+    renderUpload();
+    $('#upload-preview')?.scrollIntoView({behavior:'smooth',block:'start'});
+    return;
+  }
+  const rows=parseCSV(await file.text());
+  pendingUpload={name:file.name,rows,result:validate(rows,upTable),serverErrors:[],saving:false};
   renderUpload();
+  $('#upload-preview')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function pendingErrors(){return pendingUpload?[...pendingUpload.result.errs,...pendingUpload.serverErrors]:[]}
+function refreshPendingValidation(){
+  if(!pendingUpload)return;
+  if(!pendingUpload.invalidFile)pendingUpload.result=validate(pendingUpload.rows,upTable);
+  const errs=pendingErrors(),bad=new Map();
+  for(const e of errs){const key=`${e.row}:${e.field}`;bad.set(key,[...(bad.get(key)||[]),`${e.rule}: ${e.msg}`])}
+  document.querySelectorAll('#upload-preview [data-cell]').forEach(cell=>{
+    const row=+cell.dataset.row,col=+cell.dataset.col,field=pendingUpload.rows[0]?.[col]?.trim();
+    const msg=bad.get(`${row}:${field}`)||bad.get(`${row}:#${col+1}`)||bad.get(`${row}:—`);
+    cell.classList.toggle('cell-fault',!!msg);cell.classList.toggle('cell-ok',!msg);cell.title=msg?.join('\n')||'검증 통과';
+  });
+  const status=$('#preview-status');if(status)status.textContent=errs.length?`오류 ${errs.length}건 · 빨간 셀을 수정해 주세요`:`${pendingUpload.result.n}행 검증 통과 · 업로드할 수 있습니다`;
+  const list=$('#preview-errors');if(list)list.innerHTML=errs.slice(0,30).map(e=>`<div>${e.row?`${e.row}행 · `:''}${esc(e.field)} · ${esc(e.rule)}: ${esc(e.msg)}</div>`).join('')+(errs.length>30?`<div>외 ${errs.length-30}건</div>`:'');
+  const button=$('#upload-confirm');if(button)button.disabled=!!errs.length||!pendingUpload.result.table||pendingUpload.saving||role!=='admin';
+}
+async function confirmUpload(){
+  const p=pendingUpload;if(!p||p.saving||role!=='admin')return;
+  p.serverErrors=[];refreshPendingValidation();
+  if(p.result.errs.length||!p.result.table)return;
+  p.saving=true;refreshPendingValidation();
+  const headers=p.rows[0].map(h=>h.trim());
+  const records=p.rows.slice(1).map(row=>Object.fromEntries(headers.map((header,index)=>[header,(row[index]??'').trim()])));
+  try{
+    const response=await fetch('/api/data/upload',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({table:p.result.table,headers,rows:records})});
+    const result=await response.json();
+    if(!response.ok){p.serverErrors=(result.errors||[]).map(e=>({row:e.row,field:e.field,rule:e.rule,msg:e.msg}));if(!p.serverErrors.length)p.serverErrors=[{row:0,field:'—',rule:'서버',msg:'업로드 요청이 거부되었습니다.'}];refreshPendingValidation();return}
+    lastResult={name:p.name,at:new Date(),hash:await sha(csvOf(p.result.table,records)),...p.result,applied:true};
+    uploads.unshift(lastResult);sessionStorage.setItem('ax-upload-history',JSON.stringify(uploads));location.reload();
+  }catch(error){p.serverErrors=[{row:0,field:'—',rule:'서버',msg:error.message||'저장 요청 실패'}];refreshPendingValidation()}
+  finally{p.saving=false;refreshPendingValidation()}
 }
 function csvOf(table,rows){const fs=SPEC[table].map(s=>s.field);return '﻿'+[fs.join(','),...rows.map(r=>fs.map(f=>{const v=r[f]??'';return /[",\n]/.test(v)?`"${v.replace(/"/g,'""')}"`:v}).join(','))].join('\r\n')}
 const SAMPLES={
@@ -1111,24 +1184,32 @@ function download(name,text){const a=document.createElement('a');a.href=URL.crea
 
 function renderUpload(){
   const admin=role==='admin',r=lastResult;
-  const res=r?(()=>{const ok=!r.errs.length,tone=ok?'ok':'fault';return `<div class="res ${tone}"><span class="is-ic">${ic(ok?'circle-check':'ban')}</span><span><b class="big">${ok?'검증 통과':'배치 취소'}</b><br><small style="color:var(--text-2)">${ok?'모든 행이 규칙을 통과 · 시연 화면이라 실제 반영은 하지 않음':`오류 ${r.errs.length}건 · 데이터 변경 없이 종료`}</small></span><span class="kl">파일<b>${esc(r.name)}</b></span><span class="kl">테이블<b>${r.table||'판별 불가'}</b></span><span class="kl">행 수<b>${r.n}</b></span><span class="kl">SHA-256<b>${r.hash?r.hash.slice(0,12)+'…':'—'}</b></span></div>
+  const p=pendingUpload,preview=p?`<section class="card upload-preview" id="upload-preview"><header class="card-h"><h2>${ic('list')}CSV 미리보기 · 셀 검증</h2><span class="hint">${esc(p.name)} · ${p.rows.length?Math.max(0,p.rows.length-1):0}행</span></header>
+    <p style="margin:0 0 12px;color:var(--text-2);font-size:12.5px">초록색 셀은 정상, 빨간색 셀은 수정이 필요합니다. 셀에 마우스를 올리면 오류 이유를 볼 수 있습니다. 선택만으로는 데이터가 저장되지 않습니다.</p>
+    ${p.rows.length?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>행</th>${Array.from({length:Math.max(...p.rows.map(row=>row.length))},(_,col)=>`<th class="cell-ok" data-cell data-row="1" data-col="${col}"><input aria-label="${col+1}열 필드명" value="${esc(p.rows[0]?.[col]??'')}"></th>`).join('')}</tr></thead><tbody>${p.rows.slice(1).map((row,i)=>`<tr><td class="id">${i+2}<button class="row-del" type="button" data-delete-row="${i+1}" aria-label="${i+2}행 삭제" title="이 행 삭제">×</button></td>${Array.from({length:Math.max(...p.rows.map(item=>item.length))},(_,col)=>`<td class="cell-ok" data-cell data-row="${i+2}" data-col="${col}"><input aria-label="${i+2}행 ${col+1}열" value="${esc(row[col]??'')}"></td>`).join('')}</tr>`).join('')}</tbody></table></div>`:''}
+    <div class="up-actions"><button class="btn sm" id="preview-add-column" ${!p.rows.length?'disabled':''}>열 추가</button><button class="btn sm" id="preview-add-row" ${!p.rows.length?'disabled':''}>행 추가</button><span style="flex:1"></span><b id="preview-status" aria-live="polite"></b><button class="btn accent" id="upload-confirm" disabled>${ic('upload')}검증 후 업로드</button></div>
+    <div class="up-errors" id="preview-errors" aria-live="polite"></div>
+  </section>`:'';
+  const counts=Object.entries(DATA_STATUS.counts).map(([name,count])=>`<span style="display:inline-block;min-width:150px;padding:5px 8px;color:${DATA_STATUS.requiredTables.includes(name)?'var(--text)':'var(--muted)'}">${DATA_STATUS.requiredTables.includes(name)?'● ':''}${name} <b>${count}</b></span>`).join('');
+  const res=r?(()=>{const ok=!r.errs.length,tone=ok?'ok':'fault';return `<div class="res ${tone}"><span class="is-ic">${ic(ok?'circle-check':'ban')}</span><span><b class="big">${ok?'적재 완료':'배치 취소'}</b><br><small style="color:var(--text-2)">${ok?'모든 행이 규칙을 통과 · 서버 데이터에 저장됨':`오류 ${r.errs.length}건 · 데이터 변경 없이 종료`}</small></span><span class="kl">파일<b>${esc(r.name)}</b></span><span class="kl">테이블<b>${r.table||'판별 불가'}</b></span><span class="kl">행 수<b>${r.n}</b></span><span class="kl">SHA-256<b>${r.hash?r.hash.slice(0,12)+'…':'—'}</b></span></div>
     ${r.errs.length?`<div class="tbl-wrap" style="margin-top:12px;max-height:340px"><table class="tbl"><thead><tr><th class="r">행</th><th>필드</th><th>규칙</th><th>원인</th></tr></thead><tbody>${r.errs.map(e=>`<tr><td class="r id">${e.row}</td><td class="id">${esc(e.field)}</td><td>${chip('fault','',e.rule)}</td><td style="white-space:normal">${esc(e.msg)}</td></tr>`).join('')}</tbody></table></div>`:''}`})():`<div class="none">CSV를 올리면 여기에 검증 결과가 나옵니다</div>`;
   $('#pg-upload').innerHTML=`<div class="stack">
-    <div class="vhead" style="margin:0"><div><h2>데이터 업로드</h2><p>임시 영역에서 검증 → 오류가 하나라도 있으면 전체 배치 취소</p></div><span class="sp"></span><label class="qf">역할 (제안안)<select id="role">${[['admin','관리자'],['worker','작업담당자'],['viewer','조회자']].map(([k,l])=>`<option value="${k}"${role===k?' selected':''}>${l}</option>`).join('')}</select></label></div>
+    <div class="vhead" style="margin:0"><div><h2>데이터 업로드</h2><p>CSV 선택 → 표에서 검증·수정 → 업로드 버튼으로 저장</p></div><span class="sp"></span><label class="qf">역할 (제안안)<select id="role">${[['admin','관리자'],['worker','작업담당자'],['viewer','조회자']].map(([k,l])=>`<option value="${k}"${role===k?' selected':''}>${l}</option>`).join('')}</select></label></div>
     <section class="card"><header class="card-h"><h2>${ic('upload')}CSV 적재</h2><span class="hint">UTF-8 · 쉼표 구분 · 첫 행 영문 필드명</span></header>
-      <div class="drop${admin?'':' locked'}" id="drop">${ic(admin?'upload':'lock')}<b>${admin?'CSV 파일을 끌어다 놓거나 눌러서 선택':'관리자 역할만 적재할 수 있습니다'}</b><small>파일은 브라우저 안에서만 검증합니다</small></div>
-      <div class="up-row"><label class="up-sel">대상 테이블<select id="up-table"><option value="auto">자동 판별</option>${Object.keys(SPEC).map(k=>`<option value="${k}"${upTable===k?' selected':''}>${k}</option>`).join('')}</select></label><span style="flex:1"></span><button class="btn sm" data-sample="ok">${ic('download')}정상 예시 받기</button><button class="btn sm" data-sample="bad">${ic('download')}오류 예시 받기</button></div>
+      <div class="drop${admin?'':' locked'}" id="drop">${ic(admin?'upload':'lock')}<b>${admin?'CSV 파일을 끌어다 놓거나 눌러서 선택':'관리자 역할만 적재할 수 있습니다'}</b><small>엑셀 통합 문서는 시트별 CSV로 저장한 뒤 올려 주세요</small></div>
+      <div class="up-row"><label class="up-sel">대상 테이블<select id="up-table"><option value="auto">자동 판별</option>${Object.keys(SPEC).map(k=>`<option value="${k}"${upTable===k?' selected':''}>${k}</option>`).join('')}</select></label><span style="flex:1"></span>${DATA_STATUS.ready?`<button class="btn sm" data-sample="ok">${ic('download')}정상 예시 받기</button><button class="btn sm" data-sample="bad">${ic('download')}오류 예시 받기</button>`:`<button class="btn sm" id="up-template">${ic('download')}선택 테이블 양식 받기</button>`}</div>
     </section>
-    <section class="card"><header class="card-h"><h2>${ic('list')}검증 결과</h2></header>${res}</section>
+    <section class="card"><header class="card-h"><h2>${ic('history')}최근 업로드 결과</h2></header>${res}</section>
   </div>
   <div class="stack">
     <section class="card"><header class="card-h"><h2>${ic('shield-check')}검증 규칙</h2></header><div class="rules">
       ${[['식별자','PK 중복 · 재업로드 · 계획 1:1'],['관계','FK 존재 · 선행 작업 참조'],['값과 단위','필수값 · 상태코드 · 공정/실적 단위'],['시간','ISO 8601 +09:00 · 시작 ≤ 종료'],['수량과 품질','음수 증분 · 검사 수량 합계']].map(([a,b])=>`<div class="rule"><b>${ic('check')}${a}</b>${b}</div>`).join('')}
     </div></section>
     <section class="card"><header class="card-h"><h2>${ic('history')}업로드 이력</h2><span class="count">${uploads.length}</span></header>
-      ${uploads.map(u=>`<div class="rec ${u.errs.length?'fault':'ok'}" style="cursor:default"><time>${u.at.toLocaleTimeString('sv-SE').slice(0,5)}</time><span class="dot">${ic(u.errs.length?'ban':'check')}</span><span><b>${esc(u.name)}</b><small>${u.table||'—'} · ${u.n}행 · ${u.errs.length?`오류 ${u.errs.length}건 · 취소`:'통과'} · ${u.hash?u.hash.slice(0,8):'—'}</small></span></div>`).join('')||'<div class="none">이번 세션의 업로드 없음</div>'}
+      ${uploads.map(u=>`<div class="rec ${u.errs.length?'fault':'ok'}" style="cursor:default"><time>${u.at.toLocaleTimeString('sv-SE').slice(0,5)}</time><span class="dot">${ic(u.errs.length?'ban':'check')}</span><span><b>${esc(u.name)}</b><small>${u.table||'—'} · ${u.n}행 · ${u.errs.length?`오류 ${u.errs.length}건 · 취소`:'저장 완료'} · ${u.hash?u.hash.slice(0,8):'—'}</small></span></div>`).join('')||'<div class="none">이번 세션의 업로드 없음</div>'}
     </section>
-  </div>`;
+    <section class="card"><header class="card-h"><h2>${ic('rotate')}데이터 상태</h2></header><p style="padding:0 18px;color:var(--text-2)">${DATA_STATUS.ready?'현재 데이터가 운영현황에 표시됩니다.':'데이터가 준비될 때까지 운영현황은 0/0과 미작업으로 표시됩니다. 참조 대상 테이블부터 순서대로 CSV를 올려 주세요.'} 샘플 엑셀 원본은 보존됩니다.</p><div style="padding:0 14px 14px">${counts}</div><div class="up-row"><button class="btn sm ghost" id="data-reset">데이터 초기화</button><button class="btn sm ghost" id="data-restore">샘플 데이터 복원</button></div></section>
+  </div>${preview}`;
   const drop=$('#drop');
   if(admin){
     drop.onclick=()=>$('#file').click();
@@ -1136,16 +1217,27 @@ function renderUpload(){
     drop.ondragleave=()=>drop.classList.remove('over');
     drop.ondrop=e=>{e.preventDefault();drop.classList.remove('over');const f=e.dataTransfer.files[0];if(f)handleFile(f)};
   }
-  $('#up-table').onchange=e=>{upTable=e.target.value};
+  $('#up-table').onchange=e=>{upTable=e.target.value;if(pendingUpload){pendingUpload.serverErrors=[];refreshPendingValidation()}};
   $('#role').onchange=e=>{role=e.target.value;renderUpload()};
+  if(p){
+    $('#upload-confirm').onclick=confirmUpload;
+    $('#preview-add-column').onclick=()=>{p.rows.forEach(row=>row.push(''));p.serverErrors=[];renderUpload()};
+    $('#preview-add-row').onclick=()=>{p.rows.push(Array(p.rows[0].length).fill(''));p.serverErrors=[];renderUpload()};
+    $('#upload-preview').onclick=e=>{const button=e.target.closest('[data-delete-row]');if(!button)return;p.rows.splice(+button.dataset.deleteRow,1);p.serverErrors=[];renderUpload()};
+    $('#upload-preview').oninput=e=>{const cell=e.target.closest('[data-cell]');if(!cell)return;const row=+cell.dataset.row-1,col=+cell.dataset.col;p.rows[row][col]=e.target.value;p.serverErrors=[];refreshPendingValidation()};
+    refreshPendingValidation();
+  }
+  if($('#up-template'))$('#up-template').onclick=()=>{if(upTable==='auto'){alert('대상 테이블을 먼저 선택해 주세요.');return}download(`${upTable}_양식.csv`,csvOf(upTable,[]))};
+  $('#data-reset').onclick=async()=>{if(!confirm('현재 데이터를 비울까요? 운영현황은 0/0과 미작업으로 표시됩니다.'))return;const r=await fetch('/api/data/reset',{method:'POST'});if(!r.ok){alert('초기화에 실패했습니다.');return}sessionStorage.removeItem('ax-upload-history');location.reload()};
+  $('#data-restore').onclick=async()=>{if(!confirm('현재 적재 데이터를 샘플 데이터로 교체할까요?'))return;const r=await fetch('/api/data/restore-sample',{method:'POST'});if(!r.ok){alert('샘플 복원에 실패했습니다.');return}sessionStorage.removeItem('ax-upload-history');location.reload()};
 }
 
 let sumKey='',sumEdits={};
 function summaryRows(){
-  const c=metrics('all');
-  const facts=[['기준시각',`${iso(t)} KST · 최신 데이터 기준`]];
+  const c=metrics();
+  const facts=[['기준시각',DATA_STATUS.ready?`${iso(t)} KST · 최신 데이터 기준`:'데이터 없음 · 업로드 전']];
   const tn=c.today.length,td=c.todayDone.length;
-  facts.push(['운영 현황',`금일 계획 작업 ${tn}건 중 ${td}건 완료${tn?`(${pct(td/tn)})`:''}. 기한 도래 ${c.due.length}건 중 ${c.overdue.length}건 미완료. 미해소 사건 ${c.open.length}건.`]);
+  facts.push(['운영 현황',`금일 계획 작업 ${td}/${tn}건 완료${tn?`(${pct(td/tn)})`:''}. 기한 도래 ${c.due.length}건 중 ${c.overdue.length}건 미완료. 미해소 사건 ${c.open.length}건.`]);
   for(const i of c.open){
     const s=st(i.work_order_id),w=s.w,u=UNIT[w.unit]||w.unit,id=w.work_order_id;
     if(i.category==='EQUIPMENT')facts.push(['설비 고장',`${id}${josa(id)} ${i.equipment_id?i.equipment_id+' ':''}${i.summary}. ${hm(i.opened_at)}부터 중단, 진척 ${pct(s.progress)}, 관측 고장시간 ${dur(t-i.opened_at)}. [${i.incident_id}]`]);
@@ -1188,8 +1280,9 @@ function parseRoute(){
   if(!parts.length)return {page:'home'};
   if(parts[0]==='query'){
     const p=new URLSearchParams(qs||'');
-    Object.assign(Q,{type:'wo',vessel:'all',from:'',to:'',text:'',view:'list',status:'',proc:'',due:''});
+    Object.assign(Q,{type:'wo',vessel:'',from:'',to:'',text:'',view:'list',status:'',proc:'',due:''});
     for(const[k,v]of p)Q[k]=v;
+    if(Q.vessel==='all')Q.vessel='';
     if(!QTYPES[Q.type])Q.type='wo';
     return {page:'query'};
   }
