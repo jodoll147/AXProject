@@ -6,7 +6,7 @@
 
 ```text
 app/
-  frontend/       React + Vite 화면
+  frontend/       Vite 화면 (최종 디자인 템플릿 기반)
   backend/        ASP.NET Core API, 엑셀 데이터 로더
 엑셀 파일/         샘플 데이터와 항목 명세
 work/            기존 HTML 화면과 생성 스크립트
@@ -23,7 +23,7 @@ outputs/         생성된 HTML과 화면 샘플
 
 ```powershell
 dotnet restore app/backend/AxBackend.csproj
-dotnet run --project app/backend/AxBackend.csproj --urls http://127.0.0.1:5181
+dotnet run --project app/backend/AxBackend.csproj --urls http://127.0.0.1:5182
 ```
 
 ```powershell
@@ -36,26 +36,29 @@ pnpm dev --host 127.0.0.1
 
 ## 데이터와 API
 
-C# 서버는 `엑셀 파일/02_조선_샘플데이터.xlsx`의 15개 시트를 읽습니다. 원본 파일의 수정 시각이 바뀌면 데이터를 다시 읽습니다.
+C# 서버는 처음에 `엑셀 파일/02_조선_샘플데이터.xlsx`의 15개 시트를 읽습니다. 데이터 초기화 후에는 `app/backend/local-data.json`에 CSV 적재 결과를 저장하며 샘플 엑셀 원본은 보존합니다.
 
 | 경로 | 용도 |
 | --- | --- |
 | `GET /api/health` | 데이터 원본, 최신 스냅샷 시각, 시트별 건수 확인 |
 | `GET /api/data` | 15개 시트의 원본 행을 JSON으로 제공 |
+| `GET /api/data/status` | 샘플/로컬 모드, 테이블별 건수와 화면 준비 여부 |
+| `POST /api/data/reset` | 현재 표시 데이터 초기화 |
+| `POST /api/data/upload` | 검증된 CSV 행을 로컬 저장소에 추가 |
+| `POST /api/data/restore-sample` | 샘플 엑셀 데이터로 복원 |
 
-React 화면은 최신 `equipment_snapshot.as_of` 시각까지의 이력으로 현황을 계산합니다. 샘플 데이터 기준 금일 계획 중 완료 2/6건, 기한 도래 미완료 4건, 미해소 사건 3건, 고장설비 1/8대입니다.
+화면은 최신 `equipment_snapshot.as_of` 시각까지의 이력으로 현황을 계산합니다. 샘플 데이터 기준 금일 계획 중 완료 2/6건, 기한 도래 미완료 4건, 미해소 사건 3건, 고장설비 1/8대입니다.
 
 ## 화면 범위
 
-- 운영현황: 네 가지 핵심 지표, 공정 배치도, 주목할 작업
+- 운영현황: 네 가지 핵심 지표, 좌표 기반 공정 배치도, 주목할 작업
 - 조회: 호선별 블록과 6공정 상태, 설비, 사건, 생산 지연 목록 및 기간·검색 필터
-- 상세: 블록의 6공정 작업, 작업 계획·실적·이력·사건, 설비 상태 구간
+- 상세: 블록 작업지시서·공정 배치도·계획 실적 타임라인, 작업 기록·사건·조치, 설비 상태 구간
 - 운영요약: 규칙 기반 관측 사실과 확인 요청을 수정·복사 가능
+- 데이터 업로드: CSV 선택 시 표로 미리보고 중복 키·필수값·형식·참조를 검증합니다. 정상 셀은 초록색, 오류 셀은 빨간색으로 표시하며 표에서 수정할 수 있습니다. 오류가 0건일 때 별도 업로드 버튼을 눌러 로컬 서버에 저장합니다. `.xlsx`는 직접 받지 않으므로 시트별 UTF-8 CSV로 저장해 올립니다. 데이터가 없으면 운영현황은 0/0과 미작업으로 표시
 
-![React 조회 화면](outputs/react-query-sample.png)
+외부 AI API, 모델, API 키는 연결하지 않았습니다. 운영요약은 규칙 기반 초안입니다.
 
-**AI 요약 영역은 비어 있습니다.** 외부 AI API, 모델, API 키는 연결하지 않았습니다. 기존 HTML 화면의 규칙 기반 운영요약도 유지됩니다.
-
-React 버전은 현재 화면 샘플입니다. 기존 HTML의 CSV 업로드 데모, 과거 시각 재생, 블록 상세 전체 항목은 아직 이식하지 않았습니다. 운영 DB나 MES/PLC와도 연결되지 않았습니다.
+현재 실행 화면은 `work/screen_template.html`의 최종 디자인을 `work/sync_frontend.mjs`로 `app/frontend/index.html`에 동기화한 것입니다. `pnpm dev`와 `pnpm build` 전에 자동으로 동기화하며, 데이터와 업로드 항목 명세는 C# API에서 읽습니다. 이전 React 컴포넌트는 `app/frontend/src/`에 보존되어 있지만 현재 진입 화면에서는 사용하지 않습니다. 운영 DB나 MES/PLC에는 연결되지 않았습니다.
 
 기존 HTML 화면은 `python work/build_screen.py`로 다시 생성할 수 있으며 결과는 `outputs/조선_AX_이력탐색_화면.html`입니다.
