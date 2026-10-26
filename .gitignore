@@ -3,6 +3,8 @@ app/frontend/node_modules/
 app/frontend/dist/
 app/backend/bin/
 app/backend/obj/
+app/backend/local-data.json
+app/backend/local-data.json.tmp
 
 # Runtime and local files
 *.log
@@ -18,6 +20,10 @@ work/screen_template.*-before-*.html
 
 # Local project records and design documents (README stays tracked)
 docs/
+!docs/
+!docs/*.md
+!docs/작업_기록/
+!docs/작업_기록/*.md
 outputs/*.md
 outputs/*.docx
 /조선_AX_요구사항_분석.md
