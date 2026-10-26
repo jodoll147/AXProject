@@ -4,10 +4,12 @@
 
 - `app/frontend`: Vite 8. `work/screen_template.html`의 최종 디자인을 실행 화면으로 사용한다. 기존 React 컴포넌트는 `src/`에 보존되어 있다.
 - `app/backend`: ASP.NET Core 10 API + ClosedXML. 샘플 엑셀 또는 로컬 적재 JSON을 읽어 제공한다.
-- `엑셀 파일/02_조선_샘플데이터.xlsx`: 초기 샘플 데이터 원본이다. 초기화와 CSV 업로드는 이 파일을 변경하지 않는다.
+- `엑셀 파일/02_조선_샘플데이터.xlsx`: 로컬에서 별도로 준비하는 초기 샘플 데이터 원본이다. Git에는 포함되지 않으며 초기화와 CSV 업로드는 이 파일을 변경하지 않는다.
 - `work/screen_template.html`: 화면 디자인 원본. `work/sync_frontend.mjs`가 개발 실행·빌드 전에 `app/frontend/index.html`로 동기화한다.
 
 ## 개발 실행
+
+실행 전에 `엑셀 파일/01_조선_데이터참고명세서.xlsx`와 `엑셀 파일/02_조선_샘플데이터.xlsx`를 로컬에 준비한다. 엑셀·CSV·ZIP 데이터 파일은 Git 추적 대상이 아니다.
 
 서로 다른 터미널에서 프로젝트 루트 기준으로 실행한다.
 

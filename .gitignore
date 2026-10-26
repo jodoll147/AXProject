@@ -6,6 +6,15 @@ app/backend/obj/
 app/backend/local-data.json
 app/backend/local-data.json.tmp
 
+# Local source data and exports
+/엑셀 파일/
+*.xls
+*.xlsx
+*.xlsm
+*.xlsb
+*.csv
+*.zip
+
 # Runtime and local files
 *.log
 *.err.log
