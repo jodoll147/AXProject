@@ -563,6 +563,20 @@ select option{background:var(--panel-2)}
 @media (max-width:1180px){.mgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.today,.dcols,.two{grid-template-columns:minmax(0,1fr)}.dtiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:680px){.topnav .brand{flex:1}.topnav .right{width:100%;justify-content:stretch}.topnav .calc{display:none}.topnav .time{flex:1 1 100%}.topnav .right>a.btn{flex:1}.mgrid,.watch-grid{grid-template-columns:1fr}.mt{padding:12px}.mt .mv b{font-size:34px}.mt.primary .mv b{font-size:40px}.qf select,.qf input[type=search]{min-width:0;width:100%}.qf{flex:1 1 100%;min-width:0}.qf .seg{flex-wrap:wrap}.qf .dr{flex-wrap:wrap}.view{padding:12px 14px 22px}.topnav{padding:10px 14px}.tabs{margin-left:0}.flow{grid-template-columns:repeat(3,minmax(0,1fr))}.dtiles{grid-template-columns:1fr}.tw{grid-template-columns:30px 50px minmax(0,1fr) 90px}.tw .pn+.pn{display:none}.eqs{grid-template-columns:repeat(2,minmax(0,1fr))}}
 a.btn{text-decoration:none}
+.login-wrap{min-height:65vh;display:flex;align-items:center;justify-content:center;padding:32px 0}
+.login-card{width:min(100%,440px);padding:32px}
+.login-card h2{margin:0 0 10px;font-size:24px}
+.login-card p{margin:0 0 20px;color:var(--text-2);line-height:1.6}
+.login-card label{display:block;margin:16px 0 8px;font-size:13px;font-weight:600}
+.login-card input{width:100%;padding:12px;border:1px solid var(--line-2);border-radius:9px;background:var(--panel-3);color:var(--text);font:inherit}
+.login-card input:disabled{opacity:.7}
+.login-card .login-submit{width:100%;margin-top:22px}
+.settings-stack{display:grid;gap:16px}.settings-body{padding:22px}.settings-body input,.settings-body select{box-sizing:border-box;min-width:0;width:100%;min-height:40px;background:var(--panel-3);color:var(--text);border:1px solid var(--line-2);border-radius:7px;padding:10px 12px;font:inherit}.settings-body form{display:flex;gap:20px;flex-wrap:wrap;align-items:end}.settings-body label{display:flex;flex-direction:column;gap:10px;min-width:0;font-size:12px;line-height:1.5;color:var(--text-2)}.settings-body input[type=checkbox]{width:18px;height:18px;min-height:18px;accent-color:var(--accent)}
+#user-form,#audit-filter,#work-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:22px 20px}
+.settings-body form>.btn{justify-self:start;align-self:end;min-height:40px}.settings-body h3{margin:24px 0 18px}.work-selectors{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-bottom:28px;padding-bottom:24px;border-bottom:1px solid var(--line)}
+.production-detail{margin-top:18px}.production-detail .plan-facts{display:flex;flex-wrap:wrap;gap:12px 24px;padding:4px 0 18px;font-size:13px;line-height:1.6}.production-detail .hint{line-height:1.6}.production-detail h3{font-size:14px;margin:22px 0 12px}
+@media(max-width:640px){.settings-body{padding:16px}.work-selectors{grid-template-columns:1fr;gap:22px}.production-detail .card-h{flex-wrap:wrap}.tabs{width:100%;max-width:100%;overflow-x:auto}.tabs a{flex:none;white-space:nowrap}}
+.login-card .login-note{margin:18px 0 0;font-size:13px;color:var(--muted)}
 .lay-wrap{overflow-x:auto;margin:0 -4px;padding:18px 4px 16px}
 .lay{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:38px 30px;width:100%;min-width:760px;color:var(--muted)}
 .zbox{position:relative;display:block;min-width:0;height:174px;color:var(--text);text-decoration:none;filter:drop-shadow(0 11px 10px rgba(0,0,0,.47));transition:transform .18s,filter .18s}
@@ -668,6 +682,7 @@ a.btn{text-decoration:none}
   <div class="right">
     <a class="btn" href="#/summary"><svg class="ic" aria-hidden="true"><use href="#i-file"/></svg>운영요약</a>
     <a class="btn" href="#/upload"><svg class="ic" aria-hidden="true"><use href="#i-upload"/></svg>데이터 업로드</a>
+    <a class="btn" id="account-link" href="#/login"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg>로그인</a>
   </div>
 </header>
 
@@ -677,6 +692,9 @@ a.btn{text-decoration:none}
   <section class="page" data-pg="detail" id="pg-detail"></section>
   <section class="page" data-pg="summary"><div class="two" id="pg-summary"></div></section>
   <section class="page" data-pg="upload"><div class="two" id="pg-upload"></div></section>
+  <section class="page" data-pg="login"><div class="login-wrap"><form class="card login-card" id="login-form"><h2>로그인</h2><p>계정으로 로그인하여 운영 정보를 확인하세요.</p><label for="login-id">아이디</label><input id="login-id" placeholder="아이디 입력" autocomplete="username" required><label for="login-password">비밀번호</label><input id="login-password" type="password" placeholder="비밀번호 입력" autocomplete="current-password" required><button class="btn accent login-submit" type="submit">로그인</button><p id="login-message" class="login-note" role="status"></p></form></div></section>
+  <section class="page" data-pg="settings"><div class="settings-stack" id="pg-settings"></div></section>
+  <section class="page" data-pg="work"><div class="settings-stack" id="pg-work"></div></section>
 </div>
 
 <input type="file" id="file" accept=".csv,text/csv" hidden>
@@ -806,7 +824,7 @@ function issueCard(s){
 }
 
 function renderChrome(){
-  const tabs=[['home','운영현황','board','#/'],['query','조회','list','#/query']];
+  const tabs=[['home','운영현황','board','#/'],['query','조회','list','#/query'],['settings','Settings','users','#/settings'],...(CURRENT_PERMISSIONS.includes('work')?[['work','담당 입력','edit','#/work']]:[])];
   const active=['home','query'].includes(route.page)?route.page:route.page==='detail'?'query':'';
   $('#tabs').innerHTML=tabs.map(([k,l,i,h])=>`<a href="${h}" class="${active===k?'on':''}">${ic(i)}${l}</a>`).join('');
   document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.dataset.pg===route.page));
@@ -961,6 +979,26 @@ function segmentsOf(s){
 }
 const crumb=items=>`<div class="crumb">${items.map(([l,h])=>h?`<a href="${h}">${l}</a>`:`<span>${l}</span>`).join(ic('chev-r'))}</div>`;
 
+function productionComparison(w,plan,records,asOf){
+  const observed=records.filter(a=>a.period_end_at<=asOf).sort((a,b)=>a.period_end_at-b.period_end_at||a.actual_id.localeCompare(b.actual_id));
+  const matching=observed.filter(a=>a.unit===w.unit);
+  const currentDate=ymd(asOf),daily=new Map();
+  if(plan)daily.set(plan.plan_date,{date:plan.plan_date,plan,actual:0});
+  for(const a of matching){const date=ymd(a.period_end_at);if(!daily.has(date))daily.set(date,{date,plan:null,actual:0});daily.get(date).actual+=a.accepted_qty_delta}
+  let cumulative=0;
+  return {observed:observed.map(a=>({...a,cumulative:a.unit===w.unit?(cumulative+=a.accepted_qty_delta):null})),excluded:observed.length-matching.length,
+    days:[...daily.values()].sort((a,b)=>a.date.localeCompare(b.date)).map(d=>{const future=d.date>currentDate,comparable=!!d.plan&&d.plan.unit===w.unit&&!future;return {...d,future,difference:comparable?d.actual-d.plan.planned_qty:null,rate:comparable&&d.plan.planned_qty>0?d.actual/d.plan.planned_qty:null}})};
+}
+function productionDetail(s,plan){
+  const w=s.w,u=UNIT[w.unit]||w.unit,c=productionComparison(w,plan,ACT[s.id]||[],t);
+  return `<section class="card production-detail"><header class="card-h"><h2>${ic('cal-check')}기준계획·실적 비교</h2><span class="hint">${esc(PROC[w.process_id].process_name)} · ${esc(u)}</span></header>
+    ${plan?`<div class="plan-facts"><span>계획번호 <b>${esc(plan.plan_id)}</b></span><span>버전 <b>${esc(plan.plan_version)}</b></span><span>계획일 <b>${esc(plan.plan_date)}</b></span><span>계획량 <b>${num(plan.planned_qty)} ${esc(UNIT[plan.unit]||plan.unit)}</b></span></div>`:'<p class="hint">등록된 기준계획이 없습니다.</p>'}
+    <p class="hint">한국시간 기준 실적 종료일에 신규 인정수량을 합산합니다. 기준시각 이후 실적은 제외하며, 미래 계획은 실적과 비교하지 않습니다. 당일 실적은 기준시각까지의 값입니다.</p>
+    ${c.excluded||plan&&plan.unit!==w.unit?'<p class="hint" role="status">작업과 단위가 다른 자료는 비교·누적에서 제외했습니다. 원본 단위는 아래 기록에서 확인하세요.</p>':''}
+    <div class="tbl-wrap"><table class="tbl" aria-label="일별 계획 실적 비교"><thead><tr><th>일자</th><th>구분</th><th class="r">계획량</th><th class="r">일별 인정수량</th><th class="r">실적 − 계획</th><th class="r">달성률</th></tr></thead><tbody>${c.days.map(d=>`<tr><td>${esc(d.date)}</td><td>${d.future?'미래 계획':d.date===ymd(t)?'기준시각까지':'관측 완료일'}</td><td class="r">${d.plan?num(d.plan.planned_qty)+' '+esc(UNIT[d.plan.unit]||d.plan.unit):'—'}</td><td class="r">${d.future?'—':num(d.actual)+' '+esc(u)}</td><td class="r">${d.difference==null?'—':(d.difference>0?'+':'')+num(d.difference)+' '+esc(u)}</td><td class="r">${pct(d.rate)}</td></tr>`).join('')||'<tr><td colspan="6">비교할 계획·실적이 없습니다.</td></tr>'}</tbody></table></div>
+    <h3>기간별 실적 기록</h3><div class="tbl-wrap"><table class="tbl" aria-label="기간별 실적 기록"><thead><tr><th>실적번호</th><th>집계 시작</th><th>집계 종료</th><th class="r">신규 인정수량</th><th class="r">누적 인정수량</th><th>출처</th></tr></thead><tbody>${c.observed.map(a=>`<tr><td class="id">${esc(a.actual_id)}</td><td>${esc(iso(a.period_start_at))}</td><td>${esc(iso(a.period_end_at))}</td><td class="r">${num(a.accepted_qty_delta)} ${esc(UNIT[a.unit]||a.unit)}</td><td class="r">${a.cumulative==null?'단위 불일치':num(a.cumulative)+' '+esc(u)}</td><td>${esc(a.record_source||'—')}</td></tr>`).join('')||'<tr><td colspan="6">기준시각까지 확정된 실적이 없습니다.</td></tr>'}</tbody></table></div>
+  </section>`;
+}
 function woPage(id){
   const s=st(id),w=s.w,p=PROC[w.process_id],b=BLK[w.block_id],plan=PLAN[id],u=UNIT[w.unit]||w.unit;
   const flow=PROCS.map(pp=>st(WO_AT[w.block_id+'|'+pp.process_id]));
@@ -994,6 +1032,7 @@ function woPage(id){
       <div class="dlabels">${hours.map(h=>`<span style="left:${ax.x(h)}%">${ax.n>1&&iso(h).slice(11,13)==='08'?md(h)+' ':''}${iso(h).slice(11,13)}</span>`).join('')}</div>
       <div class="dlegend"><span><i class="p"></i>계획</span><span class="run"><i></i>작업</span><span class="fault"><i></i>설비 고장</span><span class="hold"><i></i>자재 대기</span><span class="quality"><i></i>품질 보류</span><span><i style="width:2px;height:12px;background:var(--accent)"></i>기준시각</span></div>
     </section>
+    ${productionDetail(s,plan)}
     <div class="dcols">
       <div class="stack">
         <section class="card"><header class="card-h"><h2>${ic('history')}작업 기록</h2></header>${s.his.length?`<div class="hist">${[...s.his].reverse().map(h=>{const hi=INC[h.incident_id],[tone,icon]=h.event_type==='PAUSE'&&hi?[CAT[hi.category].tone,CAT[hi.category].icon]:H_LOOK[h.event_type];return `<div class="h-row"><time>${when(h.event_at)}</time><span class="dot ${tone}">${ic(icon)}</span><span class="t">${esc(h.note)}${h.incident_id?`<em>${h.incident_id}</em>`:''}</span></div>`}).join('')}</div>`:'<div class="none">아직 기록 없음</div>'}</section>
@@ -1071,7 +1110,7 @@ try{uploads=JSON.parse(sessionStorage.getItem('ax-upload-history')||'[]').map(u=
   ...u,at:new Date(u.at),hash:null,table:null,n:0,applied:false,
   errs:[{row:0,field:'파일 형식',rule:'CSV 전용',msg:'엑셀(.xlsx)은 업로드할 수 없습니다. 각 시트를 UTF-8 CSV로 저장해 테이블별로 올려 주세요.'}]
 }:{...u,at:new Date(u.at)})}catch{uploads=[]}
-let lastResult=uploads[0]||null,upTable='auto',role='admin',pendingUpload=null;
+let lastResult=uploads[0]||null,upTable='auto',role=CURRENT_PERMISSIONS.includes('upload')?'admin':'viewer',pendingUpload=null;
 function parseCSV(text){
   text=text.replace(/^﻿/,'');const rows=[];let row=[],f='',q=false;
   for(let i=0;i<text.length;i++){const ch=text[i];
@@ -1194,9 +1233,9 @@ function renderUpload(){
   const res=r?(()=>{const ok=!r.errs.length,tone=ok?'ok':'fault';return `<div class="res ${tone}"><span class="is-ic">${ic(ok?'circle-check':'ban')}</span><span><b class="big">${ok?'적재 완료':'배치 취소'}</b><br><small style="color:var(--text-2)">${ok?'모든 행이 규칙을 통과 · 서버 데이터에 저장됨':`오류 ${r.errs.length}건 · 데이터 변경 없이 종료`}</small></span><span class="kl">파일<b>${esc(r.name)}</b></span><span class="kl">테이블<b>${r.table||'판별 불가'}</b></span><span class="kl">행 수<b>${r.n}</b></span><span class="kl">SHA-256<b>${r.hash?r.hash.slice(0,12)+'…':'—'}</b></span></div>
     ${r.errs.length?`<div class="tbl-wrap" style="margin-top:12px;max-height:340px"><table class="tbl"><thead><tr><th class="r">행</th><th>필드</th><th>규칙</th><th>원인</th></tr></thead><tbody>${r.errs.map(e=>`<tr><td class="r id">${e.row}</td><td class="id">${esc(e.field)}</td><td>${chip('fault','',e.rule)}</td><td style="white-space:normal">${esc(e.msg)}</td></tr>`).join('')}</tbody></table></div>`:''}`})():`<div class="none">CSV를 올리면 여기에 검증 결과가 나옵니다</div>`;
   $('#pg-upload').innerHTML=`<div class="stack">
-    <div class="vhead" style="margin:0"><div><h2>데이터 업로드</h2><p>CSV 선택 → 표에서 검증·수정 → 업로드 버튼으로 저장</p></div><span class="sp"></span><label class="qf">역할 (제안안)<select id="role">${[['admin','관리자'],['worker','작업담당자'],['viewer','조회자']].map(([k,l])=>`<option value="${k}"${role===k?' selected':''}>${l}</option>`).join('')}</select></label></div>
+    <div class="vhead" style="margin:0"><div><h2>데이터 업로드</h2><p>CSV 선택 → 표에서 검증·수정 → 업로드 버튼으로 저장</p></div><span class="sp"></span></div>
     <section class="card"><header class="card-h"><h2>${ic('upload')}CSV 적재</h2><span class="hint">UTF-8 · 쉼표 구분 · 첫 행 영문 필드명</span></header>
-      <div class="drop${admin?'':' locked'}" id="drop">${ic(admin?'upload':'lock')}<b>${admin?'CSV 파일을 끌어다 놓거나 눌러서 선택':'관리자 역할만 적재할 수 있습니다'}</b><small>엑셀 통합 문서는 시트별 CSV로 저장한 뒤 올려 주세요</small></div>
+      <div class="drop${admin?'':' locked'}" id="drop">${ic(admin?'upload':'lock')}<b>${admin?'CSV 파일을 끌어다 놓거나 눌러서 선택':'데이터 적재 권한이 없습니다'}</b><small>엑셀 통합 문서는 시트별 CSV로 저장한 뒤 올려 주세요</small></div>
       <div class="up-row"><label class="up-sel">대상 테이블<select id="up-table"><option value="auto">자동 판별</option>${Object.keys(SPEC).map(k=>`<option value="${k}"${upTable===k?' selected':''}>${k}</option>`).join('')}</select></label><span style="flex:1"></span>${DATA_STATUS.ready?`<button class="btn sm" data-sample="ok">${ic('download')}정상 예시 받기</button><button class="btn sm" data-sample="bad">${ic('download')}오류 예시 받기</button>`:`<button class="btn sm" id="up-template">${ic('download')}선택 테이블 양식 받기</button>`}</div>
     </section>
     <section class="card"><header class="card-h"><h2>${ic('history')}최근 업로드 결과</h2></header>${res}</section>
@@ -1208,7 +1247,7 @@ function renderUpload(){
     <section class="card"><header class="card-h"><h2>${ic('history')}업로드 이력</h2><span class="count">${uploads.length}</span></header>
       ${uploads.map(u=>`<div class="rec ${u.errs.length?'fault':'ok'}" style="cursor:default"><time>${u.at.toLocaleTimeString('sv-SE').slice(0,5)}</time><span class="dot">${ic(u.errs.length?'ban':'check')}</span><span><b>${esc(u.name)}</b><small>${u.table||'—'} · ${u.n}행 · ${u.errs.length?`오류 ${u.errs.length}건 · 취소`:'저장 완료'} · ${u.hash?u.hash.slice(0,8):'—'}</small></span></div>`).join('')||'<div class="none">이번 세션의 업로드 없음</div>'}
     </section>
-    <section class="card"><header class="card-h"><h2>${ic('rotate')}데이터 상태</h2></header><p style="padding:0 18px;color:var(--text-2)">${DATA_STATUS.ready?'현재 데이터가 운영현황에 표시됩니다.':'데이터가 준비될 때까지 운영현황은 0/0과 미작업으로 표시됩니다. 참조 대상 테이블부터 순서대로 CSV를 올려 주세요.'} 샘플 엑셀 원본은 보존됩니다.</p><div style="padding:0 14px 14px">${counts}</div><div class="up-row"><button class="btn sm ghost" id="data-reset">데이터 초기화</button><button class="btn sm ghost" id="data-restore">샘플 데이터 복원</button></div></section>
+    <section class="card"><header class="card-h"><h2>${ic('rotate')}데이터 상태</h2></header><p style="padding:0 18px;color:var(--text-2)">${DATA_STATUS.ready?'현재 데이터가 운영현황에 표시됩니다.':'데이터가 준비될 때까지 운영현황은 0/0과 미작업으로 표시됩니다. 참조 대상 테이블부터 순서대로 CSV를 올려 주세요.'} 샘플 엑셀 원본은 보존됩니다.</p><div style="padding:0 14px 14px">${counts}</div><div class="up-row"><button class="btn sm ghost" id="data-reset" ${admin?'':'disabled'}>데이터 초기화</button><button class="btn sm ghost" id="data-restore" ${admin?'':'disabled'}>샘플 데이터 복원</button></div></section>
   </div>${preview}`;
   const drop=$('#drop');
   if(admin){
@@ -1218,7 +1257,6 @@ function renderUpload(){
     drop.ondrop=e=>{e.preventDefault();drop.classList.remove('over');const f=e.dataTransfer.files[0];if(f)handleFile(f)};
   }
   $('#up-table').onchange=e=>{upTable=e.target.value;if(pendingUpload){pendingUpload.serverErrors=[];refreshPendingValidation()}};
-  $('#role').onchange=e=>{role=e.target.value;renderUpload()};
   if(p){
     $('#upload-confirm').onclick=confirmUpload;
     $('#preview-add-column').onclick=()=>{p.rows.forEach(row=>row.push(''));p.serverErrors=[];renderUpload()};
@@ -1274,6 +1312,32 @@ function renderSummary(force){
   $('#sum-copy').onclick=async e=>{const b=e.currentTarget,txt=[...document.querySelectorAll('#pg-summary .sum-row')].map(r=>`${r.querySelector('b').innerText}\t${r.querySelector('.ed').innerText.replace(/\s+/g,' ')}`).join('\n');try{await navigator.clipboard.writeText(txt);b.innerHTML=`${ic('check')}복사됨`}catch{b.innerHTML=`${ic('x')}복사 실패`}};
 }
 
+let auditFilter={};
+async function renderSettings(){
+  const root=$('#pg-settings');
+  if(CURRENT_USER.role!=='ADMIN'){root.innerHTML=`<div class="vhead"><div><h2>Settings</h2><p>현재 계정과 역할</p></div></div><section class="card"><div class="settings-body"><h2>${esc(CURRENT_USER.name)} · ${esc(CURRENT_USER.role)}</h2><p>역할과 계정 설정은 관리자만 변경할 수 있습니다.</p></div></section>`;return}
+  root.innerHTML='<div class="empty">설정을 불러오는 중입니다.</div>';
+  try{
+    const responses=await Promise.all(['/api/admin/users','/api/admin/permissions','/api/admin/audit?'+new URLSearchParams(auditFilter)].map(url=>fetch(url)));
+    if(responses.some(r=>!r.ok))throw Error('설정을 불러오지 못했습니다.');
+    const [users,perms,audits]=await Promise.all(responses.map(r=>r.json()));
+    root.innerHTML=`<div class="vhead"><div><h2>Settings</h2><p>관리자 전용 · 역할별 권한과 사용자 계정 관리</p></div></div>
+      <section class="card"><header class="card-h"><h2>역할별 권한</h2><span class="hint">관리 권한은 관리자만 가집니다.</span></header><div class="settings-body"><form id="permission-form"><table class="tbl"><thead><tr><th>기능</th><th>조회자</th><th>작업담당자</th><th>관리자</th></tr></thead><tbody>${[['read','운영현황·조회'],['work','담당 실적·사건 입력'],['upload','데이터 적재·초기화']].map(([key,label])=>`<tr><td>${label}</td>${['VIEWER','WORKER'].map(r=>`<td><input type="checkbox" name="${r}:${key}" ${perms[r]?.includes(key)?'checked':''} ${key==='read'?'disabled':''} aria-label="${r} ${label}"></td>`).join('')}<td>허용</td></tr>`).join('')}<tr><td>역할·계정·감사 관리</td><td>제한</td><td>제한</td><td>허용</td></tr></tbody></table><button class="btn accent" type="submit">변경 사항 저장</button></form><p id="settings-msg" role="status"></p></div></section>
+      <section class="card"><header class="card-h"><h2>사용자 역할 배정</h2></header><div class="settings-body"><table class="tbl"><thead><tr><th>사용자</th><th>아이디</th><th>역할</th><th>담당 작업</th><th>상태</th><th>관리</th></tr></thead><tbody>${users.map(u=>`<tr><td>${esc(u.name)}</td><td>${esc(u.login)}</td><td>${esc(u.role)}</td><td>${esc(u.assignments.join(', ')||'—')}</td><td>${u.active?'활성':'비활성'}</td><td><button class="btn sm" data-edit-user="${esc(u.id)}">수정</button></td></tr>`).join('')}</tbody></table><h3 id="user-form-title">사용자 추가</h3><form id="user-form"><input type="hidden" name="id"><label>아이디<input name="login" required></label><label>이름<input name="name" required></label><label>역할<select name="role"><option>VIEWER</option><option>WORKER</option><option>ADMIN</option></select></label><label>비밀번호 (12자 이상)<input name="password" type="password" autocomplete="new-password"></label><label>담당 작업번호 (쉼표 구분)<input name="assignments" placeholder="WO001-01, WO001-02"></label><label>활성<input type="checkbox" name="active" checked></label><button class="btn accent" type="submit">저장</button><button class="btn" type="button" id="user-clear">입력 초기화</button></form><p class="hint">수정 시 비밀번호를 비워두면 기존 비밀번호가 유지됩니다.</p><p id="user-msg" role="status"></p></div></section>
+      <section class="card"><header class="card-h"><h2>감사 이력</h2><span class="hint">최근 200건</span></header><div class="settings-body"><form id="audit-filter"><label>수행자 ID<input name="actor" value="${esc(auditFilter.actor||'')}"></label><label>작업<input name="action" value="${esc(auditFilter.action||'')}"></label><label>대상<input name="target" value="${esc(auditFilter.target||'')}"></label><label>시작일<input type="date" name="fromDate" value="${esc(auditFilter.fromDate||'')}"></label><label>종료일<input type="date" name="toDate" value="${esc(auditFilter.toDate||'')}"></label><button class="btn" type="submit">조회</button></form></div><div class="tbl-wrap"><table class="tbl"><thead><tr><th>시각</th><th>수행자 ID</th><th>작업</th><th>대상</th><th>변경 내용</th></tr></thead><tbody>${audits.map(a=>`<tr><td>${esc(a.at)}</td><td>${esc(a.actor)}</td><td>${esc(a.action)}</td><td>${esc(a.target)} ${esc(a.targetId)}</td><td><details><summary>보기</summary><pre>${esc(JSON.stringify({before:a.before,after:a.after},null,2))}</pre></details></td></tr>`).join('')||'<tr><td colspan="5">기록 없음</td></tr>'}</tbody></table></div></section>`;
+    $('#audit-filter').onsubmit=e=>{e.preventDefault();const f=e.currentTarget.elements;const fromDate=f.fromDate.value,toDate=f.toDate.value;if(fromDate&&toDate&&fromDate>toDate){alert('시작일이 종료일보다 늦습니다.');return}auditFilter={actor:f.actor.value,action:f.action.value,target:f.target.value,fromDate,toDate,...(fromDate?{from:fromDate+'T00:00:00+09:00'}:{}),...(toDate?{to:toDate+'T23:59:59+09:00'}:{})};renderSettings()};
+    $('#permission-form').onsubmit=async e=>{e.preventDefault();const p={};for(const r of ['VIEWER','WORKER'])p[r]=['read',...['work','upload'].filter(k=>e.currentTarget.elements.namedItem(r+':'+k).checked)];const response=await fetch('/api/admin/permissions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({permissions:p})});$('#settings-msg').textContent=response.ok?'저장했습니다.':(await response.json()).message||'저장하지 못했습니다.'};
+    const f=$('#user-form');$('#user-clear').onclick=()=>{f.reset();f.elements.id.value='';f.elements.login.disabled=false;$('#user-form-title').textContent='사용자 추가'};
+    root.querySelectorAll('[data-edit-user]').forEach(b=>b.onclick=()=>{const u=users.find(x=>x.id===b.dataset.editUser);f.elements.id.value=u.id;f.elements.login.value=u.login;f.elements.login.disabled=true;f.elements.name.value=u.name;f.elements.role.value=u.role;f.elements.password.value='';f.elements.assignments.value=u.assignments.join(', ');f.elements.active.checked=u.active;$('#user-form-title').textContent='사용자 수정';f.scrollIntoView({behavior:'smooth'})});
+    f.onsubmit=async e=>{e.preventDefault();const x=f.elements,id=x.id.value,payload={login:x.login.value,name:x.name.value,role:x.role.value,password:x.password.value,active:x.active.checked,assignments:x.assignments.value.split(',').map(s=>s.trim()).filter(Boolean)};const response=await fetch('/api/admin/users'+(id?'/'+encodeURIComponent(id):''),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});if(response.ok)renderSettings();else $('#user-msg').textContent=(await response.json()).message||'저장하지 못했습니다.'};
+  }catch(e){root.innerHTML=`<div class="empty">${esc(e.message)}</div>`}
+}
+function renderWork(){
+  const root=$('#pg-work');if(!CURRENT_PERMISSIONS.includes('work')){root.innerHTML='<div class="empty">담당 입력 권한이 없습니다.</div>';return}
+  root.innerHTML=`<div class="vhead"><div><h2>담당 실적·사건 입력</h2><p>관리자가 배정한 작업에만 입력할 수 있습니다.</p></div></div><section class="card"><div class="settings-body"><div class="work-selectors"><label><span>입력 종류</span><select id="work-table"><option value="production_actual">생산 실적</option><option value="incidents">사건</option></select></label><label><span>기존 기록 선택</span><select id="work-existing"></select></label></div><form id="work-form"></form><p id="work-msg" role="status"></p></div></section>`;
+  const table=$('#work-table'),form=$('#work-form'),existing=$('#work-existing');const draw=()=>{const key=table.value==='production_actual'?'actual_id':'incident_id',rows=D[table.value].filter(r=>CURRENT_USER.role==='ADMIN'||CURRENT_USER.assignments.includes(r.work_order_id));existing.innerHTML='<option value="">새 기록</option>'+rows.map(r=>`<option value="${esc(r[key])}">${esc(r[key])} · ${esc(r.work_order_id)}</option>`).join('');form.innerHTML=SPEC[table.value].map(s=>`<label>${esc(s.label)}${s.required?' *':''}<input name="${esc(s.field)}" ${s.required?'required':''} placeholder="${esc(s.field)}"></label>`).join('')+'<button class="btn accent" type="submit">저장</button>';existing.onchange=()=>{const item=rows.find(r=>String(r[key])===existing.value);form.reset();if(item)for(const field of SPEC[table.value]){let value=item[field.field]??'';if(TIME_KEYS.includes(field.field)&&typeof value==='number')value=new Date(value+9*36e5).toISOString().slice(0,19)+'+09:00';form.elements.namedItem(field.field).value=value}}};table.onchange=draw;draw();
+  form.onsubmit=async e=>{e.preventDefault();const row=Object.fromEntries(new FormData(form));const res=await fetch('/api/work/entry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({table:table.value,row,id:existing.value||null})});let x=await res.json().catch(()=>({}));$('#work-msg').textContent=res.ok?'저장했습니다. 새로고침하면 현황에 반영됩니다.':res.status===403?'배정되지 않은 작업입니다.':(x.errors||[]).map(z=>`${z.field}: ${z.msg}`).join(' / ')||x.message||'저장하지 못했습니다.';if(res.ok)form.reset()};
+}
 function parseRoute(){
   const h=location.hash.slice(1)||'/';
   const [path,qs]=h.split('?'),parts=path.split('/').filter(Boolean);
@@ -1287,7 +1351,7 @@ function parseRoute(){
     return {page:'query'};
   }
   if(['wo','eq','blk'].includes(parts[0])&&({wo:WO,eq:EQ,blk:BLK}[parts[0]])[parts[1]])return {page:'detail',type:parts[0],id:parts[1]};
-  if(['summary','upload'].includes(parts[0]))return {page:parts[0]};
+  if(['summary','upload','login','settings','work'].includes(parts[0]))return {page:parts[0]};
   return {page:'home'};
 }
 
@@ -1298,7 +1362,9 @@ function render(){
   else if(route.page==='detail'){$('#pg-detail').innerHTML={wo:woPage,eq:eqPage,blk:blkPage}[route.type](route.id);document.title=`조선 AX · ${route.id}`}
   else if(route.page==='summary')renderSummary();
   else if(route.page==='upload')renderUpload();
-  if(route.page!=='detail')document.title=`조선 AX · ${{home:'운영현황',query:'조회',summary:'운영요약',upload:'데이터 업로드'}[route.page]}`;
+  else if(route.page==='settings')renderSettings();
+  else if(route.page==='work')renderWork();
+  if(route.page!=='detail')document.title=`조선 AX · ${{home:'운영현황',query:'조회',summary:'운영요약',upload:'데이터 업로드',login:'로그인',settings:'설정',work:'담당 입력'}[route.page]}`;
 }
 
 $('#file').onchange=e=>{const f=e.target.files[0];if(f)handleFile(f);e.target.value=''};

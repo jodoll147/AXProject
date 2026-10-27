@@ -5,6 +5,9 @@ app/backend/bin/
 app/backend/obj/
 app/backend/local-data.json
 app/backend/local-data.json.tmp
+app/backend/app-state.json
+app/backend/app-state.json.tmp
+app/backend/data-protection-keys/
 
 # Local source data and exports
 /엑셀 파일/

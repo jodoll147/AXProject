@@ -2,13 +2,33 @@ using ClosedXML.Excel;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
+var keyDirectory = Environment.GetEnvironmentVariable("AX_KEY_DIR") ?? Path.Combine(builder.Environment.ContentRootPath, "data-protection-keys");
+Directory.CreateDirectory(keyDirectory);
+builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(keyDirectory));
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options => {
+    options.Cookie.HttpOnly = true; options.Cookie.SameSite = SameSiteMode.Strict;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Events.OnRedirectToLogin = c => { c.Response.StatusCode = 401; return Task.CompletedTask; };
+    options.Events.OnRedirectToAccessDenied = c => { c.Response.StatusCode = 403; return Task.CompletedTask; };
+});
+builder.Services.AddAuthorization();
+builder.Services.AddRateLimiter(options => { options.RejectionStatusCode = 429; options.AddPolicy("login", ctx => RateLimitPartition.GetFixedWindowLimiter(ctx.Connection.RemoteIpAddress?.ToString() ?? "unknown", _ => new FixedWindowRateLimiterOptions { PermitLimit = 10, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 })); });
 var app = builder.Build();
 var root = Path.GetFullPath(Path.Combine(app.Environment.ContentRootPath, "..", ".."));
 var workbookPath = Path.Combine(root, "엑셀 파일", "02_조선_샘플데이터.xlsx");
 var specificationPath = Path.Combine(root, "엑셀 파일", "01_조선_데이터참고명세서.xlsx");
 var localDataPath = Path.Combine(root, "app", "backend", "local-data.json");
+var statePath = Environment.GetEnvironmentVariable("AX_STATE_PATH") ?? Path.Combine(root, "app", "backend", "app-state.json");
+var store = new AppStore(Path.GetFullPath(statePath));
+store.Bootstrap(Environment.GetEnvironmentVariable("AX_ADMIN_LOGIN"), Environment.GetEnvironmentVariable("AX_ADMIN_PASSWORD"),
+    app.Environment.IsDevelopment() && Environment.GetEnvironmentVariable("AX_ALLOW_SHORT_DEV_ADMIN_PASSWORD") == "1");
 var tables = new[] { "vessels", "zones", "processes", "equipment", "blocks", "status_codes", "work_orders", "production_plan", "production_actual", "equipment_intervals", "incidents", "work_history", "inspections", "rework", "equipment_snapshot" };
 var requiredTables = new[] { "vessels", "zones", "processes", "equipment", "blocks", "status_codes", "work_orders", "production_plan", "equipment_snapshot" };
 var cacheLock = new object();
@@ -20,7 +40,9 @@ Dictionary<string, List<Dictionary<string, object?>>> LoadData()
 {
     lock (cacheLock)
     {
-        var source = File.Exists(localDataPath) ? localDataPath : workbookPath;
+        var snapshot = store.Read(s => (s.Data, s.Mode));
+        if (snapshot.Data is not null) return tables.ToDictionary(table => table, table => snapshot.Data.GetValueOrDefault(table) ?? []);
+        var source = snapshot.Mode == "legacy" && File.Exists(localDataPath) ? localDataPath : workbookPath;
         if (!File.Exists(source)) throw new FileNotFoundException("데이터 파일을 찾을 수 없습니다.", source);
         var write = File.GetLastWriteTimeUtc(source);
         if (cached is not null && write == cachedWrite && source == cachedSource) return cached;
@@ -70,14 +92,10 @@ Dictionary<string, List<Dictionary<string, object?>>> LoadData()
     }
 }
 
-void SaveData(Dictionary<string, List<Dictionary<string, object?>>> data)
+void SaveData(Dictionary<string, List<Dictionary<string, object?>>> data, string actor, string action, object? before)
 {
-    var temp = localDataPath + ".tmp";
-    File.WriteAllText(temp, JsonSerializer.Serialize(data));
-    File.Move(temp, localDataPath, true);
-    cached = data;
-    cachedWrite = File.GetLastWriteTimeUtc(localDataPath);
-    cachedSource = localDataPath;
+    store.Change(s => { s.Data = data; s.Mode = "local"; AppStore.Audit(s, actor, action, "data", "all", before, data); return 0; });
+    cached = null;
 }
 
 Dictionary<string, List<FieldSpec>> LoadSpec()
@@ -104,39 +122,109 @@ bool Ready(Dictionary<string, List<Dictionary<string, object?>>> data)
     return data["blocks"].All(block => data["processes"].All(process => orders.Contains($"{block.GetValueOrDefault("block_id")}|{process.GetValueOrDefault("process_id")}")));
 }
 
+app.UseRouting();
+app.UseAuthentication();
+app.UseRateLimiter();
+app.Use(async (ctx, next) => {
+    if (!ctx.Request.Path.StartsWithSegments("/api")) { await next(); return; }
+    var path = ctx.Request.Path.Value ?? "";
+    if (!HttpMethods.IsGet(ctx.Request.Method) && ctx.Request.Headers["X-Requested-With"] != "AXProject") { ctx.Response.StatusCode = 400; return; }
+    if (path is "/api/health" or "/api/auth/login" or "/api/auth/me") { await next(); return; }
+    var id = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var user = id is null ? null : store.Read(s => s.Users.FirstOrDefault(u => u.Id == id && u.Active));
+    if (user is null || ctx.User.FindFirstValue("session_version") != user.SessionVersion.ToString(CultureInfo.InvariantCulture)) { ctx.Response.StatusCode = 401; return; }
+    ctx.Items["account"] = user;
+    var needed = path.StartsWith("/api/admin") ? "manage" : path.StartsWith("/api/work") ? "work" :
+        path.StartsWith("/api/data/") && !HttpMethods.IsGet(ctx.Request.Method) ? "upload" : "read";
+    var allowed = user.Role == "ADMIN" || (needed != "manage" && store.Read(s => s.Permissions.GetValueOrDefault(user.Role)?.Contains(needed) == true));
+    if (!allowed) { ctx.Response.StatusCode = 403; return; }
+    await next();
+});
+string Actor(HttpContext ctx) => ((Account)ctx.Items["account"]!).Id;
+object PublicUser(Account u) => new { u.Id, u.Login, u.Name, u.Role, u.Active, u.Assignments };
+
+app.MapGet("/api/auth/me", (HttpContext ctx) => {
+    var id = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var user = id is null ? null : store.Read(s => s.Users.FirstOrDefault(u => u.Id == id && u.Active));
+    if (user is not null && ctx.User.FindFirstValue("session_version") != user.SessionVersion.ToString(CultureInfo.InvariantCulture)) user = null;
+    return Results.Ok(new { user = user is null ? null : PublicUser(user), permissions = user is null ? Array.Empty<string>() : store.Read(s => s.Permissions.GetValueOrDefault(user.Role)?.ToArray() ?? []), initialized = store.Read(s => s.Users.Count != 0) });
+});
+app.MapPost("/api/auth/login", async (HttpContext ctx, LoginRequest request) => {
+    var user = store.Read(s => s.Users.FirstOrDefault(u => u.Active && string.Equals(u.Login, request.Login?.Trim(), StringComparison.OrdinalIgnoreCase)));
+    if (user is null || string.IsNullOrEmpty(request.Password) || !store.Check(user, request.Password)) return Results.Json(new { message = "아이디 또는 비밀번호가 올바르지 않습니다." }, statusCode: 401);
+    var identity = new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, user.Id), new Claim("session_version", user.SessionVersion.ToString(CultureInfo.InvariantCulture))], CookieAuthenticationDefaults.AuthenticationScheme);
+    await ctx.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
+    return Results.Ok(new { user = PublicUser(user) });
+}).RequireRateLimiting("login");
+app.MapPost("/api/auth/logout", async (HttpContext ctx) => { await ctx.SignOutAsync(); return Results.Ok(); });
+app.MapGet("/api/admin/users", () => Results.Ok(store.Read(s => s.Users.Select(PublicUser).ToArray())));
+app.MapGet("/api/admin/permissions", () => Results.Ok(store.Read(s => s.Permissions)));
+app.MapGet("/api/admin/audit", (string? actor, string? action, string? target, DateTimeOffset? from, DateTimeOffset? to) => Results.Ok(store.Read(s => s.Audits.AsEnumerable().Where(a => (string.IsNullOrWhiteSpace(actor) || a.Actor.Contains(actor, StringComparison.OrdinalIgnoreCase)) && (string.IsNullOrWhiteSpace(action) || a.Action.Contains(action, StringComparison.OrdinalIgnoreCase)) && (string.IsNullOrWhiteSpace(target) || (a.Target + " " + a.TargetId).Contains(target, StringComparison.OrdinalIgnoreCase)) && (!from.HasValue || a.At >= from.Value) && (!to.HasValue || a.At <= to.Value)).Reverse().Take(200).ToArray())));
+app.MapPost("/api/admin/permissions", (HttpContext ctx, PermissionsRequest req) => {
+    var permissible = new[] { "read", "work", "upload" };
+    if (req.Permissions is null || req.Permissions.Keys.Any(k => k is not ("VIEWER" or "WORKER")) || req.Permissions.Count != 2 || req.Permissions.Values.Any(p => p is null || p.Any(x => !permissible.Contains(x)) || !p.Contains("read"))) return Results.BadRequest(new { message = "조회 권한과 유효한 역할별 권한을 확인하세요." });
+    store.Change(s => { var before = s.Permissions.ToDictionary(x => x.Key, x => x.Value.ToList()); foreach (var (k,v) in req.Permissions) s.Permissions[k] = v.Distinct().ToList(); AppStore.Audit(s, Actor(ctx), "permissions", "roles", "all", before, s.Permissions); return 0; });
+    return Results.Ok();
+});
+app.MapPost("/api/admin/users", (HttpContext ctx, UserRequest req) => {
+    if (string.IsNullOrWhiteSpace(req.Login) || string.IsNullOrWhiteSpace(req.Name) || req.Role is not ("ADMIN" or "WORKER" or "VIEWER") || req.Password is null || req.Password.Length < 12) return Results.BadRequest(new { message = "아이디, 이름, 역할과 12자 이상 비밀번호를 확인하세요." });
+    lock(cacheLock) {
+      var ids = LoadData()["work_orders"].Select(r => r.GetValueOrDefault("work_order_id")?.ToString()).ToHashSet();
+      if ((req.Assignments ?? []).Any(x => !ids.Contains(x))) return Results.BadRequest(new { message = "존재하지 않는 작업 배정입니다." });
+      if (store.Read(s => s.Users.Any(u => string.Equals(u.Login, req.Login.Trim(), StringComparison.OrdinalIgnoreCase)))) return Results.Conflict(new { message = "이미 사용 중인 아이디입니다." });
+      var a = new Account { Id=Guid.NewGuid().ToString("N"), Login=req.Login.Trim(), Name=req.Name.Trim(), Role=req.Role, Active=req.Active, Assignments=(req.Assignments ?? []).Distinct().ToList() }; a.PasswordHash=store.Hash(a,req.Password);
+      store.Change(s => { s.Users.Add(a); AppStore.Audit(s,Actor(ctx),"create","user",a.Id,null,PublicUser(a)); return 0; }); return Results.Ok(PublicUser(a));
+    }
+});
+app.MapPost("/api/admin/users/{id}", (HttpContext ctx, string id, UserRequest req) => {
+    if (string.IsNullOrWhiteSpace(req.Name) || req.Role is not ("ADMIN" or "WORKER" or "VIEWER") || (!string.IsNullOrEmpty(req.Password) && req.Password.Length < 12)) return Results.BadRequest(new { message = "이름, 역할 또는 비밀번호를 확인하세요." });
+    lock(cacheLock) {
+      var ids=LoadData()["work_orders"].Select(r=>r.GetValueOrDefault("work_order_id")?.ToString()).ToHashSet();
+      if ((req.Assignments ?? []).Any(x=>!ids.Contains(x))) return Results.BadRequest(new { message = "존재하지 않는 작업 배정입니다." });
+      var current=store.Read(s=>s.Users.FirstOrDefault(u=>u.Id==id)); if(current is null)return Results.NotFound();
+      if(current.Role=="ADMIN" && current.Active && (!req.Active || req.Role!="ADMIN") && store.Read(s=>s.Users.Count(u=>u.Active&&u.Role=="ADMIN"))<=1)return Results.BadRequest(new { message="마지막 활성 관리자 계정은 변경할 수 없습니다." });
+      store.Change(s=>{var u=s.Users.Single(x=>x.Id==id);var before=PublicUser(u);var passwordChanged=!string.IsNullOrEmpty(req.Password);if(u.Role!=req.Role || u.Active!=req.Active || passwordChanged)u.SessionVersion++;u.Name=req.Name.Trim();u.Role=req.Role;u.Active=req.Active;u.Assignments=(req.Assignments??[]).Distinct().ToList();if(passwordChanged)u.PasswordHash=store.Hash(u,req.Password);AppStore.Audit(s,Actor(ctx),"update","user",u.Id,before,new {user=PublicUser(u),passwordChanged});return 0;});return Results.Ok();
+    }
+});
+
 app.MapGet("/api/health", () =>
 {
     var data = LoadData();
     var asOf = data["equipment_snapshot"].Select(row => row.GetValueOrDefault("as_of")?.ToString()).Max();
-    return Results.Ok(new { status = "ok", source = File.Exists(localDataPath) ? "local-data.json" : Path.GetFileName(workbookPath), asOf, tables = data.ToDictionary(item => item.Key, item => item.Value.Count) });
+    return Results.Ok(new { status = "ok", source = store.Read(s => s.Data is not null ? "app-state.json" : s.Mode == "legacy" && File.Exists(localDataPath) ? "local-data.json" : Path.GetFileName(workbookPath)), asOf, tables = data.ToDictionary(item => item.Key, item => item.Value.Count) });
 });
 
 app.MapGet("/api/data", () => Results.Ok(LoadData()));
 app.MapGet("/api/data/status", () =>
 {
     var data = LoadData();
-    return Results.Ok(new { mode = File.Exists(localDataPath) ? "local" : "sample", ready = Ready(data), requiredTables, counts = data.ToDictionary(item => item.Key, item => item.Value.Count) });
+    return Results.Ok(new { mode = store.Read(s => s.Data is not null || s.Mode == "legacy" && File.Exists(localDataPath) ? "local" : "sample"), ready = Ready(data), requiredTables, counts = data.ToDictionary(item => item.Key, item => item.Value.Count) });
 });
 app.MapGet("/api/spec", () => Results.Ok(LoadSpec()));
-app.MapPost("/api/data/reset", () =>
+app.MapPost("/api/data/reset", (HttpContext ctx) =>
 {
     lock (cacheLock)
     {
-        SaveData(tables.ToDictionary(table => table, _ => new List<Dictionary<string, object?>>()));
+        SaveData(tables.ToDictionary(table => table, _ => new List<Dictionary<string, object?>>()), Actor(ctx), "reset", LoadData());
     }
     return Results.Ok(new { reset = true });
 });
-app.MapPost("/api/data/restore-sample", () =>
+app.MapPost("/api/data/restore-sample", (HttpContext ctx) =>
 {
     lock (cacheLock)
     {
-        if (File.Exists(localDataPath)) File.Delete(localDataPath);
-        cached = null;
-        cachedSource = null;
+        var before = LoadData();
+        if (!File.Exists(workbookPath)) return Results.BadRequest(new { message = "샘플 파일이 없습니다." });
+        cached = null; cachedSource = null;
+        Dictionary<string, List<Dictionary<string, object?>>> sample;
+        using (var book = new XLWorkbook(workbookPath)) {
+          sample = tables.ToDictionary(t => t, t => { var range = book.Worksheet(t).RangeUsed(); if (range is null) return new List<Dictionary<string, object?>>(); var headers = range.FirstRow().Cells().Select(c => c.GetString().Trim()).ToArray(); return range.RowsUsed().Skip(1).Select(row => { var item = new Dictionary<string, object?>(); for (int i=0;i<headers.Length;i++) { var cell=row.Cell(i+1); if(headers[i].Length==0 || cell.IsEmpty()) continue; item[headers[i]]=cell.DataType switch { XLDataType.DateTime => cell.GetDateTime().ToString("yyyy-MM-ddTHH:mm", CultureInfo.InvariantCulture), XLDataType.Number => cell.GetDouble(), XLDataType.Boolean => cell.GetBoolean(), _ => cell.GetString() }; } return item; }).Where(row => row.Count>0).ToList(); });
+        }
+        SaveData(sample, Actor(ctx), "restore-sample", before);
     }
     return Results.Ok(new { restored = true });
 });
-app.MapPost("/api/data/upload", (UploadRequest request) =>
+IResult Upload(HttpContext ctx, UploadRequest request, string? replaceId = null)
 {
     lock (cacheLock)
     {
@@ -147,10 +235,21 @@ app.MapPost("/api/data/upload", (UploadRequest request) =>
         var expected = fields.Select(field => field.Field).ToHashSet();
         foreach (var field in fields.Where(field => !request.Headers.Contains(field.Field))) Error(1, field.Field, "헤더", "필드 없음");
         foreach (var header in request.Headers.Where(header => !expected.Contains(header))) Error(1, header, "헤더", "명세에 없는 필드");
+        foreach (var header in request.Headers.GroupBy(x => x).Where(g => g.Count() > 1)) Error(1, header.Key, "헤더", "필드명 중복");
+        for (var i=0; i<request.Rows.Count; i++) foreach (var key in request.Rows[i].Keys.Where(k=>!expected.Contains(k))) Error(i+2,key,"필드","명세에 없는 필드");
         if (request.Rows.Count == 0) Error(1, "—", "행", "적재할 데이터 행이 없습니다.");
         if (errors.Count > 0) return Results.BadRequest(new { errors });
         var data = LoadData().ToDictionary(item => item.Key, item => item.Value.Select(row => new Dictionary<string, object?>(row)).ToList());
         var pk = fields.FirstOrDefault(field => field.Key.Contains("PK", StringComparison.OrdinalIgnoreCase))?.Field;
+        var original = data[request.Table].ToList();
+        if (replaceId is not null) {
+          if (pk is null || request.Rows.Count != 1 || request.Rows[0].GetValueOrDefault(pk)?.Trim() != replaceId) return Results.BadRequest(new { message = "수정할 식별자를 확인하세요." });
+          var existing = data[request.Table].FirstOrDefault(r => r.GetValueOrDefault(pk)?.ToString() == replaceId);
+          if (existing is null) return Results.NotFound();
+          var account=(Account)ctx.Items["account"]!; var previousWork=existing.GetValueOrDefault("work_order_id")?.ToString();
+          if (previousWork != request.Rows[0].GetValueOrDefault("work_order_id")?.Trim() || (account.Role!="ADMIN" && !account.Assignments.Contains(previousWork ?? ""))) return Results.StatusCode(403);
+          data[request.Table].Remove(existing);
+        }
         var seen = new HashSet<string>();
         var converted = new List<Dictionary<string, object?>>();
         for (var index = 0; index < request.Rows.Count; index++)
@@ -172,17 +271,22 @@ app.MapPost("/api/data/upload", (UploadRequest request) =>
                 }
                 else if (field.Type.Contains("REAL", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var number)) output[field.Field] = number;
+                    if (double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var number) && double.IsFinite(number)) output[field.Field] = number;
                     else Error(index + 2, field.Field, "자료형", "숫자가 아님");
                 }
                 else if (field.Field.EndsWith("_at", StringComparison.Ordinal))
                 {
-                    if (Regex.IsMatch(value, @"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?\+09:00$") && DateTimeOffset.TryParse(value, out _)) output[field.Field] = value[..16];
+                    if (Regex.IsMatch(value, @"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?\+09:00$") && DateTimeOffset.TryParse(value, out _)) output[field.Field] = value;
                     else Error(index + 2, field.Field, "시간 형식", "ISO 8601 +09:00 형식이 아님");
+                }
+                else if (field.Field == "plan_date")
+                {
+                    if (DateOnly.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out _)) output[field.Field] = value;
+                    else Error(index + 2, field.Field, "날짜 형식", "yyyy-MM-dd 형식의 날짜가 아님");
                 }
                 else output[field.Field] = value;
                 var fk = Regex.Match(field.Key, @"FK ([a-z_]+)\.([a-z_]+)");
-                if (fk.Success && !field.Key.Contains("PK", StringComparison.OrdinalIgnoreCase))
+                if (fk.Success)
                 {
                     var targetTable = fk.Groups[1].Value;
                     var targetField = fk.Groups[2].Value;
@@ -198,11 +302,35 @@ app.MapPost("/api/data/upload", (UploadRequest request) =>
             }
             converted.Add(output);
         }
+        for (var index=0; index<request.Rows.Count; index++) {
+          var o=request.Rows[index]; int row=index+2; string Get(string k)=>o.GetValueOrDefault(k)?.Trim() ?? "";
+          foreach(var (start,end) in new[]{("planned_start_at","planned_end_at"),("actual_start_at","actual_end_at"),("period_start_at","period_end_at"),("start_at","end_at"),("opened_at","resolved_at")})
+            if(DateTimeOffset.TryParse(Get(start),out var a) && DateTimeOffset.TryParse(Get(end),out var b) && a>b) Error(row,end,"시간 순서",$"{start}보다 빠름");
+          var domains=new Dictionary<string,(string,string)> { ["work_orders"]=("status","work_order"), ["equipment_intervals"]=("status","equipment"), ["equipment_snapshot"]=("status","equipment"), ["incidents"]=("status","incident"), ["inspections"]=("result","inspection"), ["rework"]=("status","rework") };
+          if(domains.TryGetValue(request.Table,out var sd) && Get(sd.Item1).Length>0 && !data["status_codes"].Any(x=>x.GetValueOrDefault("code_id")?.ToString()==sd.Item2+":"+Get(sd.Item1))) Error(row,sd.Item1,"상태코드","정의되지 않은 상태");
+          if(request.Table=="incidents" && Get("category").Length>0 && !new[]{"EQUIPMENT","MATERIAL","QUALITY"}.Contains(Get("category"))) Error(row,"category","상태코드","정의되지 않은 사건 유형");
+          if(request.Table=="incidents" && Get("status")=="OPEN" && Get("resolved_at").Length>0) Error(row,"resolved_at","상태","OPEN 사건에 해소시각이 있습니다.");
+          if(request.Table=="work_history" && Get("event_type").Length>0 && !new[]{"START","COMPLETE","PAUSE","RESUME","QUALITY_HOLD","REWORK_DONE"}.Contains(Get("event_type"))) Error(row,"event_type","상태코드","정의되지 않은 이벤트");
+          if(request.Table=="production_actual" && double.TryParse(Get("accepted_qty_delta"),NumberStyles.Float,CultureInfo.InvariantCulture,out var qty) && qty<0) Error(row,"accepted_qty_delta","수량","음수 증분");
+          if(request.Table=="inspections" && long.TryParse(Get("checked_points"),out var n) && long.TryParse(Get("passed_points"),out var pass) && long.TryParse(Get("failed_points"),out var fail) && (n<0 || pass<0 || fail<0 || pass+fail!=n)) Error(row,"checked_points","수량","검사 위치 수와 합격·불합격 수를 확인하세요.");
+          if(request.Table=="production_plan" && Get("work_order_id").Length>0 && (data["production_plan"].Any(p=>p.GetValueOrDefault("work_order_id")?.ToString()==Get("work_order_id")) || request.Rows.Count(r=>r.GetValueOrDefault("work_order_id")?.Trim()==Get("work_order_id"))>1)) Error(row,"work_order_id","식별자","작업지시당 계획은 1건입니다.");
+          if(request.Table is "production_plan" or "production_actual" or "work_orders") { var target=request.Table=="work_orders"?"processes":"work_orders";var key=request.Table=="work_orders"?"process_id":"work_order_id";var linked=data[target].FirstOrDefault(x=>x.GetValueOrDefault(key)?.ToString()==Get(key)); if(linked is not null && Get("unit").Length>0 && linked.GetValueOrDefault("unit")?.ToString()!=Get("unit")) Error(row,"unit","단위","연결된 작업 또는 공정의 단위와 다릅니다."); }
+        }
         if (errors.Count > 0) return Results.BadRequest(new { errors });
         data[request.Table].AddRange(converted);
-        SaveData(data);
+        SaveData(data, Actor(ctx), (replaceId is null ? "upload:" : "update:") + request.Table, original);
         return Results.Ok(new { table = request.Table, added = converted.Count, total = data[request.Table].Count, ready = Ready(data) });
     }
+}
+app.MapPost("/api/data/upload", (HttpContext ctx, UploadRequest request) => Upload(ctx, request));
+app.MapPost("/api/work/entry", (HttpContext ctx, WorkEntryRequest req) => {
+    var user=(Account)ctx.Items["account"]!;
+    if(req.Table is not ("production_actual" or "incidents") || req.Row is null) return Results.BadRequest(new { message="실적 또는 사건만 등록할 수 있습니다." });
+    var workId=req.Row.GetValueOrDefault("work_order_id")?.Trim();
+    if(string.IsNullOrEmpty(workId) || (user.Role!="ADMIN" && !user.Assignments.Contains(workId))) return Results.StatusCode(403);
+    var spec=LoadSpec(); var fields=spec[req.Table].Select(x=>x.Field).ToList();
+    if(req.Row.Keys.Any(k=>!fields.Contains(k))) return Results.BadRequest(new { message="알 수 없는 필드가 있습니다." });
+    return Upload(ctx, new UploadRequest(req.Table, fields, [req.Row]), req.Id);
 });
 app.MapGet("/api/summary/ai", () => Results.Ok(new { enabled = false, text = (string?)null }));
 
