@@ -158,6 +158,31 @@ app.MapPost("/api/auth/login", async (HttpContext ctx, LoginRequest request) => 
 }).RequireRateLimiting("login");
 app.MapPost("/api/auth/logout", async (HttpContext ctx) => { await ctx.SignOutAsync(); return Results.Ok(); });
 app.MapGet("/api/admin/users", () => Results.Ok(store.Read(s => s.Users.Select(PublicUser).ToArray())));
+app.MapPost("/api/admin/layout", (HttpContext ctx, LayoutRequest request) => {
+    lock (cacheLock)
+    {
+        var data = LoadData();
+        var error = LayoutCoordinates.Validate(request.Zones, data["zones"]);
+        if (error is not null) return Results.BadRequest(new { message = error });
+        foreach (var z in request.Zones!)
+        {
+            var row = data["zones"].Single(r => r["zone_id"]?.ToString() == z.ZoneId);
+            if (LayoutCoordinates.Coordinate(row.GetValueOrDefault("x")) != z.PreviousX || LayoutCoordinates.Coordinate(row.GetValueOrDefault("y")) != z.PreviousY)
+                return Results.Conflict(new { message = "다른 작업자가 배치를 변경했습니다. 최신 배치를 다시 불러오세요." });
+        }
+        // Clone before mutation: cached input must not change if persistence fails.
+        var updated = JsonSerializer.Deserialize<Dictionary<string, List<Dictionary<string, object?>>>>(JsonSerializer.Serialize(data))!;
+        var before = request.Zones!.Select(z => new { z.ZoneId, X = z.PreviousX, Y = z.PreviousY }).ToArray();
+        foreach (var z in request.Zones!)
+        {
+            var row = updated["zones"].Single(r => r["zone_id"]?.ToString() == z.ZoneId);
+            row["x"] = z.X; row["y"] = z.Y;
+        }
+        store.Change(s => { s.Data = updated; s.Mode = "local"; AppStore.Audit(s, Actor(ctx), "layout:update", "zones", string.Join(",", request.Zones!.Select(z => z.ZoneId)), before, request.Zones!.Select(z => new { z.ZoneId, z.X, z.Y }).ToArray()); return 0; });
+        cached = null;
+        return Results.Ok(new { zones = updated["zones"] });
+    }
+});
 app.MapGet("/api/admin/permissions", () => Results.Ok(store.Read(s => s.Permissions)));
 app.MapGet("/api/admin/audit", (string? actor, string? action, string? target, DateTimeOffset? from, DateTimeOffset? to) => Results.Ok(store.Read(s => s.Audits.AsEnumerable().Where(a => (string.IsNullOrWhiteSpace(actor) || a.Actor.Contains(actor, StringComparison.OrdinalIgnoreCase)) && (string.IsNullOrWhiteSpace(action) || a.Action.Contains(action, StringComparison.OrdinalIgnoreCase)) && (string.IsNullOrWhiteSpace(target) || (a.Target + " " + a.TargetId).Contains(target, StringComparison.OrdinalIgnoreCase)) && (!from.HasValue || a.At >= from.Value) && (!to.HasValue || a.At <= to.Value)).Reverse().Take(200).ToArray())));
 app.MapPost("/api/admin/permissions", (HttpContext ctx, PermissionsRequest req) => {
