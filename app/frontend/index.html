@@ -619,6 +619,36 @@ a.btn{text-decoration:none}
 .sp6 i.hit{outline:2px solid var(--text);outline-offset:1px}
 .tbl tr.gtr td{background:var(--panel);color:var(--text);font-weight:700;cursor:default}
 .tbl tr.gtr td .ic{color:var(--accent)}
+.compare-nav{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding-bottom:14px;margin-bottom:16px;border-bottom:1px solid var(--line)}.compare-nav a{display:inline-flex;padding:8px 14px;border-radius:9px;color:var(--text-2);text-decoration:none;font-size:13px;font-weight:650}.compare-nav a.active{color:var(--text);background:var(--panel-3);box-shadow:inset 0 0 0 1px var(--line-2)}
+.compare-filter{display:flex;flex-wrap:wrap;gap:18px;align-items:end;padding:20px;margin-bottom:16px}.compare-filter label{display:flex;flex-direction:column;gap:9px;color:var(--text-2);font-size:12px}.compare-filter select,.compare-filter input{min-height:40px;border:1px solid var(--line-2);border-radius:8px;background:var(--panel-3);color:var(--text);padding:9px 11px;font:inherit}.compare-filter select{min-width:190px}.compare-filter .btn{min-height:40px}.compare-unit{align-self:end;padding:11px 14px;border:1px solid var(--line-2);border-radius:8px;color:var(--text-2);font-size:12px}.compare-error{color:var(--fault);font-size:12px;flex-basis:100%}.compare-error:empty{display:none}
+.compare-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}.compare-summary .card{padding:18px}.compare-summary p{font-size:12px;color:var(--muted);margin:0 0 9px}.compare-summary strong{font-size:24px;color:var(--text)}.compare-summary small{font-size:12px;color:var(--text-2);margin-left:5px}.compare-summary .accent strong{color:var(--accent)}.compare-summary .hint{display:block;margin-top:8px;line-height:1.5}.compare-card{margin-top:16px}.compare-card .card-h{flex-wrap:wrap}.compare-card .hint{line-height:1.6}.compare-intro{padding:0 16px 14px;font-size:12px;line-height:1.7;color:var(--text-2)}.compare-card a{color:var(--accent)}.compare-note{font-size:11px;color:var(--muted);line-height:1.7;margin:12px 0}.compare-empty{padding:24px 16px;color:var(--muted);font-size:13px}
+.compare-map-panel{padding:18px 20px;margin-bottom:16px}.compare-map-head{display:flex;align-items:start;justify-content:space-between;gap:10px;flex-wrap:wrap}.compare-map-head h3{font-size:14px;margin:0 0 6px}.compare-map-head p{font-size:12px;color:var(--text-2);margin:0}.compare-map-head .hint{font-size:11px}.compact-map-scroll{overflow-x:auto}.compact-map{position:relative;margin:auto;max-width:none}.compact-zone{position:absolute;width:138px;height:84px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:6px;text-align:left;border:1px solid var(--line-2);border-left:3px solid #8190a1;border-radius:9px;background:var(--panel-2);color:var(--text);padding:9px 10px;cursor:pointer;font:inherit}.compact-zone:hover,.compact-zone:focus-visible{outline:2px solid var(--accent);outline-offset:2px}.compact-zone.selected{box-shadow:0 0 0 2px var(--accent)}.compact-zone.fault{border-color:var(--fault);border-left-color:var(--fault)}.compact-zone.hold{border-color:var(--hold);border-left-color:var(--hold)}.compact-zone.quality{border-color:var(--quality);border-left-color:var(--quality)}.compact-zone.run{border-color:var(--accent);border-left-color:var(--accent)}.compact-zone-title{font-size:11px;font-weight:700;line-height:1.3}.compact-zone-status{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-2)}.compact-zone-status i{width:6px;height:6px;border-radius:50%;background:currentColor}.compact-zone.fault .compact-zone-status{color:var(--fault)}.compact-zone.hold .compact-zone-status{color:var(--hold)}.compact-zone.quality .compact-zone-status{color:var(--quality)}.compact-zone.run .compact-zone-status{color:var(--accent)}.compare-map-empty{font-size:12px;color:var(--muted);margin-bottom:16px}
+@media(max-width:900px){.compare-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.compare-filter{display:grid;grid-template-columns:1fr 1fr;gap:16px 10px}.compare-filter label:first-child,.compare-filter .compare-error{grid-column:1/-1}.compare-filter select,.compare-filter input{min-width:0;width:100%}.compare-summary{gap:8px}.compare-summary .card{padding:14px}.compare-summary strong{font-size:20px}}
+
+.compact-zone-code{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:600 9.5px var(--mono);color:var(--muted)}
+
+.flat-scroll{overflow-x:auto;width:100%}.flat-map{position:relative;margin:auto;border:1px solid var(--line-2);border-radius:12px;background-color:#10171e;max-width:none;box-sizing:content-box}.flat-ruler{position:absolute;inset:0;pointer-events:none;overflow:visible}.flat-ruler text{fill:#a7b7c6;font:11px var(--mono)}.flat-ruler .axis-title{fill:var(--accent);font-size:12px;font-weight:700}.zone-coordinate{position:absolute;bottom:10px;right:10px;pointer-events:none;border:1px solid #3e6072;border-radius:5px;background:#152832;color:#9be7f5;font:600 10.5px var(--mono);padding:4px 6px;white-space:nowrap}.zone-anchor{position:absolute;left:-4px;top:-4px;width:8px;height:8px;background:var(--accent);border:2px solid #10171e;border-radius:50%;pointer-events:none}.flat-key{display:flex;gap:8px 20px;flex-wrap:wrap;margin-top:14px;color:var(--text-2);font-size:11px}.flat-key span{white-space:nowrap}
+.flat-location{position:absolute;width:260px;height:160px}.flat-location .zbox{width:100%;height:160px;border:1px solid color-mix(in srgb,var(--c) 65%,var(--line-2));border-left:4px solid var(--c);border-radius:12px;background:linear-gradient(140deg,color-mix(in srgb,var(--c) 12%,var(--panel)),var(--panel));filter:none}
+.flat-location .zbox:hover,.flat-location .zbox:focus-visible{transform:none;filter:none;box-shadow:0 0 0 2px var(--accent)}.flat-location .zcontent{position:static;display:flex;height:100%;padding:18px 14px;justify-content:flex-start;gap:14px}.flat-location .zt b{font-size:14px}.flat-location .zt small{font-size:10px}.flat-location .zs{font-size:12px;flex-wrap:wrap}.flat-location .zeq{display:flex;flex-direction:column;align-items:flex-start;gap:5px;margin-top:auto}.flat-location .zalert{right:10px;top:12px}.flat-location .zq{font-size:10.5px}.flat-note{margin:12px 0 0;color:var(--muted);font-size:11px}.flow-focus .lay-wrap{padding:18px 0 4px}
+.history-design{margin-bottom:18px;padding:18px 20px;border:1px solid var(--line-2);border-radius:14px;background:var(--panel)}.history-design.past{border-color:#756039;background:linear-gradient(110deg,#231f18,var(--panel) 70%)}
+.history-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.history-top .caption{font-size:12px;color:var(--text-2)}.history-top strong{font-size:17px;font-variant-numeric:tabular-nums}.history-top .btn{margin-left:auto}.history-badge{border-radius:6px;padding:5px 8px;background:#16343c;color:var(--accent);font-size:11px;font-weight:650}.past .history-badge{background:#3b2f1c;color:var(--hold)}
+.history-controls{display:flex;align-items:end;flex-wrap:wrap;gap:18px;margin-top:20px;padding-top:18px;border-top:1px solid var(--line-2)}.history-controls label{display:flex;flex-direction:column;gap:10px;font-size:12px;color:var(--text-2)}.history-controls input,.history-controls select{height:40px;padding:8px 12px;border:1px solid var(--line-2);border-radius:8px;background:var(--panel-3);color:var(--text);font:inherit}.history-controls input[type=time]{min-width:150px}.history-controls .btn{height:40px}.history-foot{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px}.history-foot .hint{margin-left:auto}.history-slider{width:100%;margin-top:18px;accent-color:var(--accent)}.history-message{font-size:12px;color:var(--hold);margin:12px 0 0}.history-error{font-size:12px;color:var(--fault);margin-top:10px}.history-error:empty{display:none}.history-meta{font-size:11px;color:var(--muted);margin-top:12px}.history-axis{display:flex;justify-content:space-between;color:var(--muted);font:11px var(--mono)}
+@media(max-width:680px){.review-bar{padding:12px 14px}.history-top strong{font-size:14px}.history-top .btn{margin-left:0}.history-controls{display:grid;grid-template-columns:1fr 1fr;gap:18px 12px}.history-controls input,.history-controls select{min-width:0!important;width:100%}.history-controls .btn{justify-content:center}.history-design{padding:16px}.history-foot .hint{margin-left:0}.review-scope .btn{margin-left:0}}
+.layout-settings-view{display:block}.layout-toolbar .btn:disabled{opacity:.45;cursor:default}.layout-tabs{display:flex;gap:6px;border-bottom:1px solid var(--line-2);margin-bottom:20px;overflow-x:auto;padding-bottom:8px}.layout-tabs button{white-space:nowrap;height:40px;padding:0 16px;color:var(--text-2);border:1px solid transparent;border-radius:9px;background:transparent;font:inherit;cursor:pointer}.layout-tabs button.on{background:var(--panel-3);color:var(--accent);border-color:var(--line-2)}.layout-tabs button:disabled{opacity:.45;cursor:default}
+.layout-demo-note{padding:11px 14px;margin-bottom:18px;border:1px solid #394553;border-radius:9px;color:var(--text-2);font-size:12px;line-height:1.6;background:#141c24}
+.layout-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px}.layout-toolbar .source{font-size:12px;color:var(--muted);margin-right:auto}.layout-pending{padding:5px 9px;border-radius:6px;background:#3b301c;color:var(--hold);font-size:11px}.layout-pending.clean{background:#19352c;color:var(--ok)}
+.layout-editor-grid{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:18px;align-items:start}.layout-canvas-panel{min-width:0;padding:18px}.layout-canvas-head{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:14px}.layout-canvas-head h3{margin:0;font-size:14px}.layout-snap{display:flex;align-items:center;gap:8px;color:var(--text-2);font-size:12px}.layout-snap input{accent-color:var(--accent);width:16px;height:16px}.editor-instructions{font-size:11px;color:var(--muted);line-height:1.7;margin:12px 0 0}
+.layout-inspector{padding:20px;position:sticky;top:90px}.layout-inspector h3{font-size:15px;margin:0 0 18px}.layout-inspector .zone-id{font:700 20px var(--mono);color:var(--accent)}.layout-inspector .zone-name{margin:7px 0 18px;font-size:13px;color:var(--text-2);line-height:1.6}.layout-coordinate-form{display:grid;grid-template-columns:1fr 1fr;gap:18px 12px}.layout-coordinate-form label{display:flex;flex-direction:column;gap:10px;font-size:12px;color:var(--text-2)}.layout-coordinate-form input{box-sizing:border-box;min-width:0;width:100%;height:40px;padding:8px 10px;border-radius:8px;border:1px solid var(--line-2);background:var(--panel-3);color:var(--text);font:inherit}.layout-coordinate-form .btn{grid-column:1/-1;justify-content:center}.layout-inspector .small{font-size:11px;color:var(--muted);line-height:1.7;margin-top:15px}.layout-change{border-top:1px solid var(--line-2);padding-top:16px;margin-top:18px}.layout-change b{font-size:12px}.layout-change p{font:11px/1.9 var(--mono);color:var(--text-2);margin:7px 0 0}.layout-status{font-size:12px;line-height:1.7;color:var(--accent);margin:14px 0 0}.layout-status:empty{display:none}.layout-status.error{color:var(--fault)}
+.layout-edit-map{margin:0}.layout-edit-card{touch-action:none;cursor:grab;user-select:none;outline:none}.layout-edit-card.dragging{cursor:grabbing;z-index:5;opacity:.9}.layout-edit-card.chosen .zbox{box-shadow:0 0 0 2px var(--accent)}.layout-edit-card:focus-visible .zbox{outline:2px solid white;outline-offset:4px}.layout-edit-card .zbox{pointer-events:none}.layout-edit-card .zone-coordinate{right:10px;bottom:10px}.layout-read-map{background:#10171e}.layout-read-map .zbox{cursor:pointer}.layout-edit-map .zbox:hover{box-shadow:none}
+.layout-change-list{margin-top:18px}.layout-change-list table{font-size:12px}.layout-change-list .tbl-wrap{max-height:220px}.layout-preview-foot{margin-top:18px;color:var(--muted);font-size:11px;line-height:1.7}
+#pg-home .flow-focus{border:0;background:transparent;box-shadow:none}
+#pg-home .layout-read-map{border:0;background:transparent;box-shadow:none}
+@media(max-width:1100px){.layout-editor-grid{grid-template-columns:minmax(0,1fr)}.layout-inspector{position:static}.layout-coordinate-form{grid-template-columns:1fr 1fr auto;align-items:end}.layout-coordinate-form .btn{grid-column:auto}.layout-inspector .layout-change{display:none}}
+@media(max-width:680px){.layout-toolbar .source{flex:1 1 100%}.layout-toolbar .btn{flex:1;justify-content:center}.layout-canvas-panel,.layout-inspector{padding:16px}.layout-coordinate-form{grid-template-columns:1fr 1fr}.layout-coordinate-form .btn{grid-column:1/-1}.layout-tabs button{padding:0 12px;font-size:12px}}
+
+.layout-tabs a{padding:10px 16px;border-radius:9px;color:var(--text-2);text-decoration:none;white-space:nowrap}.layout-tabs a.on{background:var(--panel-3);color:var(--accent)}
+
 </style>
 </head>
 <body>
@@ -730,7 +760,7 @@ for(const rows of Object.values(D))for(const r of rows)for(const k of TIME_KEYS)
 
 const by=(rows,k)=>Object.fromEntries(rows.map(r=>[r[k],r]));
 const group=(rows,k,sk)=>{const m={};for(const r of rows)if(r[k]!=null)(m[r[k]]??=[]).push(r);if(sk)for(const v of Object.values(m))v.sort((a,b)=>a[sk]-b[sk]);return m};
-const ZONE=by(D.zones,'zone_id'),PROC=by(D.processes,'process_id'),EQ=by(D.equipment,'equipment_id'),BLK=by(D.blocks,'block_id'),WO=by(D.work_orders,'work_order_id'),INC=by(D.incidents,'incident_id'),PLAN=by(D.production_plan,'work_order_id'),SNAP=by(D.equipment_snapshot,'equipment_id'),RWID=by(D.rework,'rework_id'),VES=by(D.vessels,'vessel_id');
+const ZONE=by(D.zones,'zone_id'),PROC=by(D.processes,'process_id'),EQ=by(D.equipment,'equipment_id'),BLK=by(D.blocks,'block_id'),WO=by(D.work_orders,'work_order_id'),INC=by(D.incidents,'incident_id'),PLAN=by(D.production_plan,'work_order_id'),SNAP=by([...D.equipment_snapshot].filter(s=>Number.isFinite(s.as_of)).sort((a,b)=>a.as_of-b.as_of),'equipment_id'),RWID=by(D.rework,'rework_id'),VES=by(D.vessels,'vessel_id');
 const ACT=group(D.production_actual,'work_order_id','period_end_at'),HIS=group(D.work_history,'work_order_id','event_at'),QC=group(D.inspections,'work_order_id','inspected_at'),RW=group(D.rework,'parent_work_order_id','start_at'),INTV=group(D.equipment_intervals,'equipment_id','start_at'),INC_BY_WO=group(D.incidents,'work_order_id','opened_at'),HIS_BY_INC=group(D.work_history,'incident_id','event_at');
 const LABEL=Object.fromEntries(D.status_codes.map(c=>[c.code_id,c.label_ko]));
 const EMPTY_PROCS=['강재 절단','소조립·취부','블록 용접','치수·용접 검사','표면처리·도장','블록 이송'].map((process_name,index)=>({process_id:`P0${index+1}`,zone_id:`Z0${index+1}`,process_name,sequence_no:index+1}));
@@ -748,8 +778,8 @@ const EVENT_STATUS={START:'IN_PROGRESS',RESUME:'IN_PROGRESS',REWORK_DONE:'IN_PRO
 const H_LOOK={START:['run','play'],COMPLETE:['ok','check'],PAUSE:['hold','pause'],RESUME:['ok','rotate'],QUALITY_HOLD:['quality','shield'],REWORK_DONE:['quality','shield-check']};
 const QTYPES={wo:['작업(블록)','block'],equip:['설비','cog'],incident:['사건','alert'],delay:['생산 지연','clock']};
 
-const AS_OF=D.equipment_snapshot.length?Math.max(...D.equipment_snapshot.map(s=>s.as_of)):Date.now();
-const START=D.work_history.length?Math.min(...D.work_history.map(h=>h.event_at)):AS_OF;
+const AS_OF=observationBounds(D)?.end??Date.now();
+const START=observationBounds(D)?.start??AS_OF;
 const PLAN_END=D.work_orders.length?Math.max(...D.work_orders.map(w=>w.planned_end_at)):AS_OF;
 let t=AS_OF;
 const Q={type:'wo',vessel:'',from:'',to:'',text:'',view:'list'};
@@ -779,7 +809,7 @@ function woAt(w){
   const acts=(ACT[id]||[]).filter(a=>a.period_end_at<=t);
   const acc=acts.reduce((s,a)=>s+a.accepted_qty_delta,0);
   const incs=(INC_BY_WO[id]||[]).filter(i=>i.opened_at<=t);
-  const open=incs.filter(i=>!(i.resolved_at<=t));
+  const open=incs.filter(i=>!(incidentResolved(i,t)));
   const status=last?EVENT_STATUS[last.event_type]:'PLANNED';
   const o=open[0];
   const [tone,icon,label]=WO_LOOK[status];
@@ -792,8 +822,8 @@ function eqAt(e){
   fresh();
   let r=memo.eq.get(e.equipment_id);
   if(!r){
-    if(t>=AS_OF){const s=SNAP[e.equipment_id];r={status:s?.status,wo:s?.work_order_id}}
-    else{const v=(INTV[e.equipment_id]||[]).find(i=>i.start_at<=t&&t<i.end_at);r=v?{status:v.status,wo:v.work_order_id,inc:v.incident_id}:{status:null}}
+    if(t>=AS_OF&&SNAP[e.equipment_id]){const s=SNAP[e.equipment_id];r={status:s?.status,wo:s?.work_order_id}}
+    else{const intervals=(INTV[e.equipment_id]||[]).filter(i=>i.start_at<=t&&t<i.end_at),v=intervals.length===1?intervals[0]:null;r=v?{status:v.status,wo:v.work_order_id,inc:v.incident_id}:{status:null}}
     memo.eq.set(e.equipment_id,r);
   }
   return r;
@@ -813,7 +843,7 @@ function metrics(){
   const day=ymd(t);
   const today=ws.filter(s=>ymd(s.w.planned_start_at)===day).sort((a,b)=>a.w.planned_start_at-b.w.planned_start_at||a.id.localeCompare(b.id));
   const due=ws.filter(s=>s.w.planned_end_at<=t);
-  const open=D.incidents.filter(i=>i.opened_at<=t&&!(i.resolved_at<=t)).sort((a,b)=>Object.keys(CAT).indexOf(a.category)-Object.keys(CAT).indexOf(b.category));
+  const open=D.incidents.filter(i=>i.opened_at<=t&&!(incidentResolved(i,t))).sort((a,b)=>Object.keys(CAT).indexOf(a.category)-Object.keys(CAT).indexOf(b.category));
   const eqs=D.equipment.map(e=>({e,...eqAt(e)}));
   return {ws,today,todayDone:today.filter(s=>s.status==='COMPLETED'),done:ws.filter(s=>s.status==='COMPLETED'),due,overdue:due.filter(s=>s.status!=='COMPLETED').sort((a,b)=>rank(a)-rank(b)),open,eqs,
     transferBlocks:new Set(ws.filter(s=>s.w.process_id===TRANSFER&&s.status==='COMPLETED').map(s=>s.w.block_id)),
@@ -877,12 +907,12 @@ function renderHome(){
 const ZONE_ORDER=(D.zones.length?[...D.zones]:PROCS.map(p=>({zone_id:p.zone_id,zone_name:p.process_name}))).sort((a,b)=>PROCS.findIndex(p=>p.zone_id===a.zone_id)-PROCS.findIndex(p=>p.zone_id===b.zone_id));
 const layLegend=()=>`<div class="lg">${[['ok','완료·정상'],['run','작업 중'],['fault','설비 고장'],['hold','자재 대기'],['quality','품질 보류'],['plan','대기·예정']].map(([k,l])=>`<span><i class="${k}"></i>${l}</span>`).join('')}<span><b>!</b>이상</span></div>`;
 function layoutHTML(blockId){
-  return `<div class="lay">${ZONE_ORDER.map(z=>zoneBox(z,blockId)).join('')}</div>`;
+  return designLayoutHTML(ZONE_ORDER,false,blockId);
 }
 function zoneBox(z,blockId){
   const p=PROCS.find(pp=>pp.zone_id===z.zone_id);
   const eqs=D.equipment.filter(e=>e.zone_id===z.zone_id).map(e=>({e,...eqAt(e)}));
-  const cube='<svg class="zcube" viewBox="0 0 280 180" preserveAspectRatio="none" aria-hidden="true"><polygon class="zface zface-left" points="0,45 48,0 48,129 0,174"/><polygon class="zface zface-floor" points="0,174 48,129 280,129 232,174"/><polygon class="zface zface-front" points="48,0 280,0 280,129 48,129"/></svg>';
+  const cube='';
   const eqLine=`<span class="zeq">${eqs.map(x=>`<span class="zq ${eqLook(x.status)[0]}" title="${esc(x.e.equipment_name)}"><i></i>${x.e.equipment_id} ${eqLabel(x.status)}</span>`).join('')}</span>`;
   const alert=(list,tone)=>list.length?`<span class="zalert ${tone}" title="${esc(list.join(', '))}">${ic('alert')}${list.length>1?list.length:''}</span>`:'';
   if(blockId){
@@ -890,7 +920,7 @@ function zoneBox(z,blockId){
     const probs=[...s.open.map(i=>`${i.incident_id} ${CAT[i.category].label}`),...(s.overdue?['마감 지남']:[])];
     const tone=s.status==='PLANNED'?'plan':s.look.tone;
     const line=s.status==='COMPLETED'?`${ic('check')}완료 ${when(s.end)}`:s.status==='PLANNED'?`${ic('circle-dashed')}예정 ${when(s.w.planned_start_at)}`:`${ic(s.look.icon)}${s.look.label}<span class="mini"><i style="width:${s.progress*100}%"></i></span>${pct(s.progress)}`;
-    return `<a class="zbox ${tone}${probs.length&&s.open.length?' prob':''}" href="#/wo/${s.id}">${cube}<span class="zcontent">${alert(probs,s.open[0]?CAT[s.open[0].category].tone:'hold')}<span class="zt">${ic(PICON[p.process_id])}<b>${z.zone_id} ${esc(p.process_name)}</b><small>${s.id}</small></span><span class="zs">${line}</span>${eqLine}</span></a>`;
+    return `<a class="zbox ${tone}${probs.length&&s.open.length?' prob':''}" href="#/wo/${s.id}">${cube}<span class="zcontent">${alert(probs,s.open[0]?CAT[s.open[0].category].tone:'hold')}<span class="zt">${ic(PICON[p.process_id])}<b>${esc(z.zone_id)} ${esc(p.process_name)}</b><small>${s.id}</small></span><span class="zs">${line}</span>${eqLine}</span></a>`;
   }
   const ws=D.work_orders.filter(w=>w.process_id===p.process_id).map(w=>st(w.work_order_id));
   const active=ws.filter(s=>s.status==='IN_PROGRESS'||s.status==='BLOCKED').sort((a,b)=>rank(a)-rank(b));
@@ -901,7 +931,7 @@ function zoneBox(z,blockId){
   const doneToday=ws.filter(s=>s.end&&ymd(s.end)===ymd(t)).length;
   const a0=active[0];
   const line=a0?`${ic(a0.look.icon)}${a0.w.block_id} ${a0.look.label}<span class="mini"><i style="width:${a0.progress*100}%"></i></span>${pct(a0.progress)}${active.length>1?` +${active.length-1}`:''}`:ws.length?`${ic('pause')}진행 작업 없음${doneToday?` <span class="zdone">· 금일 완료 ${doneToday}</span>`:''}`:`${ic('pause')}미작업`;
-  return `<a class="zbox ${tone}${worst?' prob':''}" href="${qlink({type:'wo',proc:p.process_id})}">${cube}<span class="zcontent">${alert(probs,worst||'fault')}<span class="zt">${ic(PICON[p.process_id])}<b>${z.zone_id} ${esc(p.process_name)}</b><small>${p.process_id}</small></span><span class="zs">${line}</span>${eqLine}</span></a>`;
+  return `<a class="zbox ${tone}${worst?' prob':''}" href="${qlink({type:'wo',proc:p.process_id})}">${cube}<span class="zcontent">${alert(probs,worst||'fault')}<span class="zt">${ic(PICON[p.process_id])}<b>${z.zone_id} ${esc(p.process_name)}</b><small>${esc(p.process_id)}</small></span><span class="zs">${line}</span>${eqLine}</span></a>`;
 }
 
 function inRange(ms){const d=ymd(ms);return (!Q.from||d>=Q.from)&&(!Q.to||d<=Q.to)}
@@ -930,13 +960,77 @@ function queryRows(vesselIds){
       .filter(s=>s.status!=='COMPLETED'||s.end>s.w.planned_end_at).sort((a,b)=>(a.status==='COMPLETED')-(b.status==='COMPLETED')||rank(a)-rank(b));
   }
   if(Q.type==='incident'){
-    return D.incidents.filter(i=>vesselHit(vesselIds,WO[i.work_order_id].block_id)&&i.opened_at<=t&&inRange(i.opened_at)&&(!Q.status||(Q.status==='open')===!(i.resolved_at<=t))&&textHit(i.incident_id,i.work_order_id,WO[i.work_order_id].block_id,i.equipment_id,i.summary,i.owner_team))
-      .sort((a,b)=>!(a.resolved_at<=t)===!(b.resolved_at<=t)?b.opened_at-a.opened_at:!(a.resolved_at<=t)?-1:1);
+    return D.incidents.filter(i=>vesselHit(vesselIds,WO[i.work_order_id].block_id)&&i.opened_at<=t&&inRange(i.opened_at)&&(!Q.status||(Q.status==='open')===!(incidentResolved(i,t)))&&textHit(i.incident_id,i.work_order_id,WO[i.work_order_id].block_id,i.equipment_id,i.summary,i.owner_team))
+      .sort((a,b)=>!(incidentResolved(a,t))===!(incidentResolved(b,t))?b.opened_at-a.opened_at:!(incidentResolved(a,t))?-1:1);
   }
   return D.equipment.filter(e=>textHit(e.equipment_id,e.equipment_name,PROC[e.process_id].process_name)).map(e=>({e,...eqAt(e)}));
 }
 
+// Read-only aggregation. Plans use their KST calendar date; actuals use period end.
+function buildPeriodComparison(data, process, from, to, asOf, dateOf){
+  const cutoff=dateOf(asOf),daysByDate=new Map(),workRows=[];
+  let excluded=0;
+  const validQty=value=>typeof value==='number'&&Number.isFinite(value)&&value>=0;
+  const dayFor=date=>{if(!daysByDate.has(date))daysByDate.set(date,{date,plan:0,plans:0,actual:0,records:0});return daysByDate.get(date)};
+  const plans=new Map((data.production_plan||[]).map(p=>[p.work_order_id,p]));
+  const actuals=new Map();
+  for(const a of data.production_actual||[]){if(!actuals.has(a.work_order_id))actuals.set(a.work_order_id,[]);actuals.get(a.work_order_id).push(a)}
+  for(const w of (data.work_orders||[]).filter(w=>process&&w.process_id===process.process_id)){
+    if(w.unit!==process.unit){excluded++;continue;}
+    const candidate=plans.get(w.work_order_id),inRange=candidate&&candidate.plan_date>=from&&candidate.plan_date<=to;
+    const plan=inRange&&candidate.unit===process.unit&&validQty(candidate.planned_qty)?candidate:null;
+    if(inRange&&!plan)excluded++;
+    if(plan){const day=dayFor(plan.plan_date);day.plan+=plan.planned_qty;day.plans++;}
+    let total=0,count=0;
+    for(const a of actuals.get(w.work_order_id)||[]){
+      if(!Number.isFinite(a.period_end_at)){excluded++;continue;}
+      if(a.period_end_at>asOf)continue;
+      const date=dateOf(a.period_end_at);if(date<from||date>to)continue;
+      if(a.unit!==process.unit||!validQty(a.accepted_qty_delta)){excluded++;continue;}
+      const day=dayFor(date);day.actual+=a.accepted_qty_delta;day.records++;total+=a.accepted_qty_delta;count++;
+    }
+    if(plan||count)workRows.push({w,plan,actual:total,records:count});
+  }
+  const days=[...daysByDate.values()].sort((a,b)=>a.date.localeCompare(b.date)),observed=days.filter(d=>d.date<=cutoff);
+  const planTotal=observed.reduce((s,d)=>s+d.plan,0),planCount=observed.reduce((s,d)=>s+d.plans,0),actualTotal=observed.reduce((s,d)=>s+d.actual,0),actualCount=observed.reduce((s,d)=>s+d.records,0);
+  return {days,workRows,excluded,planTotal,planCount,actualTotal,actualCount,comparable:planCount>0&&actualCount>0};
+}
+
+// Shared product view: uses authenticated data loaded by the frontend.
+let compareFilter=null;
+function isComparisonDate(value){if(!/^\d{4}-\d{2}-\d{2}$/.test(value))return false;const date=new Date(value+'T00:00:00Z');return Number.isFinite(date.getTime())&&date.toISOString().slice(0,10)===value;}
+function comparisonFiltersFromQuery(){
+  const fallback={process:PROCS.find(p=>p.process_id==='P03')?.process_id||PROCS[0]?.process_id,from:ymd(AS_OF-2*864e5),to:ymd(AS_OF)};
+  const result={process:PROC[Q.proc]?Q.proc:fallback.process,from:isComparisonDate(Q.from)?Q.from:fallback.from,to:isComparisonDate(Q.to)?Q.to:fallback.to};
+  if(result.from>result.to){result.from=fallback.from;result.to=fallback.to;}
+  return result;
+}
+function comparisonNav(selected){return `<nav class="compare-nav" aria-label="조회 화면"><a class="${selected?'':'active'}" href="#/query">운영 조회</a><a class="${selected?'active':''}" href="#/query?view=compare">계획·실적 비교</a></nav>`}
+function comparisonProcessMap(){
+  const zones=ZONE_ORDER.filter(z=>Number.isFinite(z.x)&&Number.isFinite(z.y)&&PROCS.some(p=>p.zone_id===z.zone_id));
+  if(!zones.length)return '<div class="compare-map-empty">표시할 공정 위치가 없습니다. 위에서 공정을 선택하세요.</div>';
+  const minX=Math.min(...zones.map(z=>z.x)),minY=Math.min(...zones.map(z=>z.y)),scale=.5,pad=16;
+  const width=Math.max(...zones.map(z=>z.x-minX))*scale+170,height=Math.max(...zones.map(z=>z.y-minY))*scale+104;
+  const cards=zones.map(z=>{const process=PROCS.find(p=>p.zone_id===z.zone_id),works=D.work_orders.filter(w=>w.process_id===process.process_id).map(w=>st(w.work_order_id)),incidents=works.flatMap(s=>s.open),equipment=D.equipment.filter(e=>e.zone_id===z.zone_id).map(eqAt),active=works.filter(s=>s.status==='IN_PROGRESS'||s.status==='BLOCKED');
+    const incident=incidents.sort((a,b)=>Object.keys(CAT).indexOf(a.category)-Object.keys(CAT).indexOf(b.category))[0],tone=incident?CAT[incident.category].tone:equipment.some(e=>e.status==='FAULT')?'fault':active.length?'run':'idle',label=incident?CAT[incident.category].label:equipment.some(e=>e.status==='FAULT')?'설비 고장':active.length?'작업 중':'대기';
+    return `<button type="button" class="compact-zone ${tone}${process.process_id===compareFilter.process?' selected':''}" data-compare-process="${esc(process.process_id)}" aria-pressed="${process.process_id===compareFilter.process}" aria-label="${esc(z.zone_id)} ${esc(process.process_id)} ${esc(process.process_name)} ${esc(label)}" style="left:${pad+(z.x-minX)*scale}px;top:${pad+(z.y-minY)*scale}px"><span class="compact-zone-code">${esc(z.zone_id)} · ${esc(process.process_id)}</span><span class="compact-zone-title">${esc(process.process_name)}</span><span class="compact-zone-status"><i></i>${esc(label)}</span></button>`;
+  }).join('');
+  return `<section class="card compare-map-panel"><header class="compare-map-head"><div><h3>공정 배치도</h3><p>구역을 선택하면 해당 공정의 계획·실적을 볼 수 있습니다.</p></div><span class="hint">최신 데이터 기준 · 교육용 개념 배치</span></header><div class="compact-map-scroll"><div class="compact-map" style="width:${width}px;height:${height}px">${cards}</div></div></section>`;
+}
+function renderPlanActualComparison(){
+  compareFilter=comparisonFiltersFromQuery();
+  const root=$('#pg-query'),p=PROC[compareFilter.process],unit=p?.unit||'',unitLabel=UNIT[unit]||unit,cutoff=ymd(AS_OF);
+  const {days,workRows,excluded,planTotal,planCount,actualTotal,actualCount,comparable}=buildPeriodComparison(D,p,compareFilter.from,compareFilter.to,AS_OF,ymd);
+  root.innerHTML=`${comparisonNav(true)}<div class="vhead"><div><h2>계획·실적 비교</h2><p>동일 공정·동일 단위의 여러 작업을 기간별로 확인합니다.</p></div></div><form class="card compare-filter" id="compare-form"><label>공정<select name="process">${PROCS.map(x=>`<option value="${esc(x.process_id)}" ${x.process_id===compareFilter.process?'selected':''}>${esc(x.process_id)} · ${esc(x.process_name)}</option>`).join('')}</select></label><div class="compare-unit">비교 단위 · <b>${esc(unitLabel)}</b></div><label>시작일<input name="from" type="date" required value="${esc(compareFilter.from)}"></label><label>종료일<input name="to" type="date" required value="${esc(compareFilter.to)}"></label><button class="btn accent" type="submit">비교 조회</button><p class="compare-error" id="compare-error" role="alert"></p></form><div class="compare-summary"><div class="card"><p>기간 계획량</p><strong>${planCount?num(planTotal):'—'}</strong><small>${planCount?esc(unitLabel):''}</small><span class="hint">기준일 포함 · 계획일 기준</span></div><div class="card accent"><p>기간 인정실적</p><strong>${actualCount?num(actualTotal):'—'}</strong><small>${actualCount?esc(unitLabel):''}</small><span class="hint">집계 종료일 기준</span></div><div class="card"><p>실적 − 계획</p><strong>${comparable?(actualTotal-planTotal>0?'+':'')+num(actualTotal-planTotal):'—'}</strong><small>${comparable?esc(unitLabel):''}</small><span class="hint">선택 기간 합계 차이</span></div><div class="card"><p>기간 달성률</p><strong>${comparable&&planTotal>0?pct(actualTotal/planTotal):'—'}</strong><span class="hint">인정실적 ÷ 계획량</span></div></div><p class="compare-note">계획은 계획일, 실적은 집계 종료일의 한국시간 기준입니다. 기준시각 이후의 실적은 제외하고 기준일 이후 계획은 합계·달성률에서 제외합니다. 기준일은 당일 전체 계획과 기준시각까지의 실적을 비교합니다. 기간 중 계획과 실적은 서로 다른 작업에서 발생할 수 있습니다.${excluded?' 단위 또는 수량·시각이 유효하지 않은 자료 '+excluded+'건은 제외했습니다.':''}</p><section class="card compare-card"><header class="card-h"><h2>일별 계획·실적</h2><span class="hint">${esc(p?.process_id||'')} ${esc(p?.process_name||'')} · ${esc(unitLabel)} · 기준 ${iso(AS_OF)} KST</span></header>${days.length?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>일자</th><th>구분</th><th class="r">계획량</th><th class="r">인정실적</th><th class="r">차이</th><th class="r">달성률</th></tr></thead><tbody>${days.map(d=>{const future=d.date>cutoff,canCompare=!future&&d.plans>0&&d.records>0;return `<tr><td>${esc(d.date)}</td><td>${future?'미래 계획':d.date===cutoff?'기준시각까지':'관측일'}</td><td class="r">${d.plans?num(d.plan)+' '+esc(unitLabel):'—'}</td><td class="r">${!future&&d.records?num(d.actual)+' '+esc(unitLabel):'—'}</td><td class="r">${canCompare?(d.actual-d.plan>0?'+':'')+num(d.actual-d.plan):'—'}</td><td class="r">${canCompare&&d.plan>0?pct(d.actual/d.plan):'—'}</td></tr>`}).join('')}</tbody></table></div>`:'<div class="compare-empty">선택한 조건에 해당하는 계획과 실적이 없습니다.</div>'}<p class="compare-intro">실적 기록이 없는 날은 0을 만들어 표시하지 않습니다. 기준일은 기준시각까지의 값입니다.</p></section><section class="card compare-card"><header class="card-h"><h2>작업별 내역</h2><span class="hint">작업번호를 누르면 기존 작업 상세로 이동</span></header>${workRows.length?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>작업지시</th><th>블록</th><th>계획일</th><th>계획 버전</th><th class="r">기간 계획량</th><th class="r">기간 인정실적</th></tr></thead><tbody>${workRows.map(r=>`<tr><td><a href="#/wo/${esc(r.w.work_order_id)}">${esc(r.w.work_order_id)}</a></td><td>${esc(r.w.block_id)}</td><td>${r.plan?esc(r.plan.plan_date):'—'}</td><td>${r.plan?esc(r.plan.plan_version):'—'}</td><td class="r">${r.plan?num(r.plan.planned_qty)+' '+esc(unitLabel):'—'}</td><td class="r">${r.records?num(r.actual)+' '+esc(unitLabel):'—'}</td></tr>`).join('')}</tbody></table></div>`:'<div class="compare-empty">선택한 조건의 작업이 없습니다.</div>'}</section>`;
+  root.querySelector('.compare-filter').insertAdjacentHTML('afterend',comparisonProcessMap());
+  const apply=process=>{const f=$('#compare-form');if(!f.reportValidity())return;const x=f.elements;if(!isComparisonDate(x.from.value)||!isComparisonDate(x.to.value)||x.from.value>x.to.value){$('#compare-error').textContent='시작일과 종료일을 올바르게 선택하세요.';return}Object.assign(Q,{view:'compare',proc:process,from:x.from.value,to:x.to.value});syncQ()};
+  root.querySelectorAll('[data-compare-process]').forEach(button=>button.onclick=()=>apply(button.dataset.compareProcess));
+  $('#compare-form').onsubmit=e=>{e.preventDefault();apply(e.currentTarget.elements.process.value)};
+  $('#compare-form').elements.process.onchange=e=>apply(e.target.value);
+}
+
 function renderQuery(){
+  if(Q.view==='compare'){renderPlanActualComparison();return;}
   const type=Q.type,vessel=type==='equip'?{ids:null,error:''}:vesselFilter(Q.vessel),rows=queryRows(vessel.ids);
   const lo=ymd(START),hi=ymd(PLAN_END);
   let table='';
@@ -951,14 +1045,14 @@ function renderQuery(){
       return `<tr data-go="#/blk/${b.block_id}"><td class="id">${b.block_id}</td><td><span class="sp6">${ss.map(x=>`<i class="${x.status==='PLANNED'?'plan':x.look.tone}${filtered&&hit.includes(x)?' hit':''}" title="${esc(PROC[x.w.process_id].process_name)} · ${x.look.label}${x.overdue?' · 지연':''}">${ic(PICON[x.w.process_id])}</i>`).join('')}</span></td><td>${now?`${chip(look.tone,look.icon,look.label)} ${esc(PROC[now.w.process_id].process_name)}`:done===ss.length?chip('ok','circle-check','이송 완료'):`${chip('plan','circle-dashed','대기')} 다음 ${next?esc(PROC[next.w.process_id].process_name)+' '+md(next.w.planned_start_at):''}`}</td><td><span class="pb ok"><span class="mini"><i style="width:${done/ss.length*100}%"></i></span><span>${done}/${ss.length}</span></span></td><td>${incs.map(i=>chip(CAT[i.category].tone,CAT[i.category].icon,i.incident_id)).join(' ')||(ss.some(x=>x.overdue)?'<span class="late-i">지연</span>':'—')}</td><td>${when(b.target_transfer_at)}</td>${filtered?`<td class="r">${hit.length}건</td>`:''}</tr>`}).join('')).join('')}</tbody></table>`;
   }
   else if(type==='delay')table=`<table class="tbl"><thead><tr><th>구분</th><th>작업지시</th><th>호선명</th><th>블록</th><th>공정</th><th>계획 종료</th><th>완료·예상</th><th class="r">지연</th><th>진척</th><th>원인</th></tr></thead><tbody>${rows.map(s=>{const late=(s.end??t)-s.w.planned_end_at,doneLate=s.status==='COMPLETED';const fc=doneLate?when(s.end):t>=AS_OF&&s.w.forecast_end_at&&!s.open.length?`예상 ${when(s.w.forecast_end_at)}`:'미정';return `<tr data-go="#/wo/${s.id}"><td>${doneLate?chip('ok','check','완료 지연'):chip(s.look.tone,s.look.icon,s.look.label)}</td><td class="id">${s.id}</td><td>${esc(vname(s.w.block_id))}</td><td class="id">${s.w.block_id}</td><td>${esc(PROC[s.w.process_id].process_name)}</td><td>${when(s.w.planned_end_at)}</td><td>${fc}</td><td class="r">${late>0?dur(late):'마감 도달'}</td><td><span class="pb ${s.look.tone}"><span class="mini"><i style="width:${s.progress*100}%"></i></span><span>${pct(s.progress)}</span></span></td><td>${s.incs.map(i=>`${chip(CAT[i.category].tone,CAT[i.category].icon,i.incident_id)}`).join(' ')||'—'}</td></tr>`}).join('')}</tbody></table>`;
-  else if(type==='incident')table=`<table class="tbl"><thead><tr><th>상태</th><th>사건</th><th>구분</th><th>호선명</th><th>블록</th><th>작업지시</th><th>설비</th><th>발생</th><th>해소·경과</th><th>담당</th><th>내용</th></tr></thead><tbody>${rows.map(i=>{const c=CAT[i.category],res=i.resolved_at<=t,w=WO[i.work_order_id];return `<tr data-go="#/wo/${w.work_order_id}"><td>${chip(res?'ok':c.tone,'',LABEL[res?'incident:RESOLVED':'incident:OPEN'])}</td><td class="id">${i.incident_id}</td><td>${chip(c.tone,c.icon,c.label)}</td><td>${esc(vname(w.block_id))}</td><td class="id">${w.block_id}</td><td class="id">${w.work_order_id}</td><td class="id">${i.equipment_id||'—'}</td><td>${when(i.opened_at)}</td><td>${res?`${when(i.resolved_at)} (${dur(i.resolved_at-i.opened_at)})`:`${dur(t-i.opened_at)} 경과`}</td><td>${esc(i.owner_team)}</td><td style="white-space:normal;min-width:200px">${esc(i.summary)}</td></tr>`}).join('')}</tbody></table>`;
+  else if(type==='incident')table=`<table class="tbl"><thead><tr><th>상태</th><th>사건</th><th>구분</th><th>호선명</th><th>블록</th><th>작업지시</th><th>설비</th><th>발생</th><th>해소·경과</th><th>담당</th><th>내용</th></tr></thead><tbody>${rows.map(i=>{const c=CAT[i.category],res=incidentResolved(i,t),w=WO[i.work_order_id];return `<tr data-go="#/wo/${w.work_order_id}"><td>${chip(res?'ok':c.tone,'',LABEL[res?'incident:RESOLVED':'incident:OPEN'])}</td><td class="id">${i.incident_id}</td><td>${chip(c.tone,c.icon,c.label)}</td><td>${esc(vname(w.block_id))}</td><td class="id">${w.block_id}</td><td class="id">${w.work_order_id}</td><td class="id">${i.equipment_id||'—'}</td><td>${when(i.opened_at)}</td><td>${res?`${when(i.resolved_at)} (${dur(i.resolved_at-i.opened_at)})`:`${dur(t-i.opened_at)} 경과`}</td><td>${esc(i.owner_team)}</td><td style="white-space:normal;min-width:200px">${esc(i.summary)}</td></tr>`}).join('')}</tbody></table>`;
   else{
     const from=Q.from?kst(Q.from+'T00:00'):START,to=Math.min(t,Q.to?kst(Q.to+'T23:59'):t);
     table=`<table class="tbl"><thead><tr><th>상태</th><th>설비</th><th>설비명</th><th>공정</th><th>점유 작업</th><th class="r">점유율</th><th class="r">가동</th><th class="r">고장</th><th class="r">점검</th><th>관련 사건</th></tr></thead><tbody>${rows.map(x=>{const[tone,i2]=eqLook(x.status),o=occupancy([x.e],from,to),incs=D.incidents.filter(i=>i.opened_at<=t&&i.opened_at<=to&&(i.equipment_id===x.e.equipment_id||(INTV[x.e.equipment_id]||[]).some(v=>v.incident_id===i.incident_id)));return `<tr data-go="#/eq/${x.e.equipment_id}"><td>${chip(tone,i2,eqLabel(x.status))}</td><td class="id">${x.e.equipment_id}</td><td>${esc(x.e.equipment_name)}</td><td>${esc(PROC[x.e.process_id].process_name)}</td><td class="id">${x.wo||'—'}</td><td class="r">${pct(o.rate)}</td><td class="r">${num((o.tot.RUNNING||0)/36e5)}h</td><td class="r">${num((o.tot.FAULT||0)/36e5)}h</td><td class="r">${num((o.tot.MAINTENANCE||0)/36e5)}h</td><td class="id">${incs.map(i=>i.incident_id).join(' ')||'—'}</td></tr>`}).join('')}</tbody></table>`;
   }
   const extra=[Q.status==='done'?'완료만':Q.status==='open'?'미해소만':'',Q.due?'기한 도래만':'',Q.proc?PROC[Q.proc].process_name:''].filter(Boolean);
   $('#pg-query').innerHTML=`
-    <div class="vhead"><div><h2>조회</h2><p>호선명 정규식·날짜·대상으로 목록 조회 · 작업은 블록 단위로 묶어 표시 · 행을 누르면 상세</p></div></div>
+    ${comparisonNav(false)}<div class="vhead"><div><h2>조회</h2><p>호선명 정규식·날짜·대상으로 목록 조회 · 작업은 블록 단위로 묶어 표시 · 행을 누르면 상세</p></div></div>
     <form class="qform" id="qform" onsubmit="return false">
       <div class="qf">조회 대상<div class="seg">${Object.entries(QTYPES).map(([k,[l,i]])=>`<button type="button" data-qtype="${k}" class="${Q.type===k?'on':''}">${ic(i)}${l}</button>`).join('')}</div></div>
       <label class="qf">호선명 정규식<input type="search" id="q-vessel" value="${esc(Q.vessel)}" maxlength="120" placeholder="호선명 또는 ID 입력" aria-invalid="${vessel.error?'true':'false'}"${type==='equip'?' disabled title="설비는 호선 공통"':''}></label>
@@ -981,7 +1075,7 @@ function axis(from,to){
   return {d0,n,x,days:Array.from({length:n},(_,i)=>d0+i*864e5)};
 }
 function incCard(i){
-  const c=CAT[i.category],resolved=i.resolved_at<=t,showAction=resolved||t>=AS_OF;
+  const c=CAT[i.category],resolved=incidentResolved(i,t),showAction=resolved||t>=AS_OF;
   return `<div class="inc ${c.tone}"><div class="inc-hd">${ic(c.icon)}<b>${i.incident_id}</b><span class="chip ${resolved?'ok':c.tone}">${c.label} · ${LABEL[resolved?'incident:RESOLVED':'incident:OPEN']}</span><small>${esc(i.severity)}</small></div><p>${esc(i.summary)}</p><div class="inc-meta"><span>${ic('clock')}${when(i.opened_at)}${resolved?` → ${when(i.resolved_at)} 해소 (${dur(i.resolved_at-i.opened_at)})`:` 발생 · ${dur(t-i.opened_at)} 경과`}</span><span>${ic('users')}${esc(i.owner_team)}</span>${i.equipment_id?`<span>${ic('cog')}${i.equipment_id}</span>`:''}</div>${showAction?`<p class="act">${ic('wrench')}조치: ${esc(i.action_note)}</p>`:''}</div>`;
 }
 function segmentsOf(s){
@@ -1054,7 +1148,7 @@ function woPage(id){
       <div class="stack">
         <section class="card"><header class="card-h"><h2>${ic('history')}작업 기록</h2></header>${s.his.length?`<div class="hist">${[...s.his].reverse().map(h=>{const hi=INC[h.incident_id],[tone,icon]=h.event_type==='PAUSE'&&hi?[CAT[hi.category].tone,CAT[hi.category].icon]:H_LOOK[h.event_type];return `<div class="h-row"><time>${when(h.event_at)}</time><span class="dot ${tone}">${ic(icon)}</span><span class="t">${esc(h.note)}${h.incident_id?`<em>${h.incident_id}</em>`:''}</span></div>`}).join('')}</div>`:'<div class="none">아직 기록 없음</div>'}</section>
         ${s.incs.length?`<section class="card"><header class="card-h"><h2>${ic('alert')}사건과 조치</h2></header>${s.incs.map(incCard).join('')}</section>`:''}
-        ${qcs.length||rws.length?`<section class="card"><header class="card-h"><h2>${ic('ruler')}검사·재작업</h2></header>${qcs.map(q=>`<div class="qc"><b>${q.attempt_no}차</b><span>검사 ${q.checked_points}</span><span style="color:var(--ok)">합격 ${q.passed_points}</span><span style="color:${q.failed_points?'var(--fault)':'var(--faint)'}">불합격 ${q.failed_points}</span><span class="chip ${q.result==='PASS'?'ok':'fault'}">${LABEL['inspection:'+q.result]}</span></div>`).join('')}${rws.map(r=>{const done=r.end_at<=t;return `<div class="inc quality" style="margin-top:8px"><div class="inc-hd">${ic('hammer')}<b>${r.rework_id}</b><span class="chip ${done?'ok':'quality'}">${done?LABEL['rework:'+r.status]:'보수 중'}</span></div><div class="inc-meta"><span>${ic('clock')}${when(r.start_at)} → ${done?when(r.end_at):'진행 중'}</span><span>${ic('cog')}${r.equipment_id}</span><span>보수 ${r.repaired_points}개 위치</span></div>${done?`<p class="act">${ic('info')}${esc(r.note)}</p>`:''}</div>`}).join('')}</section>`:''}
+        ${qcs.length||rws.length?`<section class="card"><header class="card-h"><h2>${ic('ruler')}검사·재작업</h2></header>${qcs.map(q=>`<div class="qc"><b>${q.attempt_no}차</b><span>검사 ${q.checked_points}</span><span style="color:var(--ok)">합격 ${q.passed_points}</span><span style="color:${q.failed_points?'var(--fault)':'var(--faint)'}">불합격 ${q.failed_points}</span><span class="chip ${q.result==='PASS'?'ok':'fault'}">${LABEL['inspection:'+q.result]}</span></div>`).join('')}${rws.map(r=>{const done=Number.isFinite(r.end_at)&&r.end_at<=t;return `<div class="inc quality" style="margin-top:8px"><div class="inc-hd">${ic('hammer')}<b>${r.rework_id}</b><span class="chip ${done?'ok':'quality'}">${done?LABEL['rework:'+r.status]:'보수 중'}</span></div><div class="inc-meta"><span>${ic('clock')}${when(r.start_at)} → ${done?when(r.end_at):'진행 중'}</span><span>${ic('cog')}${r.equipment_id}</span><span>${done?`보수 ${r.repaired_points}개 위치`:'완료 수량 미확정'}</span></div>${done?`<p class="act">${ic('info')}${esc(r.note)}</p>`:''}</div>`}).join('')}</section>`:''}
       </div>
       <div class="stack">
         <section class="card"><header class="card-h"><h2>${ic('link')}선행·후행 작업</h2></header><div class="pair"><div><h4>선행</h4>${pred?issueCard(pred):'<div class="none">없음 (첫 공정)</div>'}</div><div><h4>후행</h4>${sc?issueCard(sc):'<div class="none">없음 (마지막 공정)</div>'}</div></div></section>
@@ -1073,7 +1167,7 @@ function eqPage(id){
   return `${crumb([['조회','#/query'],['설비',qlink({type:'equip'})],[id]])}
     <div class="dhero ${tone}" style="margin-top:10px"><span class="d-ic ${tone}">${ic(icon)}</span><div style="flex:1;min-width:240px"><h2>${esc(e.equipment_name)}<small>${id}</small></h2><div class="links">${tag('board',z.zone_name)}${tag(PICON[e.process_id],PROC[e.process_id].process_name)}${tag('info',`${e.resource_kind} · ${e.capacity_note}`)}${now.wo?link('wo:'+now.wo,'link',`점유 작업 ${now.wo}`):''}</div></div>${chip(tone,icon,eqLabel(now.status))}</div>
     <div class="dtiles">
-      <div class="dt ${tone}"><span class="ml">${ic(icon)}현재 상태</span><div class="big">${eqLabel(now.status)}</div><div class="sub">${now.wo?`점유 작업 ${now.wo}`:'점유 작업 없음'}</div></div>
+      <div class="dt ${tone}"><span class="ml">${ic(icon)}현재 상태</span><div class="big">${eqLabel(now.status)}</div><div class="sub">${now.wo?`점유 작업 ${now.wo}`:'점유 작업 없음'}${t>=AS_OF&&SNAP[id]?`<br>스냅샷 ${iso(SNAP[id].as_of)} KST`:''}</div></div>
       <div class="dt run"><span class="ml">${ic('gauge')}금일 점유율</span><div class="big">${pct(od.rate)}</div><div class="sub">가동 ÷ 운영시간 · PLC 가동률 아님</div></div>
       <div class="dt run"><span class="ml">${ic('gauge')}누적 점유율</span><div class="big">${pct(o.rate)}</div><div class="sub">${md(START)}~${md(t)} 운영시간 기준</div></div>
       <div class="dt ${fm.length?'fault warn':'ok'}"><span class="ml">${ic('wrench')}고장·점검</span><div class="big">${fm.length}<small>구간</small></div><div class="sub">고장 ${num((o.tot.FAULT||0)/36e5)}h · 점검 ${num((o.tot.MAINTENANCE||0)/36e5)}h</div></div>
@@ -1104,7 +1198,7 @@ function blkPage(id){
     <div class="dtiles">
       <div class="dt ok"><span class="ml">${ic('circle-check')}공정 진행</span><div class="big">${done}<small>/ ${ws.length} 공정 완료</small></div><div class="sub">${now?`현재 ${esc(PROC[now.w.process_id].process_name)} ${pct(now.progress)}`:done===ws.length?'모든 공정 완료':'착수 전'}</div></div>
       <div class="dt run"><span class="ml">${ic('chev-r')}다음 공정</span><div class="big">${next?esc(PROC[next.w.process_id].process_name):'—'}</div><div class="sub">${next?`계획 ${when(next.w.planned_start_at)}`:'없음'}</div></div>
-      <div class="dt ${openN?'fault warn':'ok'}"><span class="ml">${ic('alert')}미해소 이상</span><div class="big">${openN}<small>건</small></div><div class="sub">${incs.length?incs.map(i=>`${i.incident_id} ${CAT[i.category].label}${i.resolved_at<=t?'(해소)':''}`).join(', '):'기록된 사건 없음'}</div></div>
+      <div class="dt ${openN?'fault warn':'ok'}"><span class="ml">${ic('alert')}미해소 이상</span><div class="big">${openN}<small>건</small></div><div class="sub">${incs.length?incs.map(i=>`${i.incident_id} ${CAT[i.category].label}${incidentResolved(i,t)?'(해소)':''}`).join(', '):'기록된 사건 없음'}</div></div>
       <div class="dt ${lateN?'hold warn':'ok'}"><span class="ml">${ic('clock')}지연</span><div class="big">${lateN}<small>공정</small></div><div class="sub">마감 지났는데 미완료</div></div>
     </div>
     <section class="card" style="margin-top:14px"><header class="card-h"><h2>${ic('board')}공정 배치도</h2><span class="hint">${id}의 공정별 상태 · 구역을 누르면 작업 상세</span>${layLegend()}</header><div class="lay-wrap">${layoutHTML(id)}</div></section>
@@ -1299,11 +1393,11 @@ function summaryRows(){
     else if(i.category==='MATERIAL')facts.push(['자재 대기',`${id}${josa(id)} ${hm(i.opened_at)}부터 ${i.summary}. 진척 ${pct(s.progress)}. 설비 고장에 포함하지 않음. [${i.incident_id}]`]);
     else{
       const q=(QC[id]||[]).filter(x=>x.inspected_at<=t&&x.incident_id===i.incident_id).at(-1),r=(RW[id]||[]).filter(x=>x.incident_id===i.incident_id&&x.start_at<=t).at(-1);
-      const rw=r?(r.end_at<=t?'보수는 완료했으나 재검사 판정 전이므로':'보수 진행 중이며'):'';
+      const rw=r?(Number.isFinite(r.end_at)&&r.end_at<=t?'보수는 완료했으나 재검사 판정 전이므로':'보수 진행 중이며'):'';
       facts.push(['품질 보류',`${id}${josa(id)} ${q?`${q.checked_points}개 위치 중 ${q.failed_points}개 불합격.`:i.summary+'.'} ${rw} 인정수량 ${num(s.acc)}${u} 유지. [${i.incident_id}${r?' / '+r.rework_id:''}]`.replace(/\s+/g,' ')]);
     }
   }
-  for(const i of D.incidents.filter(i=>i.resolved_at<=t&&ymd(i.resolved_at)===ymd(t))){
+  for(const i of D.incidents.filter(i=>incidentResolved(i,t)&&ymd(i.resolved_at)===ymd(t))){
     const s=st(i.work_order_id),w=s.w,f=t>=AS_OF&&s.status!=='COMPLETED'&&w.forecast_end_at;
     facts.push(['회복 상황',`${w.work_order_id}의 ${i.summary} ${hm(i.resolved_at)} 해소. ${s.status==='COMPLETED'?`${when(s.end)} 완료`:`현재 진척 ${pct(s.progress)}${f?`, 예상 완료 ${when(f)}`:''}`}. [${i.incident_id}]`]);
   }
@@ -1338,6 +1432,7 @@ async function renderSettings(){
     const responses=await Promise.all(['/api/admin/users','/api/admin/permissions','/api/admin/audit?'+new URLSearchParams(auditFilter)].map(url=>fetch(url)));
     if(responses.some(r=>!r.ok))throw Error('설정을 불러오지 못했습니다.');
     const [users,perms,audits]=await Promise.all(responses.map(r=>r.json()));
+    if(route.page!=='settings'||settingsMode()==='layout')return;
     root.innerHTML=`<div class="vhead"><div><h2>Settings</h2><p>관리자 전용 · 역할별 권한과 사용자 계정 관리</p></div></div>
       <section class="card"><header class="card-h"><h2>역할별 권한</h2><span class="hint">관리 권한은 관리자만 가집니다.</span></header><div class="settings-body"><form id="permission-form"><table class="tbl"><thead><tr><th>기능</th><th>조회자</th><th>작업담당자</th><th>관리자</th></tr></thead><tbody>${[['read','운영현황·조회'],['work','담당 실적·사건 입력'],['upload','데이터 적재·초기화']].map(([key,label])=>`<tr><td>${label}</td>${['VIEWER','WORKER'].map(r=>`<td><input type="checkbox" name="${r}:${key}" ${perms[r]?.includes(key)?'checked':''} ${key==='read'?'disabled':''} aria-label="${r} ${label}"></td>`).join('')}<td>허용</td></tr>`).join('')}<tr><td>역할·계정·감사 관리</td><td>제한</td><td>제한</td><td>허용</td></tr></tbody></table><button class="btn accent" type="submit">변경 사항 저장</button></form><p id="settings-msg" role="status"></p></div></section>
       <section class="card"><header class="card-h"><h2>사용자 역할 배정</h2></header><div class="settings-body"><table class="tbl"><thead><tr><th>사용자</th><th>아이디</th><th>역할</th><th>담당 작업</th><th>상태</th><th>관리</th></tr></thead><tbody>${users.map(u=>`<tr><td>${esc(u.name)}</td><td>${esc(u.login)}</td><td>${esc(u.role)}</td><td>${esc(u.assignments.join(', ')||'—')}</td><td>${u.active?'활성':'비활성'}</td><td><button class="btn sm" data-edit-user="${esc(u.id)}">수정</button></td></tr>`).join('')}</tbody></table><h3 id="user-form-title">사용자 추가</h3><form id="user-form"><input type="hidden" name="id"><label>아이디<input name="login" required></label><label>이름<input name="name" required></label><label>역할<select name="role"><option>VIEWER</option><option>WORKER</option><option>ADMIN</option></select></label><label>비밀번호 (12자 이상)<input name="password" type="password" autocomplete="new-password"></label><label>담당 작업번호 (쉼표 구분)<input name="assignments" placeholder="WO001-01, WO001-02"></label><label>활성<input type="checkbox" name="active" checked></label><button class="btn accent" type="submit">저장</button><button class="btn" type="button" id="user-clear">입력 초기화</button></form><p class="hint">수정 시 비밀번호를 비워두면 기존 비밀번호가 유지됩니다.</p><p id="user-msg" role="status"></p></div></section>
@@ -1397,6 +1492,158 @@ document.addEventListener('click',e=>{
   else if(d.sample){const[name,tb,rows]=SAMPLES[d.sample];download(name,csvOf(tb,rows))}
   else if(d.go){location.hash=d.go}
 });
+
+// Observation bounds exclude plans and forecast values. All dates are normalized milliseconds.
+function observationBounds(data){
+  const values=[];
+  for(const [table,fields] of Object.entries({work_history:['event_at'],production_actual:['period_start_at','period_end_at'],incidents:['opened_at','resolved_at'],equipment_intervals:['start_at','end_at'],inspections:['inspected_at'],rework:['start_at','end_at'],equipment_snapshot:['as_of']}))
+    for(const row of data[table]||[])for(const field of fields)if(Number.isFinite(row[field]))values.push(row[field]);
+  const snapshots=(data.equipment_snapshot||[]).map(s=>s.as_of).filter(Number.isFinite);
+  if(!values.length)return null;
+  const end=Math.max(...(snapshots.length?snapshots:values)),eligible=values.filter(v=>v<=end);
+  return {start:Math.min(...eligible),end,snapshot:!!snapshots.length};
+}
+function parseHistoryInput(date,time,bounds){
+  if(!bounds||!/^\d{4}-\d{2}-\d{2}$/.test(date)||!/^\d{2}:\d{2}(:\d{2})?$/.test(time))return null;
+  const value=Date.parse(date+'T'+time+'+09:00');
+  if(!Number.isFinite(value)||new Date(value+9*36e5).toISOString().slice(0,10)!==date||value<bounds.start||value>bounds.end)return null;
+  return value;
+}
+function historyStep(value,minutes,bounds){return Math.max(bounds.start,Math.min(bounds.end,value+minutes*60000))}
+
+function incidentResolved(i,at){return Number.isFinite(i.resolved_at)&&i.resolved_at<=at}
+
+// Product layout editor. Drafts become shared data only after a successful server save.
+let layoutDraft=D.zones.map(z=>({...z})),layoutSelected=D.zones[0]?.zone_id||'',layoutSnap=true,layoutNotice='',layoutNoticeError=false;
+let layoutSaving=false;
+function layoutChanges(){return layoutDraft.filter(z=>{const saved=D.zones.find(s=>s.zone_id===z.zone_id);return saved&&(z.x!==saved.x||z.y!==saved.y)})}
+function designMapGeometry(zones,editing){
+  const valid=zones.filter(z=>Number.isFinite(z.x)&&Number.isFinite(z.y)&&Math.abs(z.x)<=10000&&Math.abs(z.y)<=10000);if(!valid.length)return null;
+  const minX=Math.floor(Math.min(0,...valid.map(z=>z.x))/100)*100,minY=Math.floor(Math.min(0,...valid.map(z=>z.y))/100)*100;
+  const maxX=Math.ceil((Math.max(...valid.map(z=>z.x))+280)/100)*100,maxY=Math.ceil((Math.max(...valid.map(z=>z.y))+180)/100)*100;
+  const ox=editing?56:24,oy=editing?44:24;
+  return {valid,minX,minY,maxX,maxY,ox,oy,width:maxX-minX+ox+20,height:maxY-minY+oy+24,sx:x=>ox+x-minX,sy:y=>oy+y-minY};
+}
+function designLayoutHTML(zones,editing=false,blockId=null){
+  const g=designMapGeometry(zones,editing);if(!g)return '<div class="empty">표시할 구역 좌표가 없습니다.</div>';
+  const {valid,minX,minY,maxX,maxY,ox,oy,width,height,sx,sy}=g;
+  let ruler='';
+  if(editing){
+    const gridId='settings-layout-grid',ticks=[];
+    for(let x=minX;x<=maxX;x+=100)ticks.push(`<line x1="${sx(x)}" y1="${oy}" x2="${sx(x)}" y2="${sy(maxY)}" stroke="#364653"/><text x="${sx(x)}" y="32" text-anchor="middle">${x}</text>`);
+    for(let y=minY;y<=maxY;y+=100)ticks.push(`<line x1="${ox}" y1="${sy(y)}" x2="${sx(maxX)}" y2="${sy(y)}" stroke="#364653"/><text x="44" y="${sy(y)+4}" text-anchor="end">${y}</text>`);
+    ruler=`<svg class="flat-ruler" width="${width}" height="${height}" role="img" aria-label="구역 편집 좌표. X 오른쪽, Y 아래쪽. 격자 20, 주 눈금 100."><defs><pattern id="${gridId}" width="20" height="20" x="${ox}" y="${oy}" patternUnits="userSpaceOnUse"><path d="M20 0 H0 V20" fill="none" stroke="#253440" stroke-width=".6"/></pattern></defs><rect x="${ox}" y="${oy}" width="${maxX-minX}" height="${maxY-minY}" fill="url(#${gridId})"/>${ticks.join('')}<path d="M${sx(maxX)} ${oy} H${ox} V${sy(maxY)}" fill="none" stroke="#718798" stroke-width="1.5"/><text x="${sx(maxX)-8}" y="16" text-anchor="end" class="axis-title">X →</text><text x="12" y="24" class="axis-title">Y ↓</text></svg>`;
+  }
+  const cards=valid.map(z=>{
+    const left=sx(z.x),top=sy(z.y);
+    if(!editing)return `<div class="flat-location" style="left:${left}px;top:${top}px">${PROCS.some(p=>p.zone_id===z.zone_id)?zoneBox(z,blockId):`<div class="empty">${esc(z.zone_id)} · 연결 공정 없음</div>`}</div>`;
+    const process=PROCS.find(p=>p.zone_id===z.zone_id),saved=D.zones.find(s=>s.zone_id===z.zone_id),changed=saved&&(z.x!==saved.x||z.y!==saved.y);
+    return `<div class="flat-location layout-edit-card ${z.zone_id===layoutSelected?'chosen':''}" data-edit-zone="${esc(z.zone_id)}" tabindex="0" role="button" aria-label="${esc(z.zone_id)} ${esc(z.zone_name)} 선택 및 이동" aria-pressed="${z.zone_id===layoutSelected}" style="left:${left}px;top:${top}px"><div class="zbox run"><div class="zcontent"><span class="zt"><b>${esc(z.zone_id)} ${esc(process?.process_name||z.zone_name)}</b></span><span class="zs">${changed?'저장 전 변경':'저장된 위치'}</span><span class="hint">${esc(z.zone_name)}</span></div></div><span class="zone-coordinate">X ${z.x} · Y ${z.y}</span><i class="zone-anchor" aria-hidden="true"></i></div>`;
+  }).join('');
+  return `<div class="flat-scroll ${editing?'editor-scroll':''}"><div class="flat-map ${editing?'layout-edit-map':'layout-read-map'}" style="width:${width}px;height:${height}px">${ruler}${cards}</div></div>${editing?'<div class="flat-key"><span>구역 좌상단 ● = 저장 좌표</span><span>격자 20 · 주 눈금 100</span><span>X → 오른쪽 · Y ↓ 아래쪽</span></div>':'<p class="flat-note">교육용 개념 배치 · 실제 공장 도면 아님</p>'}`;
+}
+function renderLayoutSettings(refocus=null){
+  const root=$('#pg-settings'),scroll=root.querySelector('.editor-scroll'),scrollLeft=scroll?.scrollLeft||0,scrollTop=scroll?.scrollTop||0;
+  root.classList.add('layout-settings-view');document.title='조선 AX · Settings';
+  const selected=layoutDraft.find(z=>z.zone_id===layoutSelected),saved=D.zones.find(z=>z.zone_id===layoutSelected),changes=layoutChanges();
+  root.innerHTML=`<div class="vhead"><div><h2>Settings</h2><p>관리자 · 사용자 권한과 공정 배치 관리</p></div></div>${settingsNavigation("layout")}<p class="layout-demo-note">관리자 전용 · 좌표 범위 -10000 ~ 10000. 저장하면 공통 배치와 감사이력에 반영됩니다. 원본 CSV는 변경하지 않습니다.</p><div class="layout-toolbar"><span class="source">적재 데이터 <b>zones</b> · ${layoutDraft.length}개 구역</span><span class="layout-pending ${changes.length?'':'clean'}" id="layout-pending">${changes.length?'저장 전 변경 '+changes.length+'건':'저장된 배치'}</span><button class="btn" id="layout-reload">서버 배치 다시 불러오기</button><button class="btn" id="layout-undo" ${changes.length?'':'disabled'}>변경 되돌리기</button><button class="btn accent" id="layout-save" ${changes.length?'':'disabled'}>배치 저장</button></div><div class="layout-editor-grid"><section class="card layout-canvas-panel"><div class="layout-canvas-head"><h3>배치 편집</h3><label class="layout-snap"><input id="layout-snap" type="checkbox" ${layoutSnap?'checked':''}>격자에 맞추기 · 20</label></div>${designLayoutHTML(layoutDraft,true)}<p class="editor-instructions">구역을 선택한 뒤 드래그하거나 오른쪽에서 좌표를 입력하세요. 방향키로도 이동할 수 있습니다. 저장하기 전에는 메인 배치가 바뀌지 않습니다.</p></section><aside class="card layout-inspector"><h3>선택한 구역</h3>${selected?`<div class="zone-id">${esc(selected.zone_id)}</div><div class="zone-name">${esc(selected.zone_name)}</div><form class="layout-coordinate-form" id="layout-coordinate-form"><label>X 좌표<input name="x" type="number" min="-10000" max="10000" step="any" value="${selected.x}" required></label><label>Y 좌표<input name="y" type="number" min="-10000" max="10000" step="any" value="${selected.y}" required></label><button class="btn" type="submit">좌표 적용</button></form><p class="small">좌표 적용은 편집 중인 배치에만 적용합니다. 상단의 배치 저장을 눌러 반영하세요.</p><div class="layout-change"><b>저장된 좌표 → 편집 좌표</b><p>(${saved.x}, ${saved.y}) → (${selected.x}, ${selected.y})</p></div>`:'<p class="hint">편집할 구역이 없습니다.</p>'}<p class="layout-status ${layoutNoticeError?'error':''}" role="status">${esc(layoutNotice)}</p></aside></div><section class="card layout-change-list"><header class="card-h"><h2>변경 내역</h2><span class="hint">저장 전 확인</span></header><div class="tbl-wrap"><table class="tbl"><thead><tr><th>구역</th><th>기존 X</th><th>기존 Y</th><th>변경 X</th><th>변경 Y</th></tr></thead><tbody>${changes.map(z=>{const old=D.zones.find(s=>s.zone_id===z.zone_id);return `<tr><td>${esc(z.zone_id)} ${esc(z.zone_name)}</td><td>${old.x}</td><td>${old.y}</td><td>${z.x}</td><td>${z.y}</td></tr>`}).join('')||'<tr><td colspan="5">아직 변경한 구역이 없습니다.</td></tr>'}</tbody></table></div></section>`;
+  const newScroll=root.querySelector('.editor-scroll');if(newScroll){newScroll.scrollLeft=scrollLeft;newScroll.scrollTop=scrollTop}
+  $('#layout-reload').onclick=async()=>{if(layoutSaving)return;try{const response=await fetch('/api/data');if(!response.ok)throw Error('최신 배치를 불러오지 못했습니다.');const data=await response.json();D.zones.splice(0,D.zones.length,...data.zones);ZONE_ORDER.splice(0,ZONE_ORDER.length,...data.zones);layoutDraft=D.zones.map(z=>({...z}));layoutSelected=layoutDraft[0]?.zone_id||'';layoutNotice='서버 배치를 불러왔습니다. 저장 전 변경은 초기화되었습니다.';layoutNoticeError=false}catch(error){layoutNotice=error.message;layoutNoticeError=true}if(route.page==='settings'&&settingsMode()==='layout')renderLayoutSettings()};
+  $('#layout-snap').onchange=e=>{layoutSnap=e.target.checked};
+  $('#layout-undo').onclick=()=>{layoutDraft=D.zones.map(z=>({...z}));layoutNotice='저장된 배치로 되돌렸습니다.';layoutNoticeError=false;renderLayoutSettings()};
+  $('#layout-save').onclick=async()=>{
+    if(layoutSaving)return;
+    const dirty=layoutChanges();if(!dirty.length)return;
+    layoutSaving=true;root.inert=true;$('#layout-save').disabled=true;
+    const zones=dirty.map(z=>{const old=D.zones.find(s=>s.zone_id===z.zone_id);return {zoneId:z.zone_id,x:z.x,y:z.y,previousX:old.x,previousY:old.y}});
+    try{
+      const response=await fetch('/api/admin/layout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({zones})});
+      const result=await response.json();if(!response.ok)throw Error(result.message||'배치를 저장하지 못했습니다.');
+      for(const row of result.zones){const current=D.zones.find(z=>z.zone_id===row.zone_id);if(current)Object.assign(current,row)}
+      layoutDraft=D.zones.map(z=>({...z}));layoutNotice='배치를 저장했습니다. 메인과 비교 화면에 반영됩니다.';layoutNoticeError=false;
+    }catch(error){layoutNotice=error.message;layoutNoticeError=true}
+    finally{layoutSaving=false;root.inert=false;if(route.page==='settings'&&settingsMode()==='layout')renderLayoutSettings()}
+  };
+  const form=$('#layout-coordinate-form');if(form)form.onsubmit=e=>{e.preventDefault();const x=Number(form.elements.x.value),y=Number(form.elements.y.value);if(!form.elements.x.value.trim()||!form.elements.y.value.trim()||!Number.isFinite(x)||!Number.isFinite(y)||Math.abs(x)>10000||Math.abs(y)>10000){layoutNotice='-10000 ~ 10000 사이의 X, Y 좌표를 입력하세요.';layoutNoticeError=true;renderLayoutSettings();return}selected.x=x;selected.y=y;layoutNotice='편집 배치에 적용했습니다. 배치 저장을 눌러 반영하세요.';layoutNoticeError=false;renderLayoutSettings()};
+  root.querySelectorAll('[data-edit-zone]').forEach(card=>{
+    const id=card.dataset.editZone;
+    card.onkeydown=e=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Enter',' '].includes(e.key))return;e.preventDefault();layoutSelected=id;if(e.key.startsWith('Arrow')){const z=layoutDraft.find(z=>z.zone_id===id),step=(layoutSnap?20:1)*(e.shiftKey?5:1);if(e.key==='ArrowLeft')z.x-=step;if(e.key==='ArrowRight')z.x+=step;if(e.key==='ArrowUp')z.y-=step;if(e.key==='ArrowDown')z.y+=step;z.x=Math.max(-10000,Math.min(10000,z.x));z.y=Math.max(-10000,Math.min(10000,z.y))}layoutNotice='구역을 선택했습니다. 변경 후 배치 저장을 눌러 반영하세요.';layoutNoticeError=false;renderLayoutSettings(id)};
+    card.onpointerdown=e=>{
+      if(e.button!==0)return;e.preventDefault();layoutSelected=id;card.focus();card.setPointerCapture(e.pointerId);
+      const zone=layoutDraft.find(z=>z.zone_id===id),startX=zone.x,startY=zone.y,clientX=e.clientX,clientY=e.clientY,map=card.parentElement,scale=map.getBoundingClientRect().width/map.offsetWidth;
+      const geo=designMapGeometry(layoutDraft,true);let nextX=startX,nextY=startY,moved=false;
+      card.classList.add('dragging');
+      card.onpointermove=ev=>{const dx=(ev.clientX-clientX)/scale,dy=(ev.clientY-clientY)/scale;if(Math.abs(dx)+Math.abs(dy)<3&&!moved)return;moved=true;nextX=layoutSnap?Math.round((startX+dx)/20)*20:Math.round(startX+dx);nextY=layoutSnap?Math.round((startY+dy)/20)*20:Math.round(startY+dy);nextX=Math.max(-10000,Math.min(10000,nextX));nextY=Math.max(-10000,Math.min(10000,nextY));card.style.left=geo.sx(nextX)+'px';card.style.top=geo.sy(nextY)+'px';card.querySelector('.zone-coordinate').textContent=`X ${nextX} · Y ${nextY}`};
+      const finish=cancel=>{card.onpointermove=card.onpointerup=card.onpointercancel=null;if(!cancel&&moved){zone.x=nextX;zone.y=nextY;layoutNotice='구역 위치를 변경했습니다. 배치 저장을 눌러 반영하세요.'}else layoutNotice='구역을 선택했습니다.';layoutNoticeError=false;renderLayoutSettings(id)};
+      card.onpointerup=()=>finish(false);card.onpointercancel=()=>finish(true);
+    };
+  });
+  if(refocus){const card=[...root.querySelectorAll('[data-edit-zone]')].find(c=>c.dataset.editZone===refocus);card?.focus({preventScroll:true})}
+}
+
+const historyBounds=observationBounds(D);
+let historyTime=historyBounds?.end??AS_OF,historyOpen=false,historyTimer=null,historySpeed=15,historyRoute='',historyNotice='';
+const historyLocal=ms=>new Date(ms+9*36e5).toISOString().slice(0,19);
+function stopHistoryReplay(){if(historyTimer)clearInterval(historyTimer);historyTimer=null}
+function historyDayRange(){const start=dayStart(historyTime);return {start:Math.max(historyBounds.start,start),end:Math.min(historyBounds.end,start+864e5-1000)}}
+function readHistoryUrl(){
+ if(!historyBounds)return;
+ const raw=new URLSearchParams(location.hash.split('?')[1]||'').get('asOf');
+ if(!raw)return;
+ const value=Date.parse(raw);
+ if(!Number.isFinite(value)||value<historyBounds.start||value>historyBounds.end){historyTime=historyBounds.end;historyNotice='URL의 기준시각이 유효하지 않아 최신 기준으로 표시합니다.';return}
+ historyTime=value;historyOpen=true;historyNotice='';
+}
+function writeHistoryUrl(replace=false){
+ const [path,query]=location.hash.split('?'),params=new URLSearchParams(query||'');
+ params.set('asOf',new Date(historyTime).toISOString());
+ history[replace?'replaceState':'pushState'](null,'',path+'?'+params);
+}
+function setHistoryTime(value,replace=false){historyTime=value;historyNotice='';writeHistoryUrl(replace);render()}
+function renderHistoryControls(){
+ if(!historyBounds){$('#pg-detail').insertAdjacentHTML('afterbegin','<section class="history-design"><p>과거 조회 자료 없음 · 유효한 관측 기록이 없습니다.</p></section>');return}
+ const past=historyTime<historyBounds.end;
+  $('#pg-detail').insertAdjacentHTML('afterbegin',`<section class="history-design ${past?'past':''}" aria-label="상세 조회 기준시각"><div class="history-top"><span class="history-badge">${historyTimer?'재생 중':past?'과거 조회':'최신 기준'}</span><span class="caption">조회 기준</span><strong>${historyLocal(historyTime).replace('T',' ')} KST</strong><button class="btn sm" id="history-toggle">${historyOpen?'시간 선택 닫기':'과거 이력 조회'}</button></div>${historyOpen?`<div class="history-controls"><label>조회 날짜<input id="history-date" type="date" min="${ymd(historyBounds.start)}" max="${ymd(historyBounds.end)}" value="${ymd(historyTime)}"></label><label>조회 시각 · KST<input id="history-time" type="time" step="1" value="${historyLocal(historyTime).slice(11)}"></label><button class="btn accent" id="history-apply">시각 적용</button><button class="btn" id="history-play" ${historyTime>=historyBounds.end?'disabled':''}>${ic(historyTimer?'pause':'play')}${historyTimer?'일시정지':'재생'}</button><label>재생 간격<select id="history-speed">${[5,15,30].map(m=>`<option value="${m}" ${historySpeed===m?'selected':''}>1초마다 ${m}분</option>`).join('')}</select></label></div><p class="history-error" id="history-error" role="alert"></p><input class="history-slider" id="history-range" aria-label="상세 조회 기준시각 이동" type="range" min="${historyDayRange().start}" max="${historyDayRange().end}" value="${historyTime}" step="60000"><div class="history-axis"><span>${iso(historyDayRange().start)}</span><span>${iso(historyDayRange().end)}</span></div><div class="history-foot"><button class="btn sm" id="history-prev" ${historyTime<=historyBounds.start?'disabled':''}>15분 전</button><button class="btn sm" id="history-next" ${historyTime>=historyBounds.end?'disabled':''}>15분 후</button><button class="btn sm" id="history-latest" ${past?'':'disabled'}>최신 기준으로</button><span class="hint">선택 시각까지의 기록만 표시</span></div>`:''}<p class="history-meta">${past?'과거 기준입니다. 이후 실적·사건은 제외하며 최신 예상 완료값은 표시하지 않습니다.':'현재 보유한 데이터의 최신 기준입니다. 실제 현재 시각과 다를 수 있습니다.'}</p></section>`);
+
+  if(historyNotice)$('#pg-detail .history-meta').textContent=historyNotice;
+  const meta=$('#pg-detail .history-meta');meta.textContent+=' 현재 적재된 이력으로 재구성하며 당시 데이터 버전을 복원하는 기능은 아닙니다.';
+  if(!historyBounds.snapshot)meta.textContent+=' 스냅샷 없음 · 관측 기록 기준입니다.';
+  // Keep the selected time when moving among block/work/equipment details.
+  $('#pg-detail').querySelectorAll('a[href]').forEach(a=>{if(/^#\/(wo|blk|eq)\//.test(a.getAttribute('href'))){const url=new URL(a.href);url.hash+='?asOf='+encodeURIComponent(new Date(historyTime).toISOString());a.href=url.href}});
+  $('#history-toggle').onclick=()=>{stopHistoryReplay();historyOpen=!historyOpen;render()};
+  if(!historyOpen)return;
+  const apply=value=>{stopHistoryReplay();setHistoryTime(value)};
+  $('#history-apply').onclick=()=>{const value=parseHistoryInput($('#history-date').value,$('#history-time').value,historyBounds);if(value===null){stopHistoryReplay();$('#history-error').textContent='허용 범위 내의 유효한 날짜와 시각을 선택하세요. 기존 조회는 유지됩니다.';return}apply(value)};
+  $('#history-date').oninput=$('#history-time').oninput=()=>{stopHistoryReplay();$('#history-play').innerHTML=ic('play')+'재생';$('#pg-detail .history-badge').textContent=past?'과거 조회':'최신 기준'};
+  $('#history-prev').onclick=()=>apply(historyStep(historyTime,-15,historyBounds));$('#history-next').onclick=()=>apply(historyStep(historyTime,15,historyBounds));$('#history-latest').onclick=()=>apply(historyBounds.end);
+  $('#history-range').onchange=e=>apply(Number(e.target.value));
+  $('#history-speed').onchange=e=>{historySpeed=Number(e.target.value)};
+  $('#history-play').onclick=()=>{if(historyTimer){stopHistoryReplay();render();return}historyTimer=setInterval(()=>{const next=historyStep(historyTime,historySpeed,historyBounds);if(next===historyBounds.end)stopHistoryReplay();setHistoryTime(next,true)},1000);render()};
+}
+
+function settingsMode(){return new URLSearchParams(location.hash.split('?')[1]||'').get('tab')||'accounts'}
+function settingsNavigation(selected){return `<nav class="layout-tabs" aria-label="Settings 메뉴">${[['accounts','역할·계정 관리'],['audit','감사이력'],['layout','공정 배치도 수정']].map(([key,label])=>`<a href="#/settings?tab=${key}" class="${key===selected?'on':''}" ${key===selected?'aria-current="page"':''}>${label}</a>`).join('')}</nav>`}
+const renderOriginalSettings=renderSettings;
+renderSettings=async function(){
+  const root=$('#pg-settings');root.classList.remove('layout-settings-view');
+  if(CURRENT_USER.role==='ADMIN'&&settingsMode()==='layout'){renderLayoutSettings();return}
+  await renderOriginalSettings();
+  if(route.page!=='settings'||CURRENT_USER.role!=='ADMIN'||settingsMode()==='layout')return;
+  const audit=$('#audit-filter')?.closest('section');
+  root.querySelector('.vhead')?.insertAdjacentHTML('afterend',settingsNavigation(settingsMode()));
+  if(audit){for(const section of root.querySelectorAll(':scope > section'))section.hidden=settingsMode()==='audit'?section!==audit:section===audit}
+};
+const renderOriginalProduct=render;
+render=function(){
+  const routeKey=route.page==='detail'?route.type+'/'+route.id:'';
+  if(historyRoute!==routeKey){stopHistoryReplay();historyRoute=routeKey;readHistoryUrl()}
+  t=route.page==='detail'&&historyBounds?historyTime:AS_OF;
+  renderOriginalProduct();
+  if(route.page==='detail')renderHistoryControls();
+};
+document.addEventListener('visibilitychange',()=>{if(document.hidden){stopHistoryReplay();if(route.page==='detail')render()}});
+window.addEventListener('pagehide',stopHistoryReplay);
+window.addEventListener('hashchange',()=>{stopHistoryReplay();if(route.page==='detail'){readHistoryUrl();render()}});
 
 route=parseRoute();render();
 })().catch(error => {

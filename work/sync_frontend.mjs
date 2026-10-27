@@ -4,7 +4,11 @@ import { dirname, resolve } from 'node:path'
 
 // Keep the live screen visually in sync with the final standalone design.
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const template = readFileSync(resolve(root, 'work/screen_template.html'), 'utf8').replaceAll('\r\n', '\n')
+let template = readFileSync(resolve(root, 'work/screen_template.html'), 'utf8').replaceAll('\r\n', '\n')
+for(const [marker,files] of [['/*__LAYOUT_HISTORY_STYLE__*/',['work/layout_history.css']],['/*__LAYOUT_HISTORY_SCRIPT__*/',['work/history_state.js','work/layout_editor.js','work/history_view.js','work/layout_history_integration.js']],['/*__PLAN_ACTUAL_STYLE__*/',['work/plan_actual_view.css']],['/*__PLAN_ACTUAL_SCRIPT__*/',['work/period_comparison.js','work/plan_actual_view.js']]]){
+  if(!template.includes(marker))throw new Error('Comparison template marker not found: '+marker)
+  template=template.replace(marker,files.map(file=>readFileSync(resolve(root,file),'utf8')).join('\n'))
+}
 const source = 'const D=/*__DATA__*/null;\nconst SPEC=D._spec;delete D._spec;\nconst VALIDATION_DATA=D;'
 if (!template.includes(source)) throw new Error('Data placeholder not found in design template')
 

@@ -619,6 +619,8 @@ a.btn{text-decoration:none}
 .sp6 i.hit{outline:2px solid var(--text);outline-offset:1px}
 .tbl tr.gtr td{background:var(--panel);color:var(--text);font-weight:700;cursor:default}
 .tbl tr.gtr td .ic{color:var(--accent)}
+/*__PLAN_ACTUAL_STYLE__*/
+/*__LAYOUT_HISTORY_STYLE__*/
 </style>
 </head>
 <body>
@@ -713,7 +715,7 @@ for(const rows of Object.values(D))for(const r of rows)for(const k of TIME_KEYS)
 
 const by=(rows,k)=>Object.fromEntries(rows.map(r=>[r[k],r]));
 const group=(rows,k,sk)=>{const m={};for(const r of rows)if(r[k]!=null)(m[r[k]]??=[]).push(r);if(sk)for(const v of Object.values(m))v.sort((a,b)=>a[sk]-b[sk]);return m};
-const ZONE=by(D.zones,'zone_id'),PROC=by(D.processes,'process_id'),EQ=by(D.equipment,'equipment_id'),BLK=by(D.blocks,'block_id'),WO=by(D.work_orders,'work_order_id'),INC=by(D.incidents,'incident_id'),PLAN=by(D.production_plan,'work_order_id'),SNAP=by(D.equipment_snapshot,'equipment_id'),RWID=by(D.rework,'rework_id'),VES=by(D.vessels,'vessel_id');
+const ZONE=by(D.zones,'zone_id'),PROC=by(D.processes,'process_id'),EQ=by(D.equipment,'equipment_id'),BLK=by(D.blocks,'block_id'),WO=by(D.work_orders,'work_order_id'),INC=by(D.incidents,'incident_id'),PLAN=by(D.production_plan,'work_order_id'),SNAP=by([...D.equipment_snapshot].filter(s=>Number.isFinite(s.as_of)).sort((a,b)=>a.as_of-b.as_of),'equipment_id'),RWID=by(D.rework,'rework_id'),VES=by(D.vessels,'vessel_id');
 const ACT=group(D.production_actual,'work_order_id','period_end_at'),HIS=group(D.work_history,'work_order_id','event_at'),QC=group(D.inspections,'work_order_id','inspected_at'),RW=group(D.rework,'parent_work_order_id','start_at'),INTV=group(D.equipment_intervals,'equipment_id','start_at'),INC_BY_WO=group(D.incidents,'work_order_id','opened_at'),HIS_BY_INC=group(D.work_history,'incident_id','event_at');
 const LABEL=Object.fromEntries(D.status_codes.map(c=>[c.code_id,c.label_ko]));
 const EMPTY_PROCS=['강재 절단','소조립·취부','블록 용접','치수·용접 검사','표면처리·도장','블록 이송'].map((process_name,index)=>({process_id:`P0${index+1}`,zone_id:`Z0${index+1}`,process_name,sequence_no:index+1}));
@@ -731,8 +733,8 @@ const EVENT_STATUS={START:'IN_PROGRESS',RESUME:'IN_PROGRESS',REWORK_DONE:'IN_PRO
 const H_LOOK={START:['run','play'],COMPLETE:['ok','check'],PAUSE:['hold','pause'],RESUME:['ok','rotate'],QUALITY_HOLD:['quality','shield'],REWORK_DONE:['quality','shield-check']};
 const QTYPES={wo:['작업(블록)','block'],equip:['설비','cog'],incident:['사건','alert'],delay:['생산 지연','clock']};
 
-const AS_OF=D.equipment_snapshot.length?Math.max(...D.equipment_snapshot.map(s=>s.as_of)):Date.now();
-const START=D.work_history.length?Math.min(...D.work_history.map(h=>h.event_at)):AS_OF;
+const AS_OF=observationBounds(D)?.end??Date.now();
+const START=observationBounds(D)?.start??AS_OF;
 const PLAN_END=D.work_orders.length?Math.max(...D.work_orders.map(w=>w.planned_end_at)):AS_OF;
 let t=AS_OF;
 const Q={type:'wo',vessel:'',from:'',to:'',text:'',view:'list'};
@@ -762,7 +764,7 @@ function woAt(w){
   const acts=(ACT[id]||[]).filter(a=>a.period_end_at<=t);
   const acc=acts.reduce((s,a)=>s+a.accepted_qty_delta,0);
   const incs=(INC_BY_WO[id]||[]).filter(i=>i.opened_at<=t);
-  const open=incs.filter(i=>!(i.resolved_at<=t));
+  const open=incs.filter(i=>!(incidentResolved(i,t)));
   const status=last?EVENT_STATUS[last.event_type]:'PLANNED';
   const o=open[0];
   const [tone,icon,label]=WO_LOOK[status];
@@ -775,8 +777,8 @@ function eqAt(e){
   fresh();
   let r=memo.eq.get(e.equipment_id);
   if(!r){
-    if(t>=AS_OF){const s=SNAP[e.equipment_id];r={status:s?.status,wo:s?.work_order_id}}
-    else{const v=(INTV[e.equipment_id]||[]).find(i=>i.start_at<=t&&t<i.end_at);r=v?{status:v.status,wo:v.work_order_id,inc:v.incident_id}:{status:null}}
+    if(t>=AS_OF&&SNAP[e.equipment_id]){const s=SNAP[e.equipment_id];r={status:s?.status,wo:s?.work_order_id}}
+    else{const intervals=(INTV[e.equipment_id]||[]).filter(i=>i.start_at<=t&&t<i.end_at),v=intervals.length===1?intervals[0]:null;r=v?{status:v.status,wo:v.work_order_id,inc:v.incident_id}:{status:null}}
     memo.eq.set(e.equipment_id,r);
   }
   return r;
@@ -796,7 +798,7 @@ function metrics(){
   const day=ymd(t);
   const today=ws.filter(s=>ymd(s.w.planned_start_at)===day).sort((a,b)=>a.w.planned_start_at-b.w.planned_start_at||a.id.localeCompare(b.id));
   const due=ws.filter(s=>s.w.planned_end_at<=t);
-  const open=D.incidents.filter(i=>i.opened_at<=t&&!(i.resolved_at<=t)).sort((a,b)=>Object.keys(CAT).indexOf(a.category)-Object.keys(CAT).indexOf(b.category));
+  const open=D.incidents.filter(i=>i.opened_at<=t&&!(incidentResolved(i,t))).sort((a,b)=>Object.keys(CAT).indexOf(a.category)-Object.keys(CAT).indexOf(b.category));
   const eqs=D.equipment.map(e=>({e,...eqAt(e)}));
   return {ws,today,todayDone:today.filter(s=>s.status==='COMPLETED'),done:ws.filter(s=>s.status==='COMPLETED'),due,overdue:due.filter(s=>s.status!=='COMPLETED').sort((a,b)=>rank(a)-rank(b)),open,eqs,
     transferBlocks:new Set(ws.filter(s=>s.w.process_id===TRANSFER&&s.status==='COMPLETED').map(s=>s.w.block_id)),
@@ -860,12 +862,12 @@ function renderHome(){
 const ZONE_ORDER=(D.zones.length?[...D.zones]:PROCS.map(p=>({zone_id:p.zone_id,zone_name:p.process_name}))).sort((a,b)=>PROCS.findIndex(p=>p.zone_id===a.zone_id)-PROCS.findIndex(p=>p.zone_id===b.zone_id));
 const layLegend=()=>`<div class="lg">${[['ok','완료·정상'],['run','작업 중'],['fault','설비 고장'],['hold','자재 대기'],['quality','품질 보류'],['plan','대기·예정']].map(([k,l])=>`<span><i class="${k}"></i>${l}</span>`).join('')}<span><b>!</b>이상</span></div>`;
 function layoutHTML(blockId){
-  return `<div class="lay">${ZONE_ORDER.map(z=>zoneBox(z,blockId)).join('')}</div>`;
+  return designLayoutHTML(ZONE_ORDER,false,blockId);
 }
 function zoneBox(z,blockId){
   const p=PROCS.find(pp=>pp.zone_id===z.zone_id);
   const eqs=D.equipment.filter(e=>e.zone_id===z.zone_id).map(e=>({e,...eqAt(e)}));
-  const cube='<svg class="zcube" viewBox="0 0 280 180" preserveAspectRatio="none" aria-hidden="true"><polygon class="zface zface-left" points="0,45 48,0 48,129 0,174"/><polygon class="zface zface-floor" points="0,174 48,129 280,129 232,174"/><polygon class="zface zface-front" points="48,0 280,0 280,129 48,129"/></svg>';
+  const cube='';
   const eqLine=`<span class="zeq">${eqs.map(x=>`<span class="zq ${eqLook(x.status)[0]}" title="${esc(x.e.equipment_name)}"><i></i>${x.e.equipment_id} ${eqLabel(x.status)}</span>`).join('')}</span>`;
   const alert=(list,tone)=>list.length?`<span class="zalert ${tone}" title="${esc(list.join(', '))}">${ic('alert')}${list.length>1?list.length:''}</span>`:'';
   if(blockId){
@@ -873,7 +875,7 @@ function zoneBox(z,blockId){
     const probs=[...s.open.map(i=>`${i.incident_id} ${CAT[i.category].label}`),...(s.overdue?['마감 지남']:[])];
     const tone=s.status==='PLANNED'?'plan':s.look.tone;
     const line=s.status==='COMPLETED'?`${ic('check')}완료 ${when(s.end)}`:s.status==='PLANNED'?`${ic('circle-dashed')}예정 ${when(s.w.planned_start_at)}`:`${ic(s.look.icon)}${s.look.label}<span class="mini"><i style="width:${s.progress*100}%"></i></span>${pct(s.progress)}`;
-    return `<a class="zbox ${tone}${probs.length&&s.open.length?' prob':''}" href="#/wo/${s.id}">${cube}<span class="zcontent">${alert(probs,s.open[0]?CAT[s.open[0].category].tone:'hold')}<span class="zt">${ic(PICON[p.process_id])}<b>${z.zone_id} ${esc(p.process_name)}</b><small>${s.id}</small></span><span class="zs">${line}</span>${eqLine}</span></a>`;
+    return `<a class="zbox ${tone}${probs.length&&s.open.length?' prob':''}" href="#/wo/${s.id}">${cube}<span class="zcontent">${alert(probs,s.open[0]?CAT[s.open[0].category].tone:'hold')}<span class="zt">${ic(PICON[p.process_id])}<b>${esc(z.zone_id)} ${esc(p.process_name)}</b><small>${s.id}</small></span><span class="zs">${line}</span>${eqLine}</span></a>`;
   }
   const ws=D.work_orders.filter(w=>w.process_id===p.process_id).map(w=>st(w.work_order_id));
   const active=ws.filter(s=>s.status==='IN_PROGRESS'||s.status==='BLOCKED').sort((a,b)=>rank(a)-rank(b));
@@ -884,7 +886,7 @@ function zoneBox(z,blockId){
   const doneToday=ws.filter(s=>s.end&&ymd(s.end)===ymd(t)).length;
   const a0=active[0];
   const line=a0?`${ic(a0.look.icon)}${a0.w.block_id} ${a0.look.label}<span class="mini"><i style="width:${a0.progress*100}%"></i></span>${pct(a0.progress)}${active.length>1?` +${active.length-1}`:''}`:ws.length?`${ic('pause')}진행 작업 없음${doneToday?` <span class="zdone">· 금일 완료 ${doneToday}</span>`:''}`:`${ic('pause')}미작업`;
-  return `<a class="zbox ${tone}${worst?' prob':''}" href="${qlink({type:'wo',proc:p.process_id})}">${cube}<span class="zcontent">${alert(probs,worst||'fault')}<span class="zt">${ic(PICON[p.process_id])}<b>${z.zone_id} ${esc(p.process_name)}</b><small>${p.process_id}</small></span><span class="zs">${line}</span>${eqLine}</span></a>`;
+  return `<a class="zbox ${tone}${worst?' prob':''}" href="${qlink({type:'wo',proc:p.process_id})}">${cube}<span class="zcontent">${alert(probs,worst||'fault')}<span class="zt">${ic(PICON[p.process_id])}<b>${z.zone_id} ${esc(p.process_name)}</b><small>${esc(p.process_id)}</small></span><span class="zs">${line}</span>${eqLine}</span></a>`;
 }
 
 function inRange(ms){const d=ymd(ms);return (!Q.from||d>=Q.from)&&(!Q.to||d<=Q.to)}
@@ -913,13 +915,15 @@ function queryRows(vesselIds){
       .filter(s=>s.status!=='COMPLETED'||s.end>s.w.planned_end_at).sort((a,b)=>(a.status==='COMPLETED')-(b.status==='COMPLETED')||rank(a)-rank(b));
   }
   if(Q.type==='incident'){
-    return D.incidents.filter(i=>vesselHit(vesselIds,WO[i.work_order_id].block_id)&&i.opened_at<=t&&inRange(i.opened_at)&&(!Q.status||(Q.status==='open')===!(i.resolved_at<=t))&&textHit(i.incident_id,i.work_order_id,WO[i.work_order_id].block_id,i.equipment_id,i.summary,i.owner_team))
-      .sort((a,b)=>!(a.resolved_at<=t)===!(b.resolved_at<=t)?b.opened_at-a.opened_at:!(a.resolved_at<=t)?-1:1);
+    return D.incidents.filter(i=>vesselHit(vesselIds,WO[i.work_order_id].block_id)&&i.opened_at<=t&&inRange(i.opened_at)&&(!Q.status||(Q.status==='open')===!(incidentResolved(i,t)))&&textHit(i.incident_id,i.work_order_id,WO[i.work_order_id].block_id,i.equipment_id,i.summary,i.owner_team))
+      .sort((a,b)=>!(incidentResolved(a,t))===!(incidentResolved(b,t))?b.opened_at-a.opened_at:!(incidentResolved(a,t))?-1:1);
   }
   return D.equipment.filter(e=>textHit(e.equipment_id,e.equipment_name,PROC[e.process_id].process_name)).map(e=>({e,...eqAt(e)}));
 }
 
+/*__PLAN_ACTUAL_SCRIPT__*/
 function renderQuery(){
+  if(Q.view==='compare'){renderPlanActualComparison();return;}
   const type=Q.type,vessel=type==='equip'?{ids:null,error:''}:vesselFilter(Q.vessel),rows=queryRows(vessel.ids);
   const lo=ymd(START),hi=ymd(PLAN_END);
   let table='';
@@ -934,14 +938,14 @@ function renderQuery(){
       return `<tr data-go="#/blk/${b.block_id}"><td class="id">${b.block_id}</td><td><span class="sp6">${ss.map(x=>`<i class="${x.status==='PLANNED'?'plan':x.look.tone}${filtered&&hit.includes(x)?' hit':''}" title="${esc(PROC[x.w.process_id].process_name)} · ${x.look.label}${x.overdue?' · 지연':''}">${ic(PICON[x.w.process_id])}</i>`).join('')}</span></td><td>${now?`${chip(look.tone,look.icon,look.label)} ${esc(PROC[now.w.process_id].process_name)}`:done===ss.length?chip('ok','circle-check','이송 완료'):`${chip('plan','circle-dashed','대기')} 다음 ${next?esc(PROC[next.w.process_id].process_name)+' '+md(next.w.planned_start_at):''}`}</td><td><span class="pb ok"><span class="mini"><i style="width:${done/ss.length*100}%"></i></span><span>${done}/${ss.length}</span></span></td><td>${incs.map(i=>chip(CAT[i.category].tone,CAT[i.category].icon,i.incident_id)).join(' ')||(ss.some(x=>x.overdue)?'<span class="late-i">지연</span>':'—')}</td><td>${when(b.target_transfer_at)}</td>${filtered?`<td class="r">${hit.length}건</td>`:''}</tr>`}).join('')).join('')}</tbody></table>`;
   }
   else if(type==='delay')table=`<table class="tbl"><thead><tr><th>구분</th><th>작업지시</th><th>호선명</th><th>블록</th><th>공정</th><th>계획 종료</th><th>완료·예상</th><th class="r">지연</th><th>진척</th><th>원인</th></tr></thead><tbody>${rows.map(s=>{const late=(s.end??t)-s.w.planned_end_at,doneLate=s.status==='COMPLETED';const fc=doneLate?when(s.end):t>=AS_OF&&s.w.forecast_end_at&&!s.open.length?`예상 ${when(s.w.forecast_end_at)}`:'미정';return `<tr data-go="#/wo/${s.id}"><td>${doneLate?chip('ok','check','완료 지연'):chip(s.look.tone,s.look.icon,s.look.label)}</td><td class="id">${s.id}</td><td>${esc(vname(s.w.block_id))}</td><td class="id">${s.w.block_id}</td><td>${esc(PROC[s.w.process_id].process_name)}</td><td>${when(s.w.planned_end_at)}</td><td>${fc}</td><td class="r">${late>0?dur(late):'마감 도달'}</td><td><span class="pb ${s.look.tone}"><span class="mini"><i style="width:${s.progress*100}%"></i></span><span>${pct(s.progress)}</span></span></td><td>${s.incs.map(i=>`${chip(CAT[i.category].tone,CAT[i.category].icon,i.incident_id)}`).join(' ')||'—'}</td></tr>`}).join('')}</tbody></table>`;
-  else if(type==='incident')table=`<table class="tbl"><thead><tr><th>상태</th><th>사건</th><th>구분</th><th>호선명</th><th>블록</th><th>작업지시</th><th>설비</th><th>발생</th><th>해소·경과</th><th>담당</th><th>내용</th></tr></thead><tbody>${rows.map(i=>{const c=CAT[i.category],res=i.resolved_at<=t,w=WO[i.work_order_id];return `<tr data-go="#/wo/${w.work_order_id}"><td>${chip(res?'ok':c.tone,'',LABEL[res?'incident:RESOLVED':'incident:OPEN'])}</td><td class="id">${i.incident_id}</td><td>${chip(c.tone,c.icon,c.label)}</td><td>${esc(vname(w.block_id))}</td><td class="id">${w.block_id}</td><td class="id">${w.work_order_id}</td><td class="id">${i.equipment_id||'—'}</td><td>${when(i.opened_at)}</td><td>${res?`${when(i.resolved_at)} (${dur(i.resolved_at-i.opened_at)})`:`${dur(t-i.opened_at)} 경과`}</td><td>${esc(i.owner_team)}</td><td style="white-space:normal;min-width:200px">${esc(i.summary)}</td></tr>`}).join('')}</tbody></table>`;
+  else if(type==='incident')table=`<table class="tbl"><thead><tr><th>상태</th><th>사건</th><th>구분</th><th>호선명</th><th>블록</th><th>작업지시</th><th>설비</th><th>발생</th><th>해소·경과</th><th>담당</th><th>내용</th></tr></thead><tbody>${rows.map(i=>{const c=CAT[i.category],res=incidentResolved(i,t),w=WO[i.work_order_id];return `<tr data-go="#/wo/${w.work_order_id}"><td>${chip(res?'ok':c.tone,'',LABEL[res?'incident:RESOLVED':'incident:OPEN'])}</td><td class="id">${i.incident_id}</td><td>${chip(c.tone,c.icon,c.label)}</td><td>${esc(vname(w.block_id))}</td><td class="id">${w.block_id}</td><td class="id">${w.work_order_id}</td><td class="id">${i.equipment_id||'—'}</td><td>${when(i.opened_at)}</td><td>${res?`${when(i.resolved_at)} (${dur(i.resolved_at-i.opened_at)})`:`${dur(t-i.opened_at)} 경과`}</td><td>${esc(i.owner_team)}</td><td style="white-space:normal;min-width:200px">${esc(i.summary)}</td></tr>`}).join('')}</tbody></table>`;
   else{
     const from=Q.from?kst(Q.from+'T00:00'):START,to=Math.min(t,Q.to?kst(Q.to+'T23:59'):t);
     table=`<table class="tbl"><thead><tr><th>상태</th><th>설비</th><th>설비명</th><th>공정</th><th>점유 작업</th><th class="r">점유율</th><th class="r">가동</th><th class="r">고장</th><th class="r">점검</th><th>관련 사건</th></tr></thead><tbody>${rows.map(x=>{const[tone,i2]=eqLook(x.status),o=occupancy([x.e],from,to),incs=D.incidents.filter(i=>i.opened_at<=t&&i.opened_at<=to&&(i.equipment_id===x.e.equipment_id||(INTV[x.e.equipment_id]||[]).some(v=>v.incident_id===i.incident_id)));return `<tr data-go="#/eq/${x.e.equipment_id}"><td>${chip(tone,i2,eqLabel(x.status))}</td><td class="id">${x.e.equipment_id}</td><td>${esc(x.e.equipment_name)}</td><td>${esc(PROC[x.e.process_id].process_name)}</td><td class="id">${x.wo||'—'}</td><td class="r">${pct(o.rate)}</td><td class="r">${num((o.tot.RUNNING||0)/36e5)}h</td><td class="r">${num((o.tot.FAULT||0)/36e5)}h</td><td class="r">${num((o.tot.MAINTENANCE||0)/36e5)}h</td><td class="id">${incs.map(i=>i.incident_id).join(' ')||'—'}</td></tr>`}).join('')}</tbody></table>`;
   }
   const extra=[Q.status==='done'?'완료만':Q.status==='open'?'미해소만':'',Q.due?'기한 도래만':'',Q.proc?PROC[Q.proc].process_name:''].filter(Boolean);
   $('#pg-query').innerHTML=`
-    <div class="vhead"><div><h2>조회</h2><p>호선명 정규식·날짜·대상으로 목록 조회 · 작업은 블록 단위로 묶어 표시 · 행을 누르면 상세</p></div></div>
+    ${comparisonNav(false)}<div class="vhead"><div><h2>조회</h2><p>호선명 정규식·날짜·대상으로 목록 조회 · 작업은 블록 단위로 묶어 표시 · 행을 누르면 상세</p></div></div>
     <form class="qform" id="qform" onsubmit="return false">
       <div class="qf">조회 대상<div class="seg">${Object.entries(QTYPES).map(([k,[l,i]])=>`<button type="button" data-qtype="${k}" class="${Q.type===k?'on':''}">${ic(i)}${l}</button>`).join('')}</div></div>
       <label class="qf">호선명 정규식<input type="search" id="q-vessel" value="${esc(Q.vessel)}" maxlength="120" placeholder="호선명 또는 ID 입력" aria-invalid="${vessel.error?'true':'false'}"${type==='equip'?' disabled title="설비는 호선 공통"':''}></label>
@@ -964,7 +968,7 @@ function axis(from,to){
   return {d0,n,x,days:Array.from({length:n},(_,i)=>d0+i*864e5)};
 }
 function incCard(i){
-  const c=CAT[i.category],resolved=i.resolved_at<=t,showAction=resolved||t>=AS_OF;
+  const c=CAT[i.category],resolved=incidentResolved(i,t),showAction=resolved||t>=AS_OF;
   return `<div class="inc ${c.tone}"><div class="inc-hd">${ic(c.icon)}<b>${i.incident_id}</b><span class="chip ${resolved?'ok':c.tone}">${c.label} · ${LABEL[resolved?'incident:RESOLVED':'incident:OPEN']}</span><small>${esc(i.severity)}</small></div><p>${esc(i.summary)}</p><div class="inc-meta"><span>${ic('clock')}${when(i.opened_at)}${resolved?` → ${when(i.resolved_at)} 해소 (${dur(i.resolved_at-i.opened_at)})`:` 발생 · ${dur(t-i.opened_at)} 경과`}</span><span>${ic('users')}${esc(i.owner_team)}</span>${i.equipment_id?`<span>${ic('cog')}${i.equipment_id}</span>`:''}</div>${showAction?`<p class="act">${ic('wrench')}조치: ${esc(i.action_note)}</p>`:''}</div>`;
 }
 function segmentsOf(s){
@@ -1037,7 +1041,7 @@ function woPage(id){
       <div class="stack">
         <section class="card"><header class="card-h"><h2>${ic('history')}작업 기록</h2></header>${s.his.length?`<div class="hist">${[...s.his].reverse().map(h=>{const hi=INC[h.incident_id],[tone,icon]=h.event_type==='PAUSE'&&hi?[CAT[hi.category].tone,CAT[hi.category].icon]:H_LOOK[h.event_type];return `<div class="h-row"><time>${when(h.event_at)}</time><span class="dot ${tone}">${ic(icon)}</span><span class="t">${esc(h.note)}${h.incident_id?`<em>${h.incident_id}</em>`:''}</span></div>`}).join('')}</div>`:'<div class="none">아직 기록 없음</div>'}</section>
         ${s.incs.length?`<section class="card"><header class="card-h"><h2>${ic('alert')}사건과 조치</h2></header>${s.incs.map(incCard).join('')}</section>`:''}
-        ${qcs.length||rws.length?`<section class="card"><header class="card-h"><h2>${ic('ruler')}검사·재작업</h2></header>${qcs.map(q=>`<div class="qc"><b>${q.attempt_no}차</b><span>검사 ${q.checked_points}</span><span style="color:var(--ok)">합격 ${q.passed_points}</span><span style="color:${q.failed_points?'var(--fault)':'var(--faint)'}">불합격 ${q.failed_points}</span><span class="chip ${q.result==='PASS'?'ok':'fault'}">${LABEL['inspection:'+q.result]}</span></div>`).join('')}${rws.map(r=>{const done=r.end_at<=t;return `<div class="inc quality" style="margin-top:8px"><div class="inc-hd">${ic('hammer')}<b>${r.rework_id}</b><span class="chip ${done?'ok':'quality'}">${done?LABEL['rework:'+r.status]:'보수 중'}</span></div><div class="inc-meta"><span>${ic('clock')}${when(r.start_at)} → ${done?when(r.end_at):'진행 중'}</span><span>${ic('cog')}${r.equipment_id}</span><span>보수 ${r.repaired_points}개 위치</span></div>${done?`<p class="act">${ic('info')}${esc(r.note)}</p>`:''}</div>`}).join('')}</section>`:''}
+        ${qcs.length||rws.length?`<section class="card"><header class="card-h"><h2>${ic('ruler')}검사·재작업</h2></header>${qcs.map(q=>`<div class="qc"><b>${q.attempt_no}차</b><span>검사 ${q.checked_points}</span><span style="color:var(--ok)">합격 ${q.passed_points}</span><span style="color:${q.failed_points?'var(--fault)':'var(--faint)'}">불합격 ${q.failed_points}</span><span class="chip ${q.result==='PASS'?'ok':'fault'}">${LABEL['inspection:'+q.result]}</span></div>`).join('')}${rws.map(r=>{const done=Number.isFinite(r.end_at)&&r.end_at<=t;return `<div class="inc quality" style="margin-top:8px"><div class="inc-hd">${ic('hammer')}<b>${r.rework_id}</b><span class="chip ${done?'ok':'quality'}">${done?LABEL['rework:'+r.status]:'보수 중'}</span></div><div class="inc-meta"><span>${ic('clock')}${when(r.start_at)} → ${done?when(r.end_at):'진행 중'}</span><span>${ic('cog')}${r.equipment_id}</span><span>${done?`보수 ${r.repaired_points}개 위치`:'완료 수량 미확정'}</span></div>${done?`<p class="act">${ic('info')}${esc(r.note)}</p>`:''}</div>`}).join('')}</section>`:''}
       </div>
       <div class="stack">
         <section class="card"><header class="card-h"><h2>${ic('link')}선행·후행 작업</h2></header><div class="pair"><div><h4>선행</h4>${pred?issueCard(pred):'<div class="none">없음 (첫 공정)</div>'}</div><div><h4>후행</h4>${sc?issueCard(sc):'<div class="none">없음 (마지막 공정)</div>'}</div></div></section>
@@ -1056,7 +1060,7 @@ function eqPage(id){
   return `${crumb([['조회','#/query'],['설비',qlink({type:'equip'})],[id]])}
     <div class="dhero ${tone}" style="margin-top:10px"><span class="d-ic ${tone}">${ic(icon)}</span><div style="flex:1;min-width:240px"><h2>${esc(e.equipment_name)}<small>${id}</small></h2><div class="links">${tag('board',z.zone_name)}${tag(PICON[e.process_id],PROC[e.process_id].process_name)}${tag('info',`${e.resource_kind} · ${e.capacity_note}`)}${now.wo?link('wo:'+now.wo,'link',`점유 작업 ${now.wo}`):''}</div></div>${chip(tone,icon,eqLabel(now.status))}</div>
     <div class="dtiles">
-      <div class="dt ${tone}"><span class="ml">${ic(icon)}현재 상태</span><div class="big">${eqLabel(now.status)}</div><div class="sub">${now.wo?`점유 작업 ${now.wo}`:'점유 작업 없음'}</div></div>
+      <div class="dt ${tone}"><span class="ml">${ic(icon)}현재 상태</span><div class="big">${eqLabel(now.status)}</div><div class="sub">${now.wo?`점유 작업 ${now.wo}`:'점유 작업 없음'}${t>=AS_OF&&SNAP[id]?`<br>스냅샷 ${iso(SNAP[id].as_of)} KST`:''}</div></div>
       <div class="dt run"><span class="ml">${ic('gauge')}금일 점유율</span><div class="big">${pct(od.rate)}</div><div class="sub">가동 ÷ 운영시간 · PLC 가동률 아님</div></div>
       <div class="dt run"><span class="ml">${ic('gauge')}누적 점유율</span><div class="big">${pct(o.rate)}</div><div class="sub">${md(START)}~${md(t)} 운영시간 기준</div></div>
       <div class="dt ${fm.length?'fault warn':'ok'}"><span class="ml">${ic('wrench')}고장·점검</span><div class="big">${fm.length}<small>구간</small></div><div class="sub">고장 ${num((o.tot.FAULT||0)/36e5)}h · 점검 ${num((o.tot.MAINTENANCE||0)/36e5)}h</div></div>
@@ -1087,7 +1091,7 @@ function blkPage(id){
     <div class="dtiles">
       <div class="dt ok"><span class="ml">${ic('circle-check')}공정 진행</span><div class="big">${done}<small>/ ${ws.length} 공정 완료</small></div><div class="sub">${now?`현재 ${esc(PROC[now.w.process_id].process_name)} ${pct(now.progress)}`:done===ws.length?'모든 공정 완료':'착수 전'}</div></div>
       <div class="dt run"><span class="ml">${ic('chev-r')}다음 공정</span><div class="big">${next?esc(PROC[next.w.process_id].process_name):'—'}</div><div class="sub">${next?`계획 ${when(next.w.planned_start_at)}`:'없음'}</div></div>
-      <div class="dt ${openN?'fault warn':'ok'}"><span class="ml">${ic('alert')}미해소 이상</span><div class="big">${openN}<small>건</small></div><div class="sub">${incs.length?incs.map(i=>`${i.incident_id} ${CAT[i.category].label}${i.resolved_at<=t?'(해소)':''}`).join(', '):'기록된 사건 없음'}</div></div>
+      <div class="dt ${openN?'fault warn':'ok'}"><span class="ml">${ic('alert')}미해소 이상</span><div class="big">${openN}<small>건</small></div><div class="sub">${incs.length?incs.map(i=>`${i.incident_id} ${CAT[i.category].label}${incidentResolved(i,t)?'(해소)':''}`).join(', '):'기록된 사건 없음'}</div></div>
       <div class="dt ${lateN?'hold warn':'ok'}"><span class="ml">${ic('clock')}지연</span><div class="big">${lateN}<small>공정</small></div><div class="sub">마감 지났는데 미완료</div></div>
     </div>
     <section class="card" style="margin-top:14px"><header class="card-h"><h2>${ic('board')}공정 배치도</h2><span class="hint">${id}의 공정별 상태 · 구역을 누르면 작업 상세</span>${layLegend()}</header><div class="lay-wrap">${layoutHTML(id)}</div></section>
@@ -1282,11 +1286,11 @@ function summaryRows(){
     else if(i.category==='MATERIAL')facts.push(['자재 대기',`${id}${josa(id)} ${hm(i.opened_at)}부터 ${i.summary}. 진척 ${pct(s.progress)}. 설비 고장에 포함하지 않음. [${i.incident_id}]`]);
     else{
       const q=(QC[id]||[]).filter(x=>x.inspected_at<=t&&x.incident_id===i.incident_id).at(-1),r=(RW[id]||[]).filter(x=>x.incident_id===i.incident_id&&x.start_at<=t).at(-1);
-      const rw=r?(r.end_at<=t?'보수는 완료했으나 재검사 판정 전이므로':'보수 진행 중이며'):'';
+      const rw=r?(Number.isFinite(r.end_at)&&r.end_at<=t?'보수는 완료했으나 재검사 판정 전이므로':'보수 진행 중이며'):'';
       facts.push(['품질 보류',`${id}${josa(id)} ${q?`${q.checked_points}개 위치 중 ${q.failed_points}개 불합격.`:i.summary+'.'} ${rw} 인정수량 ${num(s.acc)}${u} 유지. [${i.incident_id}${r?' / '+r.rework_id:''}]`.replace(/\s+/g,' ')]);
     }
   }
-  for(const i of D.incidents.filter(i=>i.resolved_at<=t&&ymd(i.resolved_at)===ymd(t))){
+  for(const i of D.incidents.filter(i=>incidentResolved(i,t)&&ymd(i.resolved_at)===ymd(t))){
     const s=st(i.work_order_id),w=s.w,f=t>=AS_OF&&s.status!=='COMPLETED'&&w.forecast_end_at;
     facts.push(['회복 상황',`${w.work_order_id}의 ${i.summary} ${hm(i.resolved_at)} 해소. ${s.status==='COMPLETED'?`${when(s.end)} 완료`:`현재 진척 ${pct(s.progress)}${f?`, 예상 완료 ${when(f)}`:''}`}. [${i.incident_id}]`]);
   }
@@ -1321,6 +1325,7 @@ async function renderSettings(){
     const responses=await Promise.all(['/api/admin/users','/api/admin/permissions','/api/admin/audit?'+new URLSearchParams(auditFilter)].map(url=>fetch(url)));
     if(responses.some(r=>!r.ok))throw Error('설정을 불러오지 못했습니다.');
     const [users,perms,audits]=await Promise.all(responses.map(r=>r.json()));
+    if(route.page!=='settings'||settingsMode()==='layout')return;
     root.innerHTML=`<div class="vhead"><div><h2>Settings</h2><p>관리자 전용 · 역할별 권한과 사용자 계정 관리</p></div></div>
       <section class="card"><header class="card-h"><h2>역할별 권한</h2><span class="hint">관리 권한은 관리자만 가집니다.</span></header><div class="settings-body"><form id="permission-form"><table class="tbl"><thead><tr><th>기능</th><th>조회자</th><th>작업담당자</th><th>관리자</th></tr></thead><tbody>${[['read','운영현황·조회'],['work','담당 실적·사건 입력'],['upload','데이터 적재·초기화']].map(([key,label])=>`<tr><td>${label}</td>${['VIEWER','WORKER'].map(r=>`<td><input type="checkbox" name="${r}:${key}" ${perms[r]?.includes(key)?'checked':''} ${key==='read'?'disabled':''} aria-label="${r} ${label}"></td>`).join('')}<td>허용</td></tr>`).join('')}<tr><td>역할·계정·감사 관리</td><td>제한</td><td>제한</td><td>허용</td></tr></tbody></table><button class="btn accent" type="submit">변경 사항 저장</button></form><p id="settings-msg" role="status"></p></div></section>
       <section class="card"><header class="card-h"><h2>사용자 역할 배정</h2></header><div class="settings-body"><table class="tbl"><thead><tr><th>사용자</th><th>아이디</th><th>역할</th><th>담당 작업</th><th>상태</th><th>관리</th></tr></thead><tbody>${users.map(u=>`<tr><td>${esc(u.name)}</td><td>${esc(u.login)}</td><td>${esc(u.role)}</td><td>${esc(u.assignments.join(', ')||'—')}</td><td>${u.active?'활성':'비활성'}</td><td><button class="btn sm" data-edit-user="${esc(u.id)}">수정</button></td></tr>`).join('')}</tbody></table><h3 id="user-form-title">사용자 추가</h3><form id="user-form"><input type="hidden" name="id"><label>아이디<input name="login" required></label><label>이름<input name="name" required></label><label>역할<select name="role"><option>VIEWER</option><option>WORKER</option><option>ADMIN</option></select></label><label>비밀번호 (12자 이상)<input name="password" type="password" autocomplete="new-password"></label><label>담당 작업번호 (쉼표 구분)<input name="assignments" placeholder="WO001-01, WO001-02"></label><label>활성<input type="checkbox" name="active" checked></label><button class="btn accent" type="submit">저장</button><button class="btn" type="button" id="user-clear">입력 초기화</button></form><p class="hint">수정 시 비밀번호를 비워두면 기존 비밀번호가 유지됩니다.</p><p id="user-msg" role="status"></p></div></section>
@@ -1381,6 +1386,7 @@ document.addEventListener('click',e=>{
   else if(d.go){location.hash=d.go}
 });
 
+/*__LAYOUT_HISTORY_SCRIPT__*/
 route=parseRoute();render();
 </script>
 </body>
