@@ -699,7 +699,8 @@ a.btn{text-decoration:none}
   <section class="page" data-pg="work"><div class="settings-stack" id="pg-work"></div></section>
 </div>
 
-<input type="file" id="file" accept=".csv,text/csv" hidden>
+<input type="file" id="file" accept=".csv,text/csv" multiple hidden>
+<input type="file" id="folder-file" webkitdirectory directory multiple hidden>
 
 <script>
 const D=/*__DATA__*/null;
@@ -826,7 +827,7 @@ function issueCard(s){
 }
 
 function renderChrome(){
-  const tabs=[['home','운영현황','board','#/'],['query','조회','list','#/query'],['settings','Settings','users','#/settings'],...(CURRENT_PERMISSIONS.includes('work')?[['work','담당 입력','edit','#/work']]:[])];
+  const tabs=[['home','운영현황','board','#/'],['query','조회','list','#/query'],['settings','설정','users','#/settings'],...(CURRENT_PERMISSIONS.includes('work')?[['work','담당 입력','edit','#/work']]:[])];
   const active=['home','query'].includes(route.page)?route.page:route.page==='detail'?'query':'';
   $('#tabs').innerHTML=tabs.map(([k,l,i,h])=>`<a href="${h}" class="${active===k?'on':''}">${ic(i)}${l}</a>`).join('');
   document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.dataset.pg===route.page));
@@ -1115,6 +1116,7 @@ try{uploads=JSON.parse(sessionStorage.getItem('ax-upload-history')||'[]').map(u=
   errs:[{row:0,field:'파일 형식',rule:'CSV 전용',msg:'엑셀(.xlsx)은 업로드할 수 없습니다. 각 시트를 UTF-8 CSV로 저장해 테이블별로 올려 주세요.'}]
 }:{...u,at:new Date(u.at)})}catch{uploads=[]}
 let lastResult=uploads[0]||null,upTable='auto',role=CURRENT_PERMISSIONS.includes('upload')?'admin':'viewer',pendingUpload=null;
+let pendingBatch=null;
 function parseCSV(text){
   text=text.replace(/^﻿/,'');const rows=[];let row=[],f='',q=false;
   for(let i=0;i<text.length;i++){const ch=text[i];
@@ -1173,6 +1175,7 @@ function validate(rows,forced){
 async function sha(text){try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch{return null}}
 async function handleFile(file){
   if(role!=='admin')return;
+  pendingBatch=null;
   if(!/\.csv$/i.test(file.name)){
     pendingUpload={name:file.name,rows:[],result:{table:null,n:0,errs:[{row:0,field:'파일 형식',rule:'CSV 전용',msg:'CSV 파일만 선택할 수 있습니다.'}]},serverErrors:[],saving:false,invalidFile:true};
     renderUpload();
@@ -1183,6 +1186,36 @@ async function handleFile(file){
   pendingUpload={name:file.name,rows,result:validate(rows,upTable),serverErrors:[],saving:false};
   renderUpload();
   $('#upload-preview')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+async function handleBatch(fileList){
+  if(role!=='admin')return;
+  const input=[...fileList],files=input.filter(f=>/\.csv$/i.test(f.name)),ignored=input.length-files.length;
+  pendingUpload=null;
+  const batch={files:[],errors:[],ignored,validated:false,busy:false};pendingBatch=batch;
+  if(!files.length)batch.errors.push({file:'—',row:0,field:'파일',rule:'CSV 선택',msg:'선택한 폴더에 CSV 파일이 없습니다.'});
+  for(const file of files){
+    const name=file.webkitRelativePath||file.name;
+    try{
+      const rows=parseCSV(await file.text()),headers=(rows[0]||[]).map(h=>h.trim()),table=detect(headers);
+      if(!table){batch.errors.push({file:name,row:1,field:'헤더',rule:'테이블 판별',msg:'명세와 일치하는 테이블을 찾지 못했습니다.'});continue}
+      rows.slice(1).forEach((row,i)=>{if(row.length>headers.length)batch.errors.push({file:name,row:i+2,field:'—',rule:'열 수',msg:'헤더보다 값이 많습니다.'})});
+      const records=rows.slice(1).map(row=>Object.fromEntries(headers.map((h,i)=>[h,(row[i]??'').trim()])));
+      batch.files.push({name,table,headers,rows:records});
+    }catch{batch.errors.push({file:name,row:0,field:'파일',rule:'읽기',msg:'파일을 읽지 못했습니다.'})}
+  }
+  batch.localErrors=[...batch.errors];renderUpload();$('#batch-preview')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+async function submitBatch(save){
+  const batch=pendingBatch;if(!batch||batch.busy||role!=='admin'||batch.localErrors.length||!batch.files.length||save&&!batch.validated)return;
+  batch.busy=true;batch.errors=[];renderUpload();
+  try{
+    const response=await fetch(save?'/api/data/batch':'/api/data/batch/validate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({files:batch.files})});
+    const result=await response.json().catch(()=>({}));
+    if(!response.ok){batch.validated=false;batch.errors=result.errors||[{file:'—',row:0,field:'—',rule:'서버',msg:result.message||'검증 요청이 거부되었습니다.'}];return}
+    if(save){const n=batch.files.reduce((sum,f)=>sum+f.rows.length,0);lastResult={name:`폴더/다중 CSV ${batch.files.length}개`,table:'여러 테이블',n,at:new Date(),hash:null,errs:[],applied:true};uploads.unshift(lastResult);sessionStorage.setItem('ax-upload-history',JSON.stringify(uploads));location.reload();return}
+    batch.validated=true;
+  }catch{batch.validated=false;batch.errors=[{file:'—',row:0,field:'—',rule:'서버 연결',msg:'서버에 연결하지 못했습니다.'}]}
+  finally{batch.busy=false;if(route.page==='upload'&&pendingBatch===batch)renderUpload()}
 }
 function pendingErrors(){return pendingUpload?[...pendingUpload.result.errs,...pendingUpload.serverErrors]:[]}
 function refreshPendingValidation(){
@@ -1233,32 +1266,36 @@ function renderUpload(){
     <div class="up-actions"><button class="btn sm" id="preview-add-column" ${!p.rows.length?'disabled':''}>열 추가</button><button class="btn sm" id="preview-add-row" ${!p.rows.length?'disabled':''}>행 추가</button><span style="flex:1"></span><b id="preview-status" aria-live="polite"></b><button class="btn accent" id="upload-confirm" disabled>${ic('upload')}검증 후 업로드</button></div>
     <div class="up-errors" id="preview-errors" aria-live="polite"></div>
   </section>`:'';
+  const b=pendingBatch,batchPreview=b?`<section class="card upload-preview" id="batch-preview"><header class="card-h"><h2>${ic('list')}선택한 CSV 파일</h2><span class="hint">${b.files.length}개 파일${b.ignored?` · CSV가 아닌 ${b.ignored}개 제외`:''}</span></header><p style="color:var(--text-2);font-size:12px">서버가 파일을 참조 순서로 검사합니다. 오류가 있으면 모두 취소됩니다. 오류가 있는 CSV는 수정 후 다시 선택해 주세요.</p><div class="tbl-wrap"><table class="tbl"><thead><tr><th>파일</th><th>대상 테이블</th><th>행 수</th></tr></thead><tbody>${b.files.map(f=>`<tr><td>${esc(f.name)}</td><td>${esc(f.table)}</td><td>${f.rows.length}</td></tr>`).join('')||'<tr><td colspan="3">선택된 CSV가 없습니다.</td></tr>'}</tbody></table></div><div class="up-actions"><span style="flex:1"></span><b aria-live="polite">${b.busy?'처리 중':b.validated?'서버 검증 통과':b.errors.length?`오류 ${b.errors.length}건`:'서버 검증 전'}</b><button class="btn" id="batch-check" ${b.busy||b.localErrors.length||!b.files.length?'disabled':''}>서버 검증</button><button class="btn accent" id="batch-save" ${b.busy||!b.validated?'disabled':''}>전체 업로드</button></div><div class="up-errors" aria-live="polite">${b.errors.slice(0,50).map(e=>`<div>${esc(e.file)} · ${e.row?e.row+'행 · ':''}${esc(e.field)} · ${esc(e.rule)}: ${esc(e.msg)}</div>`).join('')}${b.errors.length>50?`<div>외 ${b.errors.length-50}건</div>`:''}</div></section>`:'';
   const counts=Object.entries(DATA_STATUS.counts).map(([name,count])=>`<span style="display:inline-block;min-width:150px;padding:5px 8px;color:${DATA_STATUS.requiredTables.includes(name)?'var(--text)':'var(--muted)'}">${DATA_STATUS.requiredTables.includes(name)?'● ':''}${name} <b>${count}</b></span>`).join('');
   const res=r?(()=>{const ok=!r.errs.length,tone=ok?'ok':'fault';return `<div class="res ${tone}"><span class="is-ic">${ic(ok?'circle-check':'ban')}</span><span><b class="big">${ok?'적재 완료':'배치 취소'}</b><br><small style="color:var(--text-2)">${ok?'모든 행이 규칙을 통과 · 서버 데이터에 저장됨':`오류 ${r.errs.length}건 · 데이터 변경 없이 종료`}</small></span><span class="kl">파일<b>${esc(r.name)}</b></span><span class="kl">테이블<b>${r.table||'판별 불가'}</b></span><span class="kl">행 수<b>${r.n}</b></span><span class="kl">SHA-256<b>${r.hash?r.hash.slice(0,12)+'…':'—'}</b></span></div>
     ${r.errs.length?`<div class="tbl-wrap" style="margin-top:12px;max-height:340px"><table class="tbl"><thead><tr><th class="r">행</th><th>필드</th><th>규칙</th><th>원인</th></tr></thead><tbody>${r.errs.map(e=>`<tr><td class="r id">${e.row}</td><td class="id">${esc(e.field)}</td><td>${chip('fault','',e.rule)}</td><td style="white-space:normal">${esc(e.msg)}</td></tr>`).join('')}</tbody></table></div>`:''}`})():`<div class="none">CSV를 올리면 여기에 검증 결과가 나옵니다</div>`;
   $('#pg-upload').innerHTML=`<div class="stack">
-    <div class="vhead" style="margin:0"><div><h2>데이터 업로드</h2><p>CSV 선택 → 표에서 검증·수정 → 업로드 버튼으로 저장</p></div><span class="sp"></span></div>
+    <div class="vhead" style="margin:0"><div><h2>데이터 업로드</h2><p>단일 CSV 또는 여러 파일·폴더를 선택하고 검증 후 저장</p></div><span class="sp"></span></div>
     <section class="card"><header class="card-h"><h2>${ic('upload')}CSV 적재</h2><span class="hint">UTF-8 · 쉼표 구분 · 첫 행 영문 필드명</span></header>
-      <div class="drop${admin?'':' locked'}" id="drop">${ic(admin?'upload':'lock')}<b>${admin?'CSV 파일을 끌어다 놓거나 눌러서 선택':'데이터 적재 권한이 없습니다'}</b><small>엑셀 통합 문서는 시트별 CSV로 저장한 뒤 올려 주세요</small></div>
+      <div class="drop${admin?'':' locked'}" id="drop">${ic(admin?'upload':'lock')}<b>${admin?'CSV 파일을 끌어다 놓거나 눌러서 선택':'데이터 적재 권한이 없습니다'}</b><small>한 개 또는 여러 CSV 파일을 선택할 수 있습니다.</small></div>
+      <div class="up-row"><button class="btn" id="choose-files" type="button" ${admin?'':'disabled'}>CSV 파일 선택</button><button class="btn" id="choose-folder" type="button" ${admin?'':'disabled'}>CSV 폴더 선택</button><span class="hint">폴더 안의 CSV를 한 번에 확인합니다. CSV 외 파일은 제외합니다.</span></div>
       <div class="up-row"><label class="up-sel">대상 테이블<select id="up-table"><option value="auto">자동 판별</option>${Object.keys(SPEC).map(k=>`<option value="${k}"${upTable===k?' selected':''}>${k}</option>`).join('')}</select></label><span style="flex:1"></span>${DATA_STATUS.ready?`<button class="btn sm" data-sample="ok">${ic('download')}정상 예시 받기</button><button class="btn sm" data-sample="bad">${ic('download')}오류 예시 받기</button>`:`<button class="btn sm" id="up-template">${ic('download')}선택 테이블 양식 받기</button>`}</div>
     </section>
     <section class="card"><header class="card-h"><h2>${ic('history')}최근 업로드 결과</h2></header>${res}</section>
   </div>
   <div class="stack">
     <section class="card"><header class="card-h"><h2>${ic('shield-check')}검증 규칙</h2></header><div class="rules">
-      ${[['식별자','PK 중복 · 재업로드 · 계획 1:1'],['관계','FK 존재 · 선행 작업 참조'],['값과 단위','필수값 · 상태코드 · 공정/실적 단위'],['시간','ISO 8601 +09:00 · 시작 ≤ 종료'],['수량과 품질','음수 증분 · 검사 수량 합계']].map(([a,b])=>`<div class="rule"><b>${ic('check')}${a}</b>${b}</div>`).join('')}
+      ${[['식별자','PK 중복 · 재업로드 · 계획 1:1'],['실적 중복','작업·집계 구간·수량·단위가 같은 실적'],['관계','FK 존재 · 선행 작업 참조'],['값과 단위','필수값 · 상태코드 · 공정/실적 단위'],['시간','ISO 8601 +09:00 · 시작 ≤ 종료'],['수량과 품질','음수 증분 · 검사 수량 합계']].map(([a,b])=>`<div class="rule"><b>${ic('check')}${a}</b>${b}</div>`).join('')}
     </div></section>
     <section class="card"><header class="card-h"><h2>${ic('history')}업로드 이력</h2><span class="count">${uploads.length}</span></header>
       ${uploads.map(u=>`<div class="rec ${u.errs.length?'fault':'ok'}" style="cursor:default"><time>${u.at.toLocaleTimeString('sv-SE').slice(0,5)}</time><span class="dot">${ic(u.errs.length?'ban':'check')}</span><span><b>${esc(u.name)}</b><small>${u.table||'—'} · ${u.n}행 · ${u.errs.length?`오류 ${u.errs.length}건 · 취소`:'저장 완료'} · ${u.hash?u.hash.slice(0,8):'—'}</small></span></div>`).join('')||'<div class="none">이번 세션의 업로드 없음</div>'}
     </section>
     <section class="card"><header class="card-h"><h2>${ic('rotate')}데이터 상태</h2></header><p style="padding:0 18px;color:var(--text-2)">${DATA_STATUS.ready?'현재 데이터가 운영현황에 표시됩니다.':'데이터가 준비될 때까지 운영현황은 0/0과 미작업으로 표시됩니다. 참조 대상 테이블부터 순서대로 CSV를 올려 주세요.'} 샘플 엑셀 원본은 보존됩니다.</p><div style="padding:0 14px 14px">${counts}</div><div class="up-row"><button class="btn sm ghost" id="data-reset" ${admin?'':'disabled'}>데이터 초기화</button><button class="btn sm ghost" id="data-restore" ${admin?'':'disabled'}>샘플 데이터 복원</button></div></section>
-  </div>${preview}`;
+  </div>${preview}${batchPreview}`;
   const drop=$('#drop');
   if(admin){
     drop.onclick=()=>$('#file').click();
     drop.ondragover=e=>{e.preventDefault();drop.classList.add('over')};
     drop.ondragleave=()=>drop.classList.remove('over');
-    drop.ondrop=e=>{e.preventDefault();drop.classList.remove('over');const f=e.dataTransfer.files[0];if(f)handleFile(f)};
+    drop.ondrop=e=>{e.preventDefault();drop.classList.remove('over');const files=[...e.dataTransfer.files];if(files.length===1)handleFile(files[0]);else if(files.length)handleBatch(files)};
+    $('#choose-files').onclick=()=>$('#file').click();
+    $('#choose-folder').onclick=()=>$('#folder-file').click();
   }
   $('#up-table').onchange=e=>{upTable=e.target.value;if(pendingUpload){pendingUpload.serverErrors=[];refreshPendingValidation()}};
   if(p){
@@ -1269,6 +1306,7 @@ function renderUpload(){
     $('#upload-preview').oninput=e=>{const cell=e.target.closest('[data-cell]');if(!cell)return;const row=+cell.dataset.row-1,col=+cell.dataset.col;p.rows[row][col]=e.target.value;p.serverErrors=[];refreshPendingValidation()};
     refreshPendingValidation();
   }
+  if(b){$('#batch-check').onclick=()=>submitBatch(false);$('#batch-save').onclick=()=>submitBatch(true)}
   if($('#up-template'))$('#up-template').onclick=()=>{if(upTable==='auto'){alert('대상 테이블을 먼저 선택해 주세요.');return}download(`${upTable}_양식.csv`,csvOf(upTable,[]))};
   $('#data-reset').onclick=async()=>{if(!confirm('현재 데이터를 비울까요? 운영현황은 0/0과 미작업으로 표시됩니다.'))return;const r=await fetch('/api/data/reset',{method:'POST'});if(!r.ok){alert('초기화에 실패했습니다.');return}sessionStorage.removeItem('ax-upload-history');location.reload()};
   $('#data-restore').onclick=async()=>{if(!confirm('현재 적재 데이터를 샘플 데이터로 교체할까요?'))return;const r=await fetch('/api/data/restore-sample',{method:'POST'});if(!r.ok){alert('샘플 복원에 실패했습니다.');return}sessionStorage.removeItem('ax-upload-history');location.reload()};
@@ -1319,14 +1357,14 @@ function renderSummary(force){
 let auditFilter={};
 async function renderSettings(){
   const root=$('#pg-settings');
-  if(CURRENT_USER.role!=='ADMIN'){root.innerHTML=`<div class="vhead"><div><h2>Settings</h2><p>현재 계정과 역할</p></div></div><section class="card"><div class="settings-body"><h2>${esc(CURRENT_USER.name)} · ${esc(CURRENT_USER.role)}</h2><p>역할과 계정 설정은 관리자만 변경할 수 있습니다.</p></div></section>`;return}
+  if(CURRENT_USER.role!=='ADMIN'){root.innerHTML=`<div class="vhead"><div><h2>설정</h2><p>현재 계정과 역할</p></div></div><section class="card"><div class="settings-body"><h2>${esc(CURRENT_USER.name)} · ${esc(CURRENT_USER.role)}</h2><p>역할과 계정 설정은 관리자만 변경할 수 있습니다.</p></div></section>`;return}
   root.innerHTML='<div class="empty">설정을 불러오는 중입니다.</div>';
   try{
     const responses=await Promise.all(['/api/admin/users','/api/admin/permissions','/api/admin/audit?'+new URLSearchParams(auditFilter)].map(url=>fetch(url)));
     if(responses.some(r=>!r.ok))throw Error('설정을 불러오지 못했습니다.');
     const [users,perms,audits]=await Promise.all(responses.map(r=>r.json()));
     if(route.page!=='settings'||settingsMode()==='layout')return;
-    root.innerHTML=`<div class="vhead"><div><h2>Settings</h2><p>관리자 전용 · 역할별 권한과 사용자 계정 관리</p></div></div>
+    root.innerHTML=`<div class="vhead"><div><h2>설정</h2><p>관리자 전용 · 역할별 권한과 사용자 계정 관리</p></div></div>
       <section class="card"><header class="card-h"><h2>역할별 권한</h2><span class="hint">관리 권한은 관리자만 가집니다.</span></header><div class="settings-body"><form id="permission-form"><table class="tbl"><thead><tr><th>기능</th><th>조회자</th><th>작업담당자</th><th>관리자</th></tr></thead><tbody>${[['read','운영현황·조회'],['work','담당 실적·사건 입력'],['upload','데이터 적재·초기화']].map(([key,label])=>`<tr><td>${label}</td>${['VIEWER','WORKER'].map(r=>`<td><input type="checkbox" name="${r}:${key}" ${perms[r]?.includes(key)?'checked':''} ${key==='read'?'disabled':''} aria-label="${r} ${label}"></td>`).join('')}<td>허용</td></tr>`).join('')}<tr><td>역할·계정·감사 관리</td><td>제한</td><td>제한</td><td>허용</td></tr></tbody></table><button class="btn accent" type="submit">변경 사항 저장</button></form><p id="settings-msg" role="status"></p></div></section>
       <section class="card"><header class="card-h"><h2>사용자 역할 배정</h2></header><div class="settings-body"><table class="tbl"><thead><tr><th>사용자</th><th>아이디</th><th>역할</th><th>담당 작업</th><th>상태</th><th>관리</th></tr></thead><tbody>${users.map(u=>`<tr><td>${esc(u.name)}</td><td>${esc(u.login)}</td><td>${esc(u.role)}</td><td>${esc(u.assignments.join(', ')||'—')}</td><td>${u.active?'활성':'비활성'}</td><td><button class="btn sm" data-edit-user="${esc(u.id)}">수정</button></td></tr>`).join('')}</tbody></table><h3 id="user-form-title">사용자 추가</h3><form id="user-form"><input type="hidden" name="id"><label>아이디<input name="login" required></label><label>이름<input name="name" required></label><label>역할<select name="role"><option>VIEWER</option><option>WORKER</option><option>ADMIN</option></select></label><label>비밀번호 (12자 이상)<input name="password" type="password" autocomplete="new-password"></label><label>담당 작업번호 (쉼표 구분)<input name="assignments" placeholder="WO001-01, WO001-02"></label><label>활성<input type="checkbox" name="active" checked></label><button class="btn accent" type="submit">저장</button><button class="btn" type="button" id="user-clear">입력 초기화</button></form><p class="hint">수정 시 비밀번호를 비워두면 기존 비밀번호가 유지됩니다.</p><p id="user-msg" role="status"></p></div></section>
       <section class="card"><header class="card-h"><h2>감사 이력</h2><span class="hint">최근 200건</span></header><div class="settings-body"><form id="audit-filter"><label>수행자 ID<input name="actor" value="${esc(auditFilter.actor||'')}"></label><label>작업<input name="action" value="${esc(auditFilter.action||'')}"></label><label>대상<input name="target" value="${esc(auditFilter.target||'')}"></label><label>시작일<input type="date" name="fromDate" value="${esc(auditFilter.fromDate||'')}"></label><label>종료일<input type="date" name="toDate" value="${esc(auditFilter.toDate||'')}"></label><button class="btn" type="submit">조회</button></form></div><div class="tbl-wrap"><table class="tbl"><thead><tr><th>시각</th><th>수행자 ID</th><th>작업</th><th>대상</th><th>변경 내용</th></tr></thead><tbody>${audits.map(a=>`<tr><td>${esc(a.at)}</td><td>${esc(a.actor)}</td><td>${esc(a.action)}</td><td>${esc(a.target)} ${esc(a.targetId)}</td><td><details><summary>보기</summary><pre>${esc(JSON.stringify({before:a.before,after:a.after},null,2))}</pre></details></td></tr>`).join('')||'<tr><td colspan="5">기록 없음</td></tr>'}</tbody></table></div></section>`;
@@ -1372,7 +1410,8 @@ function render(){
   if(route.page!=='detail')document.title=`조선 AX · ${{home:'운영현황',query:'조회',summary:'운영요약',upload:'데이터 업로드',login:'로그인',settings:'설정',work:'담당 입력'}[route.page]}`;
 }
 
-$('#file').onchange=e=>{const f=e.target.files[0];if(f)handleFile(f);e.target.value=''};
+$('#file').onchange=e=>{const files=[...e.target.files];if(files.length===1)handleFile(files[0]);else if(files.length)handleBatch(files);e.target.value=''};
+$('#folder-file').onchange=e=>{if(e.target.files.length)handleBatch(e.target.files);e.target.value=''};
 window.addEventListener('hashchange',()=>{route=parseRoute();render();window.scrollTo(0,0)});
 
 document.addEventListener('click',e=>{
