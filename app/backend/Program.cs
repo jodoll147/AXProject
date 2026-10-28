@@ -249,12 +249,12 @@ app.MapPost("/api/data/restore-sample", (HttpContext ctx) =>
     }
     return Results.Ok(new { restored = true });
 });
-IResult Upload(HttpContext ctx, UploadRequest request, string? replaceId = null)
+IResult Upload(HttpContext ctx, UploadRequest request, string? replaceId = null, Dictionary<string, List<Dictionary<string, object?>>>? workingData = null, bool persist = true)
 {
     lock (cacheLock)
     {
         var spec = LoadSpec();
-        if (!spec.TryGetValue(request.Table, out var fields)) return Results.BadRequest(new { errors = new[] { new UploadError(1, "—", "테이블", "알 수 없는 대상 테이블입니다.") } });
+        if (!spec.TryGetValue(request.Table, out var fields)) return Results.BadRequest(new UploadFailure([new UploadError(1, "—", "테이블", "알 수 없는 대상 테이블입니다.")]));
         var errors = new List<UploadError>();
         void Error(int row, string field, string rule, string message) => errors.Add(new UploadError(row, field, rule, message));
         var expected = fields.Select(field => field.Field).ToHashSet();
@@ -263,8 +263,8 @@ IResult Upload(HttpContext ctx, UploadRequest request, string? replaceId = null)
         foreach (var header in request.Headers.GroupBy(x => x).Where(g => g.Count() > 1)) Error(1, header.Key, "헤더", "필드명 중복");
         for (var i=0; i<request.Rows.Count; i++) foreach (var key in request.Rows[i].Keys.Where(k=>!expected.Contains(k))) Error(i+2,key,"필드","명세에 없는 필드");
         if (request.Rows.Count == 0) Error(1, "—", "행", "적재할 데이터 행이 없습니다.");
-        if (errors.Count > 0) return Results.BadRequest(new { errors });
-        var data = LoadData().ToDictionary(item => item.Key, item => item.Value.Select(row => new Dictionary<string, object?>(row)).ToList());
+        if (errors.Count > 0) return Results.BadRequest(new UploadFailure(errors));
+        var data = workingData ?? LoadData().ToDictionary(item => item.Key, item => item.Value.Select(row => new Dictionary<string, object?>(row)).ToList());
         var pk = fields.FirstOrDefault(field => field.Key.Contains("PK", StringComparison.OrdinalIgnoreCase))?.Field;
         var original = data[request.Table].ToList();
         if (replaceId is not null) {
@@ -341,13 +341,76 @@ IResult Upload(HttpContext ctx, UploadRequest request, string? replaceId = null)
           if(request.Table=="production_plan" && Get("work_order_id").Length>0 && (data["production_plan"].Any(p=>p.GetValueOrDefault("work_order_id")?.ToString()==Get("work_order_id")) || request.Rows.Count(r=>r.GetValueOrDefault("work_order_id")?.Trim()==Get("work_order_id"))>1)) Error(row,"work_order_id","식별자","작업지시당 계획은 1건입니다.");
           if(request.Table is "production_plan" or "production_actual" or "work_orders") { var target=request.Table=="work_orders"?"processes":"work_orders";var key=request.Table=="work_orders"?"process_id":"work_order_id";var linked=data[target].FirstOrDefault(x=>x.GetValueOrDefault(key)?.ToString()==Get(key)); if(linked is not null && Get("unit").Length>0 && linked.GetValueOrDefault("unit")?.ToString()!=Get("unit")) Error(row,"unit","단위","연결된 작업 또는 공정의 단위와 다릅니다."); }
         }
-        if (errors.Count > 0) return Results.BadRequest(new { errors });
+        if (request.Table == "production_actual") {
+          // Different identifiers must not duplicate the same observed increment.
+          // Compare equivalent timestamp/quantity representations as values.
+          var seenActuals = new HashSet<(string Work, DateTimeOffset Start, DateTimeOffset End, decimal Qty, string Unit)>();
+          bool ActualTime(object? value, out DateTimeOffset parsed) {
+            var text=value?.ToString() ?? "";
+            if (!Regex.IsMatch(text, @"(?:Z|[+-]\d{2}:\d{2})$", RegexOptions.IgnoreCase)) text += "+09:00";
+            return DateTimeOffset.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsed);
+          }
+          (string, DateTimeOffset, DateTimeOffset, decimal, string)? ActualKey(Dictionary<string, object?> row) {
+            var work = row.GetValueOrDefault("work_order_id")?.ToString()?.Trim();
+            var unit = row.GetValueOrDefault("unit")?.ToString()?.Trim();
+            if (string.IsNullOrEmpty(work) || string.IsNullOrEmpty(unit) ||
+                !ActualTime(row.GetValueOrDefault("period_start_at"), out var start) ||
+                !ActualTime(row.GetValueOrDefault("period_end_at"), out var end) ||
+                !decimal.TryParse(Convert.ToString(row.GetValueOrDefault("accepted_qty_delta"), CultureInfo.InvariantCulture), NumberStyles.Float, CultureInfo.InvariantCulture, out var qty)) return null;
+            return (work, start, end, qty, unit);
+          }
+          foreach (var row in data[request.Table]) { var key = ActualKey(row); if (key.HasValue) seenActuals.Add(key.Value); }
+          for (var index=0; index<converted.Count; index++) { var key=ActualKey(converted[index]); if (key.HasValue && !seenActuals.Add(key.Value)) Error(index+2,"actual_id","중복 실적","같은 작업·집계 구간·수량·단위의 실적이 이미 있습니다."); }
+        }
+        if (errors.Count > 0) return Results.BadRequest(new UploadFailure(errors));
         data[request.Table].AddRange(converted);
-        SaveData(data, Actor(ctx), (replaceId is null ? "upload:" : "update:") + request.Table, original);
+        if (persist) SaveData(data, Actor(ctx), (replaceId is null ? "upload:" : "update:") + request.Table, original);
         return Results.Ok(new { table = request.Table, added = converted.Count, total = data[request.Table].Count, ready = Ready(data) });
     }
 }
 app.MapPost("/api/data/upload", (HttpContext ctx, UploadRequest request) => Upload(ctx, request));
+IResult UploadBatch(HttpContext ctx, BatchRequest batch, bool persist)
+{
+    lock (cacheLock) {
+        if (batch.Files is null || batch.Files.Count == 0 || batch.Files.Count > 100)
+            return Results.BadRequest(new { message = "CSV 파일을 1~100개 선택하세요." });
+        if (batch.Files.Any(f => f is null || string.IsNullOrWhiteSpace(f.Name) || f.Headers is null || f.Rows is null || !tables.Contains(f.Table)))
+            return Results.BadRequest(new { message = "파일명, 테이블, 헤더 및 행을 확인하세요." });
+        var spec = LoadSpec();
+        var allErrors = new List<BatchUploadError>();
+        foreach (var file in batch.Files) {
+            var expected=spec[file.Table].Select(x=>x.Field).ToHashSet();
+            foreach (var h in expected.Where(x=>!file.Headers.Contains(x))) allErrors.Add(new(file.Name,file.Table,1,h,"헤더","필드 없음"));
+            foreach (var h in file.Headers.Where(x=>!expected.Contains(x))) allErrors.Add(new(file.Name,file.Table,1,h,"헤더","명세에 없는 필드"));
+            foreach (var h in file.Headers.GroupBy(x=>x).Where(g=>g.Count()>1)) allErrors.Add(new(file.Name,file.Table,1,h.Key,"헤더","필드명 중복"));
+            if(file.Rows.Count==0) allErrors.Add(new(file.Name,file.Table,1,"—","행","적재할 데이터 행이 없습니다."));
+        }
+        if(allErrors.Count>0)return Results.BadRequest(new { errors=allErrors });
+        var data=LoadData().ToDictionary(x=>x.Key,x=>x.Value.Select(r=>new Dictionary<string,object?>(r)).ToList());
+        var before=data.ToDictionary(x=>x.Key,x=>x.Value.ToList());
+        var order=new[]{"vessels","zones","processes","equipment","blocks","status_codes","work_orders","production_plan","production_actual","incidents","equipment_intervals","work_history","inspections","rework","equipment_snapshot"};
+        var results=new List<object>();
+        foreach(var table in order) {
+            var files=batch.Files.Where(f=>f.Table==table).ToList(); if(files.Count==0)continue;
+            var rows=files.SelectMany(f=>f.Rows).ToList();
+            var rowOwners=files.SelectMany(f=>f.Rows.Select((_,i)=>(f.Name,Row:i+2))).ToList();
+            var request=new UploadRequest(table,files[0].Headers,rows);
+            var result=Upload(ctx,request,workingData:data,persist:false);
+            if(result is Microsoft.AspNetCore.Http.IStatusCodeHttpResult status && status.StatusCode>=400) {
+                var failure=(result as Microsoft.AspNetCore.Http.IValueHttpResult)?.Value as UploadFailure;
+                foreach(var error in failure?.Errors ?? [new UploadError(1,"—","서버","검증 요청이 거부되었습니다.")]) {
+                    var owner=error.Row>=2 && error.Row-2<rowOwners.Count ? rowOwners[error.Row-2] : (files[0].Name,1);
+                    allErrors.Add(new(owner.Item1,table,owner.Item2,error.Field,error.Rule,error.Msg));
+                }
+            } else results.Add(new { table, files=files.Count, added=rows.Count });
+        }
+        if(allErrors.Count>0)return Results.BadRequest(new { errors=allErrors });
+        if(persist)SaveData(data,Actor(ctx),"upload:batch",before);
+        return Results.Ok(new { files=batch.Files.Count, results, ready=Ready(data), saved=persist });
+    }
+}
+app.MapPost("/api/data/batch/validate", (HttpContext ctx, BatchRequest batch) => UploadBatch(ctx,batch,false));
+app.MapPost("/api/data/batch", (HttpContext ctx, BatchRequest batch) => UploadBatch(ctx,batch,true));
 app.MapPost("/api/work/entry", (HttpContext ctx, WorkEntryRequest req) => {
     var user=(Account)ctx.Items["account"]!;
     if(req.Table is not ("production_actual" or "incidents") || req.Row is null) return Results.BadRequest(new { message="실적 또는 사건만 등록할 수 있습니다." });
@@ -364,3 +427,7 @@ app.Run();
 record FieldSpec(string Field, string Label, string Type, bool Required, string Key);
 record UploadRequest(string Table, List<string> Headers, List<Dictionary<string, string>> Rows);
 record UploadError(int Row, string Field, string Rule, string Msg);
+record UploadFailure(List<UploadError> Errors);
+record BatchFile(string Name, string Table, List<string> Headers, List<Dictionary<string,string>> Rows);
+record BatchRequest(List<BatchFile> Files);
+record BatchUploadError(string File, string Table, int Row, string Field, string Rule, string Msg);
