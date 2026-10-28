@@ -1,5 +1,5 @@
 function settingsMode(){return new URLSearchParams(location.hash.split('?')[1]||'').get('tab')||'accounts'}
-function settingsNavigation(selected){return `<nav class="layout-tabs" aria-label="Settings 메뉴">${[['accounts','역할·계정 관리'],['audit','감사이력'],['layout','공정 배치도 수정']].map(([key,label])=>`<a href="#/settings?tab=${key}" class="${key===selected?'on':''}" ${key===selected?'aria-current="page"':''}>${label}</a>`).join('')}</nav>`}
+function settingsNavigation(selected){return `<nav class="layout-tabs" aria-label="설정 메뉴">${[['accounts','역할·계정 관리'],['audit','감사이력'],['layout','공정 배치도 수정']].map(([key,label])=>`<a href="#/settings?tab=${key}" class="${key===selected?'on':''}" ${key===selected?'aria-current="page"':''}>${label}</a>`).join('')}</nav>`}
 const renderOriginalSettings=renderSettings;
 renderSettings=async function(){
   const root=$('#pg-settings');root.classList.remove('layout-settings-view');
