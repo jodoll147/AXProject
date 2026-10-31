@@ -1,0 +1,18 @@
+.git
+**/node_modules
+**/bin
+**/obj
+**/dist
+**/data-protection-keys
+**/app-state.json*
+**/local-data.json*
+**/.env
+**/.env.*
+!**/.env.example
+**/*.log
+**/*.zip
+**/*.xlsx
+**/*.xls
+docs
+outputs
+엑셀 파일

@@ -122,6 +122,10 @@ bool Ready(Dictionary<string, List<Dictionary<string, object?>>> data)
     return data["blocks"].All(block => data["processes"].All(process => orders.Contains($"{block.GetValueOrDefault("block_id")}|{process.GetValueOrDefault("process_id")}")));
 }
 
+// Serve the production frontend from the same origin as the API.
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.UseRouting();
 app.UseAuthentication();
 app.UseRateLimiter();
