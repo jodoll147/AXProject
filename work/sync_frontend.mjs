@@ -26,9 +26,10 @@ if(!CURRENT_USER){document.querySelectorAll('.page').forEach(p=>p.classList.remo
 document.querySelector('#account-link').textContent=CURRENT_USER.name+' · 로그아웃';
 document.querySelector('#account-link').onclick=async e=>{e.preventDefault();await fetch('/api/auth/logout',{method:'POST'});location.hash='#/login';location.reload()};
 const [dataResponse, specResponse, statusResponse] = await Promise.all([fetch('/api/data'), fetch('/api/spec'), fetch('/api/data/status')]);
-if (!dataResponse.ok || !specResponse.ok || !statusResponse.ok) throw new Error('데이터 API 응답을 확인하세요.');
+if (!dataResponse.ok || (!specResponse.ok && specResponse.status !== 404) || !statusResponse.ok) throw new Error('데이터 API 응답을 확인하세요.');
 const loadedData = await dataResponse.json();
-const SPEC = await specResponse.json();
+const SPEC_AVAILABLE = specResponse.ok;
+const SPEC = SPEC_AVAILABLE ? await specResponse.json() : {};
 const DATA_STATUS = await statusResponse.json();
 const VALIDATION_DATA = loadedData;
 const D = DATA_STATUS.ready ? loadedData : Object.fromEntries(Object.keys(loadedData).map(table => [table, []]));`
@@ -41,3 +42,4 @@ const html = template.replace(source, dataLoader).replace('</script>', errorHand
 const target = resolve(root, 'app/frontend/index.html')
 writeFileSync(target, html)
 console.log(`Updated ${target}`)
+

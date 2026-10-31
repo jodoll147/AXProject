@@ -43,7 +43,7 @@ Dictionary<string, List<Dictionary<string, object?>>> LoadData()
         var snapshot = store.Read(s => (s.Data, s.Mode));
         if (snapshot.Data is not null) return tables.ToDictionary(table => table, table => snapshot.Data.GetValueOrDefault(table) ?? []);
         var source = snapshot.Mode == "legacy" && File.Exists(localDataPath) ? localDataPath : workbookPath;
-        if (!File.Exists(source)) throw new FileNotFoundException("데이터 파일을 찾을 수 없습니다.", source);
+        if (!File.Exists(source)) return tables.ToDictionary(table => table, _ => new List<Dictionary<string, object?>>());
         var write = File.GetLastWriteTimeUtc(source);
         if (cached is not null && write == cachedWrite && source == cachedSource) return cached;
         if (source == localDataPath)
@@ -216,16 +216,16 @@ app.MapGet("/api/health", () =>
 {
     var data = LoadData();
     var asOf = data["equipment_snapshot"].Select(row => row.GetValueOrDefault("as_of")?.ToString()).Max();
-    return Results.Ok(new { status = "ok", source = store.Read(s => s.Data is not null ? "app-state.json" : s.Mode == "legacy" && File.Exists(localDataPath) ? "local-data.json" : Path.GetFileName(workbookPath)), asOf, tables = data.ToDictionary(item => item.Key, item => item.Value.Count) });
+    return Results.Ok(new { status = "ok", source = store.Read(s => s.Data is not null ? "app-state.json" : s.Mode == "legacy" && File.Exists(localDataPath) ? "local-data.json" : File.Exists(workbookPath) ? Path.GetFileName(workbookPath) : "empty"), asOf, tables = data.ToDictionary(item => item.Key, item => item.Value.Count) });
 });
 
 app.MapGet("/api/data", () => Results.Ok(LoadData()));
 app.MapGet("/api/data/status", () =>
 {
     var data = LoadData();
-    return Results.Ok(new { mode = store.Read(s => s.Data is not null || s.Mode == "legacy" && File.Exists(localDataPath) ? "local" : "sample"), ready = Ready(data), requiredTables, counts = data.ToDictionary(item => item.Key, item => item.Value.Count) });
+    return Results.Ok(new { mode = store.Read(s => s.Data is not null || s.Mode == "legacy" && File.Exists(localDataPath) ? "local" : File.Exists(workbookPath) ? "sample" : "empty"), ready = Ready(data), requiredTables, counts = data.ToDictionary(item => item.Key, item => item.Value.Count) });
 });
-app.MapGet("/api/spec", () => Results.Ok(LoadSpec()));
+app.MapGet("/api/spec", () => File.Exists(specificationPath) ? Results.Ok(LoadSpec()) : Results.NotFound(new { message = "항목 명세 파일이 없습니다." }));
 app.MapPost("/api/data/reset", (HttpContext ctx) =>
 {
     lock (cacheLock)
@@ -431,3 +431,4 @@ record UploadFailure(List<UploadError> Errors);
 record BatchFile(string Name, string Table, List<string> Headers, List<Dictionary<string,string>> Rows);
 record BatchRequest(List<BatchFile> Files);
 record BatchUploadError(string File, string Table, int Row, string Field, string Rule, string Msg);
+

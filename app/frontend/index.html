@@ -745,9 +745,10 @@ if(!CURRENT_USER){document.querySelectorAll('.page').forEach(p=>p.classList.remo
 document.querySelector('#account-link').textContent=CURRENT_USER.name+' · 로그아웃';
 document.querySelector('#account-link').onclick=async e=>{e.preventDefault();await fetch('/api/auth/logout',{method:'POST'});location.hash='#/login';location.reload()};
 const [dataResponse, specResponse, statusResponse] = await Promise.all([fetch('/api/data'), fetch('/api/spec'), fetch('/api/data/status')]);
-if (!dataResponse.ok || !specResponse.ok || !statusResponse.ok) throw new Error('데이터 API 응답을 확인하세요.');
+if (!dataResponse.ok || (!specResponse.ok && specResponse.status !== 404) || !statusResponse.ok) throw new Error('데이터 API 응답을 확인하세요.');
 const loadedData = await dataResponse.json();
-const SPEC = await specResponse.json();
+const SPEC_AVAILABLE = specResponse.ok;
+const SPEC = SPEC_AVAILABLE ? await specResponse.json() : {};
 const DATA_STATUS = await statusResponse.json();
 const VALIDATION_DATA = loadedData;
 const D = DATA_STATUS.ready ? loadedData : Object.fromEntries(Object.keys(loadedData).map(table => [table, []]));
@@ -1366,6 +1367,7 @@ const SAMPLES={
 function download(name,text){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/csv;charset=utf-8'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
 
 function renderUpload(){
+  if (typeof SPEC_AVAILABLE !== "undefined" && !SPEC_AVAILABLE) { $("#pg-upload").innerHTML = '<div class="empty">데이터 업로드를 사용하려면 엑셀 파일 폴더에 01_조선_데이터참고명세서.xlsx를 넣고 새로고침하세요.</div>'; return; }
   const admin=role==='admin',r=lastResult;
   const p=pendingUpload,preview=p?`<section class="card upload-preview" id="upload-preview"><header class="card-h"><h2>${ic('list')}CSV 미리보기 · 셀 검증</h2><span class="hint">${esc(p.name)} · ${p.rows.length?Math.max(0,p.rows.length-1):0}행</span></header>
     <p style="margin:0 0 12px;color:var(--text-2);font-size:12.5px">초록색 셀은 정상, 빨간색 셀은 수정이 필요합니다. 셀에 마우스를 올리면 오류 이유를 볼 수 있습니다. 선택만으로는 데이터가 저장되지 않습니다.</p>
@@ -1483,6 +1485,7 @@ async function renderSettings(){
   }catch(e){root.innerHTML=`<div class="empty">${esc(e.message)}</div>`}
 }
 function renderWork(){
+  if (typeof SPEC_AVAILABLE !== "undefined" && !SPEC_AVAILABLE) { $("#pg-work").innerHTML = '<div class="empty">담당 입력을 사용하려면 항목 명세 엑셀 파일을 준비해 주세요.</div>'; return; }
   const root=$('#pg-work');if(!CURRENT_PERMISSIONS.includes('work')){root.innerHTML='<div class="empty">담당 입력 권한이 없습니다.</div>';return}
   root.innerHTML=`<div class="vhead"><div><h2>담당 실적·사건 입력</h2><p>관리자가 배정한 작업에만 입력할 수 있습니다.</p></div></div><section class="card"><div class="settings-body"><div class="work-selectors"><label><span>입력 종류</span><select id="work-table"><option value="production_actual">생산 실적</option><option value="incidents">사건</option></select></label><label><span>기존 기록 선택</span><select id="work-existing"></select></label></div><form id="work-form"></form><p id="work-msg" role="status"></p></div></section>`;
   const table=$('#work-table'),form=$('#work-form'),existing=$('#work-existing');const draw=()=>{const key=table.value==='production_actual'?'actual_id':'incident_id',rows=D[table.value].filter(r=>CURRENT_USER.role==='ADMIN'||CURRENT_USER.assignments.includes(r.work_order_id));existing.innerHTML='<option value="">새 기록</option>'+rows.map(r=>`<option value="${esc(r[key])}">${esc(r[key])} · ${esc(r.work_order_id)}</option>`).join('');form.innerHTML=SPEC[table.value].map(s=>`<label>${esc(s.label)}${s.required?' *':''}<input name="${esc(s.field)}" ${s.required?'required':''} placeholder="${esc(s.field)}"></label>`).join('')+'<button class="btn accent" type="submit">저장</button>';existing.onchange=()=>{const item=rows.find(r=>String(r[key])===existing.value);form.reset();if(item)for(const field of SPEC[table.value]){let value=item[field.field]??'';if(TIME_KEYS.includes(field.field)&&typeof value==='number')value=new Date(value+9*36e5).toISOString().slice(0,19)+'+09:00';form.elements.namedItem(field.field).value=value}}};table.onchange=draw;draw();
@@ -1692,3 +1695,4 @@ route=parseRoute();render();
 </script>
 </body>
 </html>
+
