@@ -743,7 +743,18 @@ const loginPage=document.querySelector('[data-pg="login"]');
 document.querySelector('#login-form').onsubmit=async e=>{e.preventDefault();const message=document.querySelector('#login-message');message.textContent='';try{const response=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({login:document.querySelector('#login-id').value,password:document.querySelector('#login-password').value})});if(!response.ok){message.textContent=response.status===429?'로그인 시도가 너무 많습니다. 잠시 후 다시 시도하세요.':'아이디 또는 비밀번호가 올바르지 않습니다.';return}location.hash='#/';location.reload()}catch{message.textContent='서버 연결을 확인하세요.'}};
 if(!CURRENT_USER){document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));loginPage.classList.add('on');document.querySelector('#login-message').textContent=session.initialized?'로그인 후 사용할 수 있습니다.':'관리자 계정이 설정되지 않았습니다. 서버 초기 설정을 확인하세요.';return;}
 document.querySelector('#account-link').textContent=CURRENT_USER.name+' · 로그아웃';
-document.querySelector('#account-link').onclick=async e=>{e.preventDefault();await fetch('/api/auth/logout',{method:'POST'});location.hash='#/login';location.reload()};
+let loggingOut=false;
+document.querySelector('#account-link').onclick=async e=>{
+  e.preventDefault();if(loggingOut)return;
+  const link=e.currentTarget;loggingOut=true;link.setAttribute('aria-disabled','true');
+  try{
+    const response=await fetch('/api/auth/logout',{method:'POST'});
+    if(!response.ok)throw new Error('로그아웃 요청 실패');
+    location.hash='#/login';location.reload();
+  }catch{
+    alert('로그아웃하지 못했습니다. 서버 연결을 확인하고 다시 시도하세요.');
+  }finally{loggingOut=false;link.removeAttribute('aria-disabled');}
+};
 const [dataResponse, specResponse, statusResponse] = await Promise.all([fetch('/api/data'), fetch('/api/spec'), fetch('/api/data/status')]);
 if (!dataResponse.ok || (!specResponse.ok && specResponse.status !== 404) || !statusResponse.ok) throw new Error('데이터 API 응답을 확인하세요.');
 const loadedData = await dataResponse.json();
@@ -874,7 +885,7 @@ function issueCard(s){
 
 function renderChrome(){
   const tabs=[['home','운영현황','board','#/'],['query','조회','list','#/query'],['settings','설정','users','#/settings'],...(CURRENT_PERMISSIONS.includes('work')?[['work','담당 입력','edit','#/work']]:[])];
-  const active=['home','query'].includes(route.page)?route.page:route.page==='detail'?'query':'';
+  const active=route.page==='detail'?'query':route.page;
   $('#tabs').innerHTML=tabs.map(([k,l,i,h])=>`<a href="${h}" class="${active===k?'on':''}">${ic(i)}${l}</a>`).join('');
   document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.dataset.pg===route.page));
 
@@ -1320,7 +1331,7 @@ async function submitBatch(save){
     const response=await fetch(save?'/api/data/batch':'/api/data/batch/validate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({files:batch.files})});
     const result=await response.json().catch(()=>({}));
     if(!response.ok){batch.validated=false;batch.errors=result.errors||[{file:'—',row:0,field:'—',rule:'서버',msg:result.message||'검증 요청이 거부되었습니다.'}];return}
-    if(save){const n=batch.files.reduce((sum,f)=>sum+f.rows.length,0);lastResult={name:`폴더/다중 CSV ${batch.files.length}개`,table:'여러 테이블',n,at:new Date(),hash:null,errs:[],applied:true};uploads.unshift(lastResult);sessionStorage.setItem('ax-upload-history',JSON.stringify(uploads));location.reload();return}
+    if(save){const n=batch.files.reduce((sum,f)=>sum+f.rows.length,0);lastResult={name:`폴더/다중 CSV ${batch.files.length}개`,table:'여러 테이블',n,at:new Date(),hash:null,errs:[],applied:true};uploads.unshift(lastResult);try{sessionStorage.setItem('ax-upload-history',JSON.stringify(uploads))}catch{}location.reload();return}
     batch.validated=true;
   }catch{batch.validated=false;batch.errors=[{file:'—',row:0,field:'—',rule:'서버 연결',msg:'서버에 연결하지 못했습니다.'}]}
   finally{batch.busy=false;if(route.page==='upload'&&pendingBatch===batch)renderUpload()}
@@ -1352,7 +1363,7 @@ async function confirmUpload(){
     const result=await response.json();
     if(!response.ok){p.serverErrors=(result.errors||[]).map(e=>({row:e.row,field:e.field,rule:e.rule,msg:e.msg}));if(!p.serverErrors.length)p.serverErrors=[{row:0,field:'—',rule:'서버',msg:'업로드 요청이 거부되었습니다.'}];refreshPendingValidation();return}
     lastResult={name:p.name,at:new Date(),hash:await sha(csvOf(p.result.table,records)),...p.result,applied:true};
-    uploads.unshift(lastResult);sessionStorage.setItem('ax-upload-history',JSON.stringify(uploads));location.reload();
+    uploads.unshift(lastResult);try{sessionStorage.setItem('ax-upload-history',JSON.stringify(uploads))}catch{}location.reload();
   }catch(error){p.serverErrors=[{row:0,field:'—',rule:'서버',msg:error.message||'저장 요청 실패'}];refreshPendingValidation()}
   finally{p.saving=false;refreshPendingValidation()}
 }

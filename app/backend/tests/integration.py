@@ -31,9 +31,13 @@ before=len(data['production_actual']);status,result=a.post('/api/data/upload',{'
 users=a.get('/api/admin/users')[1]; admin=next(x for x in users if x['login']=='test-admin'); viewer=next(x for x in users if x['login']=='test-viewer')
 status,_=a.post('/api/admin/users/'+admin['id'],{'login':admin['login'],'name':admin['name'],'role':'VIEWER','password':'','active':True,'assignments':[]});check(status==400,'last admin protection')
 status,_=a.post('/api/admin/users/'+viewer['id'],{'login':viewer['login'],'name':viewer['name'],'role':'WORKER','password':'','active':True,'assignments':[work]});check(status==200,'role change');check(v.get('/api/data')[0]==401,'role change invalidates session')
+check(v.post('/api/auth/logout')[0]==200,'revoked session can clear cookie');check(v.get('/api/auth/me')[1]['user'] is None,'logout removes revoked session');check(Session().post('/api/auth/logout',header=False)[0]==400,'logout requires CSRF header')
 check(v.post('/api/auth/login',{'login':'test-viewer','password':'test-only-password-1234'})[0]==200,'relogin after role change');check(v.get('/api/admin/users')[0]==403,'worker cannot manage roles')
 status,items=a.get('/api/admin/audit?action=update');check(status==200 and any(x['action']=='update' for x in items),'audit filter')
 status,_=a.post('/api/admin/permissions',{'permissions':{'VIEWER':['read'],'WORKER':['read']}});check(status==200,'disable work permission');check(w.post('/api/work/entry',{'table':'incidents','row':{'work_order_id':work}})[0]==403,'revoked work permission');status,_=a.post('/api/admin/permissions',{'permissions':{'VIEWER':['read'],'WORKER':['read','work']}});check(status==200,'restore work permission')
+check(v.post('/api/auth/logout')[0]==200,'logout succeeds');check(v.get('/api/data')[0]==401,'logged out data denied');check(v.post('/api/auth/logout')[0]==200,'logout is idempotent')
+with a.o.open(B+'/api/auth/me') as response: check(response.headers.get('Cache-Control')=='no-store','session response must not be cached')
+print('PASS: revoked-session logout, CSRF, idempotent logout, session cache policy')
 last=0
 for i in range(12): last=Session().post('/api/auth/login',{'login':'invalid','password':'invalid'})[0]
 check(last==429,'login rate limit');print('PASS: last admin, session invalidation, audit filter, rate limiting')

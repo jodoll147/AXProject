@@ -128,8 +128,9 @@ app.UseRateLimiter();
 app.Use(async (ctx, next) => {
     if (!ctx.Request.Path.StartsWithSegments("/api")) { await next(); return; }
     var path = ctx.Request.Path.Value ?? "";
+    if (ctx.Request.Path.StartsWithSegments("/api/auth")) ctx.Response.Headers.CacheControl = "no-store";
     if (!HttpMethods.IsGet(ctx.Request.Method) && ctx.Request.Headers["X-Requested-With"] != "AXProject") { ctx.Response.StatusCode = 400; return; }
-    if (path is "/api/health" or "/api/auth/login" or "/api/auth/me") { await next(); return; }
+    if (path is "/api/health" or "/api/auth/login" or "/api/auth/me" or "/api/auth/logout") { await next(); return; }
     var id = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier);
     var user = id is null ? null : store.Read(s => s.Users.FirstOrDefault(u => u.Id == id && u.Active));
     if (user is null || ctx.User.FindFirstValue("session_version") != user.SessionVersion.ToString(CultureInfo.InvariantCulture)) { ctx.Response.StatusCode = 401; return; }

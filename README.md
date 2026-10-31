@@ -36,6 +36,12 @@ pnpm dev --host 127.0.0.1
 
 브라우저에서 `http://127.0.0.1:5173/`을 엽니다. Vite가 `/api` 요청을 C# 서버로 전달합니다.
 
+## 배포 시 확인
+
+GitHub `main`에 push한 것과 운영 사이트에 배포한 것은 별개입니다. 운영 화면은 `work/screen_template.html`과 `work/sync_frontend.mjs`로 생성하고 `pnpm build`로 빌드합니다. `app/frontend/src/App.jsx`는 현재 진입 화면이 아닙니다.
+
+운영 환경에서도 `/api` 요청이 ASP.NET Core 백엔드로 전달되어야 합니다. Vite의 `server.proxy`는 개발 서버에만 적용됩니다. 정적 빌드만 호스팅하면 로그인·로그아웃·권한·CSV 저장 API가 함께 배포되지 않습니다. 배포 후 `/api/auth/me`가 HTML 대신 세션 JSON을 반환하는지, 관리자 로그인 후 설정·로그아웃과 CSV 서버 검증·저장이 동작하는지 확인해야 합니다. 실제 계정과 데이터 파일은 소스 저장소나 정적 배포 파일에 넣지 않습니다.
+
 ## 데이터와 API
 
 `엑셀 파일/01_조선_데이터참고명세서.xlsx`와 `엑셀 파일/02_조선_샘플데이터.xlsx`는 Git에 포함되지 않습니다. 로컬 실행 전에 해당 파일을 별도로 준비해야 합니다. 목업 엑셀, 변환 CSV, ZIP도 Git에 포함하지 않습니다.
