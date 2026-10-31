@@ -22,6 +22,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app/app/backend
 COPY --from=backend /publish/ ./
 COPY --from=frontend /source/app/frontend/dist/ ./wwwroot/
+COPY work/start_render.sh ./start-render.sh
 RUN mkdir -p /var/lib/ax/keys && chown -R "$APP_UID":"$APP_UID" /var/lib/ax
 ENV ASPNETCORE_URLS=http://+:8080 \
     AX_STATE_PATH=/var/lib/ax/app-state.json \
@@ -29,4 +30,4 @@ ENV ASPNETCORE_URLS=http://+:8080 \
 VOLUME ["/var/lib/ax"]
 USER $APP_UID
 EXPOSE 8080
-ENTRYPOINT ["dotnet", "AxBackend.dll"]
+ENTRYPOINT ["/bin/sh", "./start-render.sh"]
