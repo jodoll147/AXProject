@@ -29,6 +29,8 @@ var statePath = Environment.GetEnvironmentVariable("AX_STATE_PATH") ?? Path.Comb
 var store = new AppStore(Path.GetFullPath(statePath));
 store.Bootstrap(Environment.GetEnvironmentVariable("AX_ADMIN_LOGIN"), Environment.GetEnvironmentVariable("AX_ADMIN_PASSWORD"),
     app.Environment.IsDevelopment() && Environment.GetEnvironmentVariable("AX_ALLOW_SHORT_DEV_ADMIN_PASSWORD") == "1");
+if (Environment.GetEnvironmentVariable("AX_DEMO_MODE") == "1")
+    store.AddDemoAdministrator(Environment.GetEnvironmentVariable("AX_DEMO_ADMIN_LOGIN"), Environment.GetEnvironmentVariable("AX_DEMO_ADMIN_PASSWORD"));
 var tables = new[] { "vessels", "zones", "processes", "equipment", "blocks", "status_codes", "work_orders", "production_plan", "production_actual", "equipment_intervals", "incidents", "work_history", "inspections", "rework", "equipment_snapshot" };
 var requiredTables = new[] { "vessels", "zones", "processes", "equipment", "blocks", "status_codes", "work_orders", "production_plan", "equipment_snapshot" };
 var cacheLock = new object();

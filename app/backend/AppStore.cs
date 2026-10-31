@@ -39,6 +39,19 @@ sealed class AppStore
         if (password.Length < 12 && !allowShortDevelopmentPassword) throw new InvalidOperationException("최초 관리자 비밀번호는 12자 이상이어야 합니다.");
         Change(s => { if (s.Users.Count != 0) return 0; var a = new Account { Id = Guid.NewGuid().ToString("N"), Login = login.Trim(), Name = "관리자", Role = "ADMIN" }; a.PasswordHash = Hash(a, password); s.Users.Add(a); Audit(s, a.Id, "bootstrap", "user", a.Id, null, new { a.Id, a.Login, a.Name, a.Role }); return 0; });
     }
+    public void AddDemoAdministrator(string? login, string? password)
+    {
+        if (string.IsNullOrWhiteSpace(login) || string.IsNullOrEmpty(password)) return;
+        login = login.Trim();
+        Change(s => {
+            if (s.Users.Any(u => string.Equals(u.Login, login, StringComparison.OrdinalIgnoreCase))) return 0;
+            var account = new Account { Id = Guid.NewGuid().ToString("N"), Login = login, Name = "데모 관리자", Role = "ADMIN" };
+            account.PasswordHash = Hash(account, password);
+            s.Users.Add(account);
+            Audit(s, account.Id, "demo:bootstrap", "user", account.Id, null, new { account.Id, account.Login, account.Name, account.Role });
+            return 0;
+        });
+    }
     public static void Audit(State s, string actor, string action, string table, string id, object? before, object? after) => s.Audits.Add(new AuditEntry { Id = Guid.NewGuid().ToString("N"), At = DateTimeOffset.UtcNow, Actor = actor, Action = action, Target = table, TargetId = id, Before = before, After = after });
 }
 sealed class State
